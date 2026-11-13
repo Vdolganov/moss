@@ -1,0 +1,104 @@
+{
+  "experiment": "granular-v1",
+  "verified_on": "2026-11-13",
+  "base_commit": "73aa92bad09285152f7ad2e2996719a02fdb1afc",
+  "scope": "isolated DSP and real SDL audio/display rig, not integrated with the editor or SONG transport",
+  "platform": {
+    "device": "original Anbernic RG35XX",
+    "os": "GarlicOS 1.4.9",
+    "cpu_khz": 1008000,
+    "governor": "performance",
+    "rate": 32000,
+    "buffer_frames": 1024,
+    "audio_deadline_us": 32000,
+    "callback_gap_threshold_us": 48000
+  },
+  "selected_grains_per_track": 8,
+  "live_final": {
+    "cases": 4,
+    "measured_seconds": 780,
+    "callbacks": 24379,
+    "worst_buffer_us": 26601,
+    "over_budget": 0,
+    "late_intervals": 0,
+    "ui_slow_frames": 0,
+    "capture_saved": 50,
+    "capture_errors": 0
+  },
+  "rejected_settings": {
+    "32": "Overruns even with mixed source rates and +/-24 pitch.",
+    "16": "96 kHz stereo / total +48 pitch overruns.",
+    "12": "No misses in the short probe, but peak 31997.916 us leaves no integration margin."
+  },
+  "binaries_sha256": {
+    "initial_headless": "0407e1868efde4d6d8bee59383fafe7f741bca3fa2f72c3311d3239850da161e",
+    "initial_live_16": "a2fc8627f2246009b59b46b8d05133be0a746e475d16ec54931922f5e9654200",
+    "extended_headless_and_parity": "33f3dcb5b2202ba716f40028b4e9a38a35f62266ec33c4524fb14f38123d963c",
+    "final_live_8": "ce990c066f466e792524411a7ac6de70aa03b08b80fb6d24aad67f5808c8fc8c",
+    "final_arm_unit": "152c4add1a6f1aac848e1fddcd58bc2816933317acfbfb0ebf7c0257edab98d3",
+    "final_windows_unit": "b346f213ae8c5851fdb7ae359eabaee595bf06ec14b93a289bca4c9f0fc338e5"
+  },
+  "binary_mapping": {
+    "initial_headless": [
+      "headless-initial.jsonl"
+    ],
+    "initial_live_16": [
+      "live-16-10-0.json",
+      "live-16-3-0.json",
+      "live-16-10-1.json",
+      "live-16-10-2.json"
+    ],
+    "extended_headless_and_parity": [
+      "headless-extreme.jsonl",
+      "headless-capacity.jsonl",
+      "headless-parity.json"
+    ],
+    "final_live_8": [
+      "live-8-10-3.json",
+      "live-8-3-3.json",
+      "live-8-10-1.json",
+      "live-8-10-2.json"
+    ]
+  },
+  "source_sha256": {
+    "native/prototype/src/granular.h": "9045f8c45bd37fc5db486e97dee73593cd48f5b4d88fc81280232e07a68d5867",
+    "native/prototype/tests/granular_audio.cpp": "4c816f800b1162678b80df051b0d459bdeb6834df5d5d5389763d1ea1d812510",
+    "native/prototype/tests/granular_benchmark.cpp": "a1b1ff757ce1196d0c8cb2ed2d00f811e5afa017662445250504c263abb9c648",
+    "native/prototype/tests/granular_device.cpp": "3007c7308753b1ac8d5717079131a84853aafe11fa37a08e1a1e3d25dd9e3ef6",
+    "native/prototype/tests/granular_harness.h": "9af1eac5970b6b376de5673a66b2d2a73a98a839b88b69127391da9e3442903b",
+    "native/prototype/tests/granular_test.cpp": "d1e66e63f9c7614eafe51384a69d1dbe852c95cb706870fac2236d6277910366",
+    "native/prototype/scripts/granular-device.sh": "d2098d3a40f52f905546d39e8ff25288b39839294ae3724eeacc3a79099ce149",
+    "native/prototype/scripts/granular-headless.sh": "46d4b014495770f17661ef2475e15834cc647364bcb02eea82de28b89ebafb89",
+    "native/prototype/scripts/granular.cjs": "803fe9b3b884def295683e17f0d49eaf1f20acad43666168262c3d4ebeb8336e"
+  },
+  "data_sha256": {
+    "headless-initial.jsonl": "9a80f1f00a26ddd1cc11c2cb900907535f8cfa830bab0f31c21f006af09d1521",
+    "headless-extreme.jsonl": "4af604044c48fbe0e1af01d21cd8b019fdcbdd87b1de78e3f54c9401063e52e5",
+    "headless-capacity.jsonl": "69ae07e73add15badb835819cfd4c7196f1809a1b8bce90b487f15b71809f4fd",
+    "headless-parity.json": "1b63c4733c6dcaf4171d9d3a1eb230d1f47f5b7180346f353d4b8ce43101e268",
+    "hardware.txt": "1b51945570e6e483c126ce426153924ead366581da251e7a742aa20521ce45f7",
+    "unit-arm-final.txt": "9b71cf3562ecf07ef0976657138a19a4e0318d524956345a7bf6c92af073d303",
+    "unit-windows.txt": "0574c21fa17c1a2fae2c74598eebd82ffb75de82ae8ef0a64901025e8e3b068f",
+    "live-16-10-0.json": "6ee7276abc18a323f430b9e8a7701f811f413a828b6b56643b7091237666f2ae",
+    "live-16-3-0.json": "02c4f75294c82c4806ceb60dff717bf874b8f74ce598a8705c962898b5dfc923",
+    "live-16-10-1.json": "15703254513c30aca81b7c5eda8927adabe5fad5e37c43b84bf3c74a5e9d36b9",
+    "live-16-10-2.json": "dd40f32d1b1415b5261f463ca43bd250d436cf2c06c633691a038c8c6ae96c63",
+    "live-8-10-3.json": "6c577ad90aea9462d63868c99db39d1587f616fe85c5d7bb10f9b258aa119ad5",
+    "live-8-3-3.json": "b45650126147f6a0490535e3f47c84adbda686f640a97eb834d76696e59dc330",
+    "live-8-10-1.json": "abff7390461d8f5639318364348d90327c7314203920bb3efe586607f4acee42",
+    "live-8-10-2.json": "70b00257f90444668bf440b7ca2e4c3b724ef24b5eb98d01db6d28e4e280283d"
+  },
+  "restoration": {
+    "stable_moss_sha256": "e22b6a3da14a8ae88a4d4db7015ad5760374d96ce78ae6c3bd0bdaaac473c942",
+    "cpu_governor": "interactive",
+    "garlic_menu_running": true,
+    "one_shot_command_removed": true
+  },
+  "limits": [
+    "No driver underrun counter; callback timing and start gaps are measured.",
+    "Stress output is muted after DSP; these are timing tests, not listening tests.",
+    "PCM reservation and SongBank-sized memory are present, but real editor and SONG transitions are not.",
+    "The initial live build did not include UI time in its pass flag; every recorded UI slow-frame count was independently checked as zero."
+  ],
+  "data_encoding": "UTF-8 with normalized LF endings; device field values are unchanged."
+}

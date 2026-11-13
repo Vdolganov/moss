@@ -16,6 +16,8 @@ The current application version is **0.5.2**. Use the native guide for RG35XX an
 
 ## Technical contracts
 
+In development: [granular engine and test rig](GRANULAR-LAB-v1.en.md) · [Русский](GRANULAR-LAB-v1.md). This is a separate experiment, not part of release 0.5.2.
+
 These documents were originally written in English. The complete user guide covers the same user workflows in Russian:
 
 - [0.5.2: sequences, SONG, fine/coarse editing and pages](../design/current/native-v052-interaction.md).
