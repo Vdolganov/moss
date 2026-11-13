@@ -1,0 +1,25 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+work/
+native/tooling/
+hardware lab/build/
+hardware lab/reports/
+__pycache__/
+
+native/prototype/build/
+native/prototype/projects/
+native/prototype/reports/
+
+# Local recordings, imports and generated release archives.
+# Original demo WAVs and test fixtures remain versioned.
+native/prototype/imports/
+native/prototype/captures/
+native/prototype/library/
+releases/**/*.zip
+.env
+.env.*
+!.env.example
+*.pem
+*.key

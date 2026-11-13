@@ -1,0 +1,1205 @@
+[
+  {
+    "title": "01 · Карта MOSS",
+    "subtitle": "Текущая структура браузерного прототипа. Стрелки показывают вложенность и действия, а не аудиосигнал.",
+    "w": 1560,
+    "h": 1050,
+    "nodes": [
+      {
+        "id": "atlas",
+        "title": "ATLAS · проекты",
+        "body": "Создать · SLOW SIGNAL · выбрать сохранённый",
+        "x": 540,
+        "y": 60,
+        "w": 440,
+        "h": 80,
+        "kind": "current"
+      },
+      {
+        "id": "project",
+        "title": "ОТКРЫТЫЙ ПРОЕКТ",
+        "body": "Верхние вкладки GRID / MIX / TAPE",
+        "x": 540,
+        "y": 200,
+        "w": 440,
+        "h": 80,
+        "kind": "current"
+      },
+      {
+        "id": "grid",
+        "title": "GRID",
+        "body": "Обзор дорожек: имя · VOICE · SPACE",
+        "x": 60,
+        "y": 360,
+        "w": 440,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "mix",
+        "title": "MIX",
+        "body": "Микшер · глобальные эффекты · сцены",
+        "x": 560,
+        "y": 360,
+        "w": 440,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "tape",
+        "title": "TAPE",
+        "body": "Ресэмплинг одной дорожки или MASTER",
+        "x": 1060,
+        "y": 360,
+        "w": 440,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "track",
+        "title": "ДОРОЖКА",
+        "body": "PATTERN / VOICE / SPACE\nДобавить, назвать, копировать, удалить",
+        "x": 60,
+        "y": 520,
+        "w": 440,
+        "h": 110,
+        "kind": "current"
+      },
+      {
+        "id": "mixparts",
+        "title": "РАЗДЕЛЫ MIX",
+        "body": "LEVELS: level / pan / mute / solo\nMASTER FX: ORBIT / POND\nSCENES: 4 снимка состояния",
+        "x": 560,
+        "y": 520,
+        "w": 440,
+        "h": 130,
+        "kind": "current"
+      },
+      {
+        "id": "memory",
+        "title": "ЗАХВАТ И ПАМЯТЬ",
+        "body": "Source / length · capture / finish / cancel\nСписок сэмплов · имя · удаление\nASSIGN TO TRACK → SAMPLER",
+        "x": 1060,
+        "y": 520,
+        "w": 440,
+        "h": 130,
+        "kind": "current"
+      },
+      {
+        "id": "manage",
+        "title": "УПРАВЛЕНИЕ ПРОЕКТОМ",
+        "body": "Имя · BPM · тональность\nКопия · экспорт JSON · удаление\nИмпорт создаёт отдельный проект",
+        "x": 60,
+        "y": 770,
+        "w": 440,
+        "h": 125,
+        "kind": "current"
+      },
+      {
+        "id": "persist",
+        "title": "СОХРАНЕНИЕ И ОТМЕНА",
+        "body": "Автосохранение в этом браузере\nJSON переносит проект с памятью\nUndo: до 30 изменений в сессии",
+        "x": 560,
+        "y": 770,
+        "w": 440,
+        "h": 125,
+        "kind": "current"
+      },
+      {
+        "id": "limits",
+        "title": "ГРАНИЦЫ ПРОТОТИПА",
+        "body": "До 8 дорожек · паттерны A–D\n16 / 64 шага · 4 сцены\nНет звука, DSP, микрофона и WAV",
+        "x": 1060,
+        "y": 770,
+        "w": 440,
+        "h": 125,
+        "kind": "current"
+      }
+    ],
+    "edges": [
+      {
+        "a": "atlas",
+        "b": "project",
+        "label": "Открыть / создать",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "project",
+        "b": "grid",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "project",
+        "b": "mix",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "project",
+        "b": "tape",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "grid",
+        "b": "track",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "mix",
+        "b": "mixparts",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "tape",
+        "b": "memory",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      }
+    ]
+  },
+  {
+    "title": "02 · Внутри дорожки",
+    "subtitle": "PATTERN редактирует выбранный шаг. VOICE и SPACE задают базовый звук и эффект всей дорожки.",
+    "w": 1560,
+    "h": 1150,
+    "nodes": [
+      {
+        "id": "track",
+        "title": "ДОРОЖКА",
+        "body": "Имя · инструмент · собственный SPACE",
+        "x": 540,
+        "y": 45,
+        "w": 440,
+        "h": 75,
+        "kind": "current"
+      },
+      {
+        "id": "pattern",
+        "title": "PATTERN",
+        "body": "A–D · длина 16 / 64 · страницы по 16",
+        "x": 50,
+        "y": 190,
+        "w": 460,
+        "h": 85,
+        "kind": "current"
+      },
+      {
+        "id": "voice",
+        "title": "VOICE",
+        "body": "ORGANISM / MONO / SAMPLER",
+        "x": 550,
+        "y": 190,
+        "w": 460,
+        "h": 85,
+        "kind": "current"
+      },
+      {
+        "id": "space",
+        "title": "SPACE",
+        "body": "ORBIT / POND · FX ON / BYPASS",
+        "x": 1050,
+        "y": 190,
+        "w": 460,
+        "h": 85,
+        "kind": "current"
+      },
+      {
+        "id": "step",
+        "title": "STEP · четыре поля",
+        "body": "Z: note · X: velocity\nC: gate · V: probability",
+        "x": 50,
+        "y": 340,
+        "w": 460,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "locks",
+        "title": "LOCKS · те же кнопки",
+        "body": "Четыре параметра текущего инструмента\n«—» наследует базовое значение\nПервая стрелка назначает lock",
+        "x": 50,
+        "y": 495,
+        "w": 460,
+        "h": 115,
+        "kind": "current"
+      },
+      {
+        "id": "lockroles",
+        "title": "ПАРАМЕТРЫ LOCKS",
+        "body": "ORGANISM: tension / drift / chaos / density\nMONO: cutoff / resonance / attack / release\nSAMPLER: pitch / speed / slice / level",
+        "x": 50,
+        "y": 670,
+        "w": 460,
+        "h": 130,
+        "kind": "current"
+      },
+      {
+        "id": "org",
+        "title": "ORGANISM",
+        "body": "Tension / drift / chaos / density\nPreset · смена инструмента",
+        "x": 550,
+        "y": 340,
+        "w": 460,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "mono",
+        "title": "MONO",
+        "body": "Cutoff / resonance / attack / release\nPreset · смена инструмента",
+        "x": 550,
+        "y": 495,
+        "w": 460,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "sampler",
+        "title": "SAMPLER",
+        "body": "Pitch / speed / slices / slice\nПамять сэмплов · reverse · loop",
+        "x": 550,
+        "y": 650,
+        "w": 460,
+        "h": 100,
+        "kind": "current"
+      },
+      {
+        "id": "orbit",
+        "title": "ORBIT",
+        "body": "Time / feedback / mix / spread",
+        "x": 1050,
+        "y": 340,
+        "w": 460,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "pond",
+        "title": "POND",
+        "body": "Size / decay / damping / mix",
+        "x": 1050,
+        "y": 495,
+        "w": 460,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "scope",
+        "title": "ОБЛАСТЬ ДЕЙСТВИЯ",
+        "body": "SPACE меняет только эту дорожку\nMASTER FX расположен в MIX\nи обрабатывает общую сумму",
+        "x": 1050,
+        "y": 650,
+        "w": 460,
+        "h": 115,
+        "kind": "current"
+      },
+      {
+        "id": "caution",
+        "title": "УТОЧНИТЬ МОДЕЛЬ ПАТТЕРНОВ",
+        "body": "Сейчас выбор A–D, копирование паттерна и длина общие для всех дорожек.\nКнопки находятся внутри дорожки: область действия необходимо явно показать.\nПосле смены инструмента прежние locks остаются, но могут стать невидимыми.",
+        "x": 50,
+        "y": 910,
+        "w": 1460,
+        "h": 130,
+        "kind": "issue"
+      }
+    ],
+    "edges": [
+      {
+        "a": "track",
+        "b": "pattern",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "track",
+        "b": "voice",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "track",
+        "b": "space",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "pattern",
+        "b": "step",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "step",
+        "b": "locks",
+        "label": "Переключить нижнюю вкладку",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "locks",
+        "b": "lockroles",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "voice",
+        "b": "org",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "org",
+        "b": "mono",
+        "label": "Другой инструмент",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "mono",
+        "b": "sampler",
+        "label": "Другой инструмент",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "space",
+        "b": "orbit",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "orbit",
+        "b": "pond",
+        "label": "Смена эффекта",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "pond",
+        "b": "scope",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "lockroles",
+        "b": "caution",
+        "label": "Нужны правила смены инструмента",
+        "side": "down",
+        "kind": "current"
+      }
+    ]
+  },
+  {
+    "title": "03 · Постоянные роли кнопок",
+    "subtitle": "Предлагаемый контракт управления v0.3. Карта фиксирует целевое поведение; код пока не изменён.",
+    "w": 1560,
+    "h": 1170,
+    "nodes": [
+      {
+        "id": "root",
+        "title": "УПРАВЛЕНИЕ MOSS",
+        "body": "Объект → раздел → элемент → параметр",
+        "x": 540,
+        "y": 40,
+        "w": 480,
+        "h": 80,
+        "kind": "proposal"
+      },
+      {
+        "id": "objects",
+        "title": "L1 / R1 · Q / E",
+        "body": "Предыдущий / следующий объект",
+        "x": 50,
+        "y": 180,
+        "w": 460,
+        "h": 90,
+        "kind": "proposal"
+      },
+      {
+        "id": "views",
+        "title": "L2 / R2 · [ / ]",
+        "body": "Предыдущая / следующая главная вкладка",
+        "x": 550,
+        "y": 180,
+        "w": 460,
+        "h": 90,
+        "kind": "proposal"
+      },
+      {
+        "id": "fields",
+        "title": "A / B / X / Y · Z / X / C / V",
+        "body": "Удержать + стрелки: параметр 1 / 2 / 3 / 4",
+        "x": 1050,
+        "y": 180,
+        "w": 460,
+        "h": 90,
+        "kind": "current"
+      },
+      {
+        "id": "objectList",
+        "title": "ОБЪЕКТ ВИДЕН НА ЭКРАНЕ",
+        "body": "ATLAS → проект · GRID / редактор → дорожка\nMIX LEVELS → дорожка · SCENES → сцена\nTAPE → сэмпл · MASTER FX → неактивно",
+        "x": 50,
+        "y": 340,
+        "w": 460,
+        "h": 130,
+        "kind": "proposal"
+      },
+      {
+        "id": "viewList",
+        "title": "ОСНОВНАЯ СТРОКА ВКЛАДОК",
+        "body": "В проекте: GRID / MIX / TAPE\nВ дорожке: PATTERN / VOICE / SPACE\nATLAS: пара неактивна",
+        "x": 550,
+        "y": 340,
+        "w": 460,
+        "h": 130,
+        "kind": "proposal"
+      },
+      {
+        "id": "value",
+        "title": "ЗНАЧЕНИЕ МЕНЯЕТСЯ НА МЕСТЕ",
+        "body": "← / → точно · ↑ / ↓ крупно\nУдержание стрелки ускоряет число\nОтпустить кнопку → один жест в Undo",
+        "x": 1050,
+        "y": 340,
+        "w": 460,
+        "h": 130,
+        "kind": "current"
+      },
+      {
+        "id": "safeSelect",
+        "title": "ВЫДЕЛИТЬ ≠ ПРИМЕНИТЬ",
+        "body": "Выбор сцены не запускает её\nВыбор проекта не открывает его\nВыбор сэмпла не назначает его дорожке",
+        "x": 50,
+        "y": 550,
+        "w": 460,
+        "h": 125,
+        "kind": "proposal"
+      },
+      {
+        "id": "local",
+        "title": "D-PAD · ЛОКАЛЬНЫЙ ВЫБОР",
+        "body": "Шаги, строки, действия, вторичные вкладки\nZ / A коротко: подтвердить или триггер\nX / B коротко: назад на один уровень",
+        "x": 550,
+        "y": 550,
+        "w": 460,
+        "h": 125,
+        "kind": "proposal"
+      },
+      {
+        "id": "cancel",
+        "title": "SELECT · ОТМЕНА / ATLAS",
+        "body": "Во время жеста: отменить весь жест\nВ меню: закрыть без применения\nВ обычном экране: проекты",
+        "x": 1050,
+        "y": 550,
+        "w": 460,
+        "h": 125,
+        "kind": "proposal"
+      },
+      {
+        "id": "retain",
+        "title": "ПАМЯТЬ ПОЗИЦИИ",
+        "body": "Смена дорожки сохраняет VOICE / SPACE\nВозврат в PATTERN сохраняет шаг и STEP / LOCKS\nКурки на границе списка не зацикливаются",
+        "x": 50,
+        "y": 760,
+        "w": 460,
+        "h": 130,
+        "kind": "proposal"
+      },
+      {
+        "id": "shortcuts",
+        "title": "КОРОТКИЕ КОМАНДЫ",
+        "body": "C / X: шаг ↔ нижние поля в PATTERN\nV / Y: STEP ↔ LOCKS в PATTERN\nSTART / Space: воспроизведение / пауза",
+        "x": 550,
+        "y": 760,
+        "w": 460,
+        "h": 130,
+        "kind": "current"
+      },
+      {
+        "id": "priority",
+        "title": "ПРИОРИТЕТ ВВОДА",
+        "body": "Меню / ввод текста блокируют команды фона\nАктивный жест фиксирует объект и параметр\nПотеря фокуса прекращает повтор стрелок",
+        "x": 1050,
+        "y": 760,
+        "w": 460,
+        "h": 130,
+        "kind": "proposal"
+      },
+      {
+        "id": "visual",
+        "title": "ПОСТОЯННЫЕ ВИЗУАЛЬНЫЕ ОПОЗНАВАТЕЛИ",
+        "body": "У параметров: Z шалфей · X голубой · C лаванда · V глина. Курки нейтральные.\nL1/R1 стоят около имени объекта; L2/R2 — около главных вкладок.\nПри удержании подсвечиваются параметр и кнопка. Недоступные пары явно приглушены.",
+        "x": 50,
+        "y": 970,
+        "w": 1460,
+        "h": 130,
+        "kind": "proposal"
+      }
+    ],
+    "edges": [
+      {
+        "a": "root",
+        "b": "objects",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "root",
+        "b": "views",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "root",
+        "b": "fields",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "objects",
+        "b": "objectList",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "views",
+        "b": "viewList",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "fields",
+        "b": "value",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "objectList",
+        "b": "safeSelect",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "viewList",
+        "b": "local",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "value",
+        "b": "cancel",
+        "label": "На устройстве нет Escape",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "safeSelect",
+        "b": "retain",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      },
+      {
+        "a": "local",
+        "b": "shortcuts",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "cancel",
+        "b": "priority",
+        "label": "",
+        "side": "down",
+        "kind": "proposal"
+      }
+    ]
+  },
+  {
+    "title": "04 · Ресэмплинг и возврат",
+    "subtitle": "Основной путь работает как визуальная симуляция. Ветви прерывания обозначены как предлагаемые.",
+    "w": 1560,
+    "h": 1100,
+    "nodes": [
+      {
+        "id": "source",
+        "title": "TAPE · SOURCE",
+        "body": "Z + стрелки: MASTER или дорожка",
+        "x": 50,
+        "y": 60,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "length",
+        "title": "LENGTH",
+        "body": "X + стрелки: 1–8 тактов",
+        "x": 570,
+        "y": 60,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "capture",
+        "title": "CAPTURE",
+        "body": "Таймер · прогресс\nИсточник и длина заблокированы",
+        "x": 1090,
+        "y": 60,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "cancel",
+        "title": "CANCEL",
+        "body": "Закончить без нового сэмпла",
+        "x": 1090,
+        "y": 260,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "finish",
+        "title": "FINISH / ИСТЁК ТАЙМЕР",
+        "body": "Создать визуальный сэмпл в памяти",
+        "x": 570,
+        "y": 260,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "memory",
+        "title": "SAMPLE MEMORY",
+        "body": "Сэмпл выбран · источник и длительность\nИсходная дорожка сохранена",
+        "x": 50,
+        "y": 260,
+        "w": 420,
+        "h": 110,
+        "kind": "current"
+      },
+      {
+        "id": "assign",
+        "title": "ASSIGN TO TRACK",
+        "body": "Явно выбрать дорожку назначения",
+        "x": 50,
+        "y": 460,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "sampler",
+        "title": "VOICE → SAMPLER",
+        "body": "Копия сэмпла назначена\nPitch / speed / slices / slice",
+        "x": 570,
+        "y": 460,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "persist",
+        "title": "ПАМЯТЬ ПРОЕКТА",
+        "body": "Переименовать · удалить из памяти\nНазначенные копии остаются\nЭкспорт JSON включает память",
+        "x": 1090,
+        "y": 460,
+        "w": 420,
+        "h": 120,
+        "kind": "current"
+      },
+      {
+        "id": "leave",
+        "title": "ВЫХОД ВО ВРЕМЯ CAPTURE",
+        "body": "B / SELECT / вкладки / смена проекта",
+        "x": 50,
+        "y": 710,
+        "w": 420,
+        "h": 100,
+        "kind": "proposal"
+      },
+      {
+        "id": "choice",
+        "title": "ПОКАЗАТЬ ВЫБОР",
+        "body": "Остаться · закончить и сохранить\nОтменить захват и выйти",
+        "x": 570,
+        "y": 710,
+        "w": 420,
+        "h": 100,
+        "kind": "proposal"
+      },
+      {
+        "id": "return",
+        "title": "ПРОДОЛЖИТЬ ПЕРЕХОД",
+        "body": "Только после сохранения или отмены\nСэмпл принадлежит исходному проекту",
+        "x": 1090,
+        "y": 710,
+        "w": 420,
+        "h": 100,
+        "kind": "proposal"
+      },
+      {
+        "id": "gap",
+        "title": "СЕЙЧАС ЕСТЬ РАЗРЫВ СЦЕНАРИЯ",
+        "body": "Таймер работает вне TAPE, включая ATLAS; открытие проекта сбрасывает захват.\nВ коде есть projectId захвата, но finishCapture сохраняет через текущий p().\nНужны явный выход и привязка результата к проекту; автоматического сохранения аудио нет.",
+        "x": 50,
+        "y": 900,
+        "w": 1460,
+        "h": 130,
+        "kind": "issue"
+      }
+    ],
+    "edges": [
+      {
+        "a": "source",
+        "b": "length",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "length",
+        "b": "capture",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "capture",
+        "b": "cancel",
+        "label": "Отмена",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "capture",
+        "b": "finish",
+        "label": "Сохранить",
+        "side": "left",
+        "kind": "current"
+      },
+      {
+        "a": "finish",
+        "b": "memory",
+        "label": "",
+        "side": "left",
+        "kind": "current"
+      },
+      {
+        "a": "memory",
+        "b": "assign",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "assign",
+        "b": "sampler",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "sampler",
+        "b": "persist",
+        "label": "Хранение",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "leave",
+        "b": "choice",
+        "label": "",
+        "side": "right",
+        "kind": "proposal"
+      },
+      {
+        "a": "choice",
+        "b": "return",
+        "label": "",
+        "side": "right",
+        "kind": "proposal"
+      }
+    ]
+  },
+  {
+    "title": "05 · Сцены и область снимка",
+    "subtitle": "Показано фактическое поведение модели. Решения о составе сцены и очереди требуют отдельного закрепления.",
+    "w": 1560,
+    "h": 1190,
+    "nodes": [
+      {
+        "id": "work",
+        "title": "ТЕКУЩЕЕ СОСТОЯНИЕ",
+        "body": "Паттерны · инструменты · FX · микшер",
+        "x": 50,
+        "y": 60,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "save",
+        "title": "SAVE HERE / OVERWRITE",
+        "body": "Один из 4 слотов · имя\nПерезапись с подтверждением",
+        "x": 570,
+        "y": 60,
+        "w": 420,
+        "h": 95,
+        "kind": "current"
+      },
+      {
+        "id": "snapshot",
+        "title": "СНИМОК СЦЕНЫ",
+        "body": "Все tracks целиком + BPM + master FX\nАктивный паттерн + длина",
+        "x": 1090,
+        "y": 60,
+        "w": 420,
+        "h": 110,
+        "kind": "current"
+      },
+      {
+        "id": "select",
+        "title": "ВЫБРАТЬ СЦЕНУ",
+        "body": "Предложение: L1/R1 выделяют слот\nПрименение только по A",
+        "x": 570,
+        "y": 270,
+        "w": 420,
+        "h": 100,
+        "kind": "proposal"
+      },
+      {
+        "id": "stopped",
+        "title": "ТРАНСПОРТ ОСТАНОВЛЕН",
+        "body": "Применить снимок сразу",
+        "x": 50,
+        "y": 470,
+        "w": 420,
+        "h": 100,
+        "kind": "current"
+      },
+      {
+        "id": "running",
+        "title": "ТРАНСПОРТ ИДЁТ",
+        "body": "Поставить сцену в очередь NEXT LOOP\nПовторный выбор убирает её из очереди",
+        "x": 1090,
+        "y": 470,
+        "w": 420,
+        "h": 100,
+        "kind": "current"
+      },
+      {
+        "id": "restore",
+        "title": "ВОССТАНОВИТЬ СЦЕНУ",
+        "body": "Состав, имена, инструменты, все паттерны\nДорожечные FX, уровни и mute / solo\nBPM, master FX, выбранный паттерн, длина",
+        "x": 570,
+        "y": 720,
+        "w": 420,
+        "h": 135,
+        "kind": "current"
+      },
+      {
+        "id": "boundary",
+        "title": "НАЧАЛО ЦИКЛА",
+        "body": "Применить, если нет жеста / меню\nПозиция воспроизведения → начало",
+        "x": 1090,
+        "y": 720,
+        "w": 420,
+        "h": 135,
+        "kind": "current"
+      },
+      {
+        "id": "memory",
+        "title": "ЧТО ОСТАЁТСЯ В ПРОЕКТЕ",
+        "body": "Память TAPE и настройки capture\nНазвание проекта и тональность\nСами слоты сцен",
+        "x": 50,
+        "y": 720,
+        "w": 420,
+        "h": 135,
+        "kind": "current"
+      },
+      {
+        "id": "sceneIssue",
+        "title": "НУЖНО УТОЧНИТЬ: ЧТО ТАКОЕ СЦЕНА",
+        "body": "Сейчас сцена может вернуть удалённую дорожку,\nстарое имя или прежние паттерны.\nРекомендуется явно выбрать: полный снимок\nили только вариация звучания.",
+        "x": 50,
+        "y": 960,
+        "w": 700,
+        "h": 150,
+        "kind": "issue"
+      },
+      {
+        "id": "stopIssue",
+        "title": "НУЖНО УТОЧНИТЬ: STOP ПРИ NEXT LOOP",
+        "body": "Сейчас остановка немедленно применяет очередь.\nПредлагается: STOP отменяет очередь,\nактивная сцена остаётся прежней;\nприменить другую можно отдельным нажатием A.",
+        "x": 800,
+        "y": 960,
+        "w": 710,
+        "h": 150,
+        "kind": "proposal"
+      }
+    ],
+    "edges": [
+      {
+        "a": "work",
+        "b": "save",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "save",
+        "b": "snapshot",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "select",
+        "b": "stopped",
+        "label": "A при STOP",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "select",
+        "b": "running",
+        "label": "A при RUN",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "stopped",
+        "b": "restore",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "running",
+        "b": "boundary",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "boundary",
+        "b": "restore",
+        "label": "",
+        "side": "left",
+        "kind": "current"
+      },
+      {
+        "a": "restore",
+        "b": "memory",
+        "label": "Сохраняются",
+        "side": "left",
+        "kind": "current"
+      }
+    ]
+  },
+  {
+    "title": "06 · SLOW SIGNAL: полный маршрут",
+    "subtitle": "Рабочий сценарий без аудиодвижков. Успех — сохранённый проект из трёх дорожек, с locks, сэмплом и двумя сценами.",
+    "w": 1560,
+    "h": 1100,
+    "nodes": [
+      {
+        "id": "new",
+        "title": "1 · ПУСТОЙ ПРОЕКТ",
+        "body": "ATLAS → NEW PROJECT → SLOW SIGNAL\nBPM 70 · G MINOR · длина 64",
+        "x": 50,
+        "y": 60,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "drone",
+        "title": "2 · DRONE / ORGANISM",
+        "body": "Добавить дорожку · шаг 01 ON\nNote G2 · gate 64\nНастроить 4 параметра VOICE",
+        "x": 570,
+        "y": 60,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "pulse",
+        "title": "3 · PULSE / MONO",
+        "body": "Добавить MONO\nШаги 01, 21, 45, 61\nРедактировать ноты и probability",
+        "x": 1090,
+        "y": 60,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "locks",
+        "title": "4 · LOCK НА ШАГЕ 45",
+        "body": "PATTERN → шаг 45 → LOCKS\nZ + стрелки: cutoff 1400\nПроверить соседний шаг",
+        "x": 1090,
+        "y": 310,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "fx",
+        "title": "5 · SPACE И MIX",
+        "body": "Эффект PULSE → FX ON\nMIX: уровни трёх дорожек позже\nMASTER FX: общий эффект",
+        "x": 570,
+        "y": 310,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "capture",
+        "title": "6 · ЗАХВАТ DRONE",
+        "body": "TAPE → Z: DRONE · X: 4 такта\nCAPTURE → FINISH / таймер\nПроверить, что DRONE остался ORGANISM",
+        "x": 50,
+        "y": 310,
+        "w": 420,
+        "h": 105,
+        "kind": "current"
+      },
+      {
+        "id": "dust",
+        "title": "7 · DUST / SAMPLER",
+        "body": "Добавить третью дорожку\nTAPE → ASSIGN TO TRACK → DUST\nНастроить pitch, speed и слайсы",
+        "x": 50,
+        "y": 560,
+        "w": 420,
+        "h": 115,
+        "kind": "current"
+      },
+      {
+        "id": "texture",
+        "title": "8 · ПАТТЕРН ТЕКСТУРЫ",
+        "body": "Шаги 09, 33, 53: gate 8, probability 65\nПроверить три дорожки через L1/R1\nЦелевая навигация — пока предложение",
+        "x": 570,
+        "y": 560,
+        "w": 420,
+        "h": 115,
+        "kind": "current"
+      },
+      {
+        "id": "scenes",
+        "title": "9 · ДВЕ СЦЕНЫ",
+        "body": "MIX → SCENES: сохранить ARRIVAL\nИзменить VOICE / FX / MIX\nСохранить BLOOM; сравнить сцены",
+        "x": 1090,
+        "y": 560,
+        "w": 420,
+        "h": 115,
+        "kind": "current"
+      },
+      {
+        "id": "reopen",
+        "title": "10 · СОХРАНИТЬ И ВЕРНУТЬСЯ",
+        "body": "Экспортировать JSON · вернуться в ATLAS · открыть проект снова\nПроверить: 3 дорожки, 64 шага, lock на 45, сэмпл в памяти и две сцены\nЭто сценарий проверки, а не отчёт о прохождении пользователем",
+        "x": 50,
+        "y": 870,
+        "w": 1460,
+        "h": 130,
+        "kind": "current"
+      }
+    ],
+    "edges": [
+      {
+        "a": "new",
+        "b": "drone",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "drone",
+        "b": "pulse",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "pulse",
+        "b": "locks",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "locks",
+        "b": "fx",
+        "label": "",
+        "side": "left",
+        "kind": "current"
+      },
+      {
+        "a": "fx",
+        "b": "capture",
+        "label": "",
+        "side": "left",
+        "kind": "current"
+      },
+      {
+        "a": "capture",
+        "b": "dust",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      },
+      {
+        "a": "dust",
+        "b": "texture",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "texture",
+        "b": "scenes",
+        "label": "",
+        "side": "right",
+        "kind": "current"
+      },
+      {
+        "a": "scenes",
+        "b": "reopen",
+        "label": "",
+        "side": "down",
+        "kind": "current"
+      }
+    ]
+  }
+]
