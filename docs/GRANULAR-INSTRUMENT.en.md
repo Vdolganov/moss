@@ -48,4 +48,3 @@ The experiment reads **MOS5/MOS6** and saves **MOS7**, including assignment, FRE
 Windows regression and granular integration checks, UBSan and ARM functional checks passed. Across 23 minutes of hardware stress runs, no audio-budget overruns, late intervals or slow UI frames were recorded; the report lists durations, both binary hashes and verification limits. The DSP is an original implementation of conventional granular synthesis, not a port of Mangl code. Linear interpolation does not guarantee suppression of aliasing at large upward pitch shifts.
 
 The [browser study](../visual%20prototype/granular.html) remains silent, with a synthetic source and its own storage. Its short **C / A** action toggles FREEZE; that is specific to the study. Native FREEZE is **X / V**. All three views remain available for comparison; LENS is the selected native view.
-

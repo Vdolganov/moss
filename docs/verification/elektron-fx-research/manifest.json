@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-13",
+  "tool": {
+    "url": "https://github.com/mischa85/elektron-firmware-tool",
+    "commit": "a5bce9a6af644386d900924082993a805e812874"
+  },
+  "dt_fm_reference": {
+    "url": "https://github.com/mtalikka/DT-FM",
+    "commit": "a8ea4d162946321d0ea59ed39a77f04b96512fc0"
+  },
+  "scope": "Official downloads, container integrity, MAIN OS decompression and string-context inspection. No recovered FX DSP or execution. Firmware bytes excluded.",
+  "images": [
+    {
+      "device": "digitakt",
+      "url": "https://www.elektron.se/wp-content/uploads/2026/10/Digitakt_OS1.54_dist.zip",
+      "zip_sha256": "f6e5ee9dbf5c2b875972b4bd4d22c838a1042c6a7391d1186d59dc0250e3aa1b",
+      "files": [
+        {
+          "name": "Digitakt_OS1.54.syx",
+          "bytes": 1423776,
+          "sha256": "f78ba80fa7b1da5fb0e1ff61ad61e9e71aafe79f4364fc49679f3651353e3cf6"
+        },
+        {
+          "name": "Elektron EULA.txt",
+          "bytes": 15222,
+          "sha256": "98052b0cb11fec6a38b3e4d179e0b502dc7e394518afbfd4144a90b2d2057e92"
+        }
+      ],
+      "container_report": "device    : Digitakt (0x0a)\nversion   : 1.54\ncontainer : ELE3, 1123360 B\nsections  :\n  id 5   meta            15 B (raw)\n  id 2   bootstrap     26846 B\n  id 3   MAIN OS    2479680 B\n  id 4   updater      32776 B (raw)\n  id 8   ?           159948 B\nchecksums : ok\n",
+      "main_os_bytes": 2479680,
+      "main_os_sha256": "5c58bf9e3949ef09977c5fc007a61e8d026931f67f1621238379dfb8ee4d31a2"
+    },
+    {
+      "device": "heat-fx",
+      "url": "https://www.elektron.se/wp-content/uploads/2024/10/Analog-HeatFX_OS1.02_dist.zip",
+      "zip_sha256": "d818a193318498146620a4b07bb1465ad503a24629686b1c753ac4d2b613f1bf",
+      "files": [
+        {
+          "name": "Analog-Heat+FX_OS1.02.syx",
+          "bytes": 1229088,
+          "sha256": "85abe773c9e2284cd1b2aaaf1f599ec0f800f56f4b34127214fe998f1a2cfe63"
+        },
+        {
+          "name": "Elektron EULA.txt",
+          "bytes": 15222,
+          "sha256": "98052b0cb11fec6a38b3e4d179e0b502dc7e394518afbfd4144a90b2d2057e92"
+        }
+      ],
+      "container_report": "device    : Analog Heat +FX (0x13)\nversion   : 1.02\ncontainer : ELE3, 969776 B\nsections  :\n  id 5   meta            15 B (raw)\n  id 2   bootstrap     26638 B\n  id 1   FPGA         54664 B\n  id 3   MAIN OS    2174964 B\n  id 4   updater      29384 B (raw)\nchecksums : ok\n",
+      "main_os_bytes": 2174964,
+      "main_os_sha256": "e8fc6d3b59236e81033a557d4ed38689e36c68746d1d756f5f5403aba6ef1d9c"
+    },
+    {
+      "device": "heat-mkii",
+      "url": "https://www.elektron.se/wp-content/uploads/2024/10/Analog-Heat_MKII_OS1.22_dist.zip",
+      "zip_sha256": "c29095843108adb132e4dbc9d446b3cd1fc760a625384f1d2925657fc66ba04c",
+      "files": [
+        {
+          "name": "Analog-Heat_MKII_OS1.22.syx",
+          "bytes": 637856,
+          "sha256": "5401d6286a9a79366e6ed4bc0e1f9c849aa39c1c035360cccce2e7f78039a35d"
+        },
+        {
+          "name": "Elektron EULA.txt",
+          "bytes": 15222,
+          "sha256": "98052b0cb11fec6a38b3e4d179e0b502dc7e394518afbfd4144a90b2d2057e92"
+        }
+      ],
+      "container_report": "device    : Analog Heat MKII (0x0e)\nversion   : 1.22\ncontainer : ELE3, 503200 B\nsections  :\n  id 5   meta            15 B (raw)\n  id 2   bootstrap     26254 B\n  id 1   FPGA         54664 B\n  id 3   MAIN OS    1234756 B\n  id 4   updater      29256 B (raw)\nchecksums : ok\n",
+      "main_os_bytes": 1234756,
+      "main_os_sha256": "60f140a097b57e204f3db2a62dc1efd5dc4f708f1ef5502b2d2ae9e43246e326"
+    }
+  ]
+}
