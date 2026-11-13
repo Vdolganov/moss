@@ -1,0 +1,28 @@
+# MOSS documentation
+
+[Русский](README.md) · **English**
+
+The current application version is **0.5.2**. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
+
+| Document | Русский | English |
+|---|---|---|
+| Overview, installation and build | [README](../README.md) | [README](../README.en.md) |
+| Native application documentation entry point | [Native](../native/README.md) | [Native](../native/README.en.md) |
+| Complete 0.5.2 user guide | [Руководство](../native/prototype/README.md) | [User guide](../native/prototype/README.en.md) |
+| 0.5.2 device verification | [Отчёт](NATIVE-VERIFICATION-052.md) | [Verification](NATIVE-VERIFICATION-052.en.md) |
+| 0.5.1 performance: optimization history | [Отчёт](NATIVE-PERFORMANCE-051.md) | [Performance](NATIVE-PERFORMANCE-051.en.md) |
+| Browser prototype v0.6 | [Руководство](<../visual prototype/README.md>) | [Guide](<../visual prototype/README.en.md>) |
+| 0.5.2 release notes | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
+
+## Technical contracts
+
+These documents were originally written in English. The complete user guide covers the same user workflows in Russian:
+
+- [0.5.2: sequences, SONG, fine/coarse editing and pages](../design/current/native-v052-interaction.md).
+- [0.5.1: limits, instruments, sampler and shared interactions](../design/current/native-v051-interaction.md). The 0.5.2 contract takes precedence where they differ.
+
+## History and working references
+
+[PRODUCT.md](../PRODUCT.md) and [DESIGN.md](../DESIGN.md) contain the Russian product/design requirements and decision history. Older ARM plans, MOSS LAB documents, early scenarios, diagrams and review records remain in their original language as a development archive. They do not replace the current user guide; their former limits and gestures may differ from 0.5.2.
+
+Documentation translations are maintained on `main`. The `v0.5.2` tag and original installation archives identify the released build. The English guide is provided separately in the [release](https://github.com/Vdolganov/moss/releases/tag/v0.5.2), without replacing application binaries.

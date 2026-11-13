@@ -1,5 +1,7 @@
 # MOSS native
 
+**Русский** · [English](README.en.md)
+
 Текущая стабильная версия — **0.5.2** для оригинальной Anbernic RG35XX и Windows. Четыре дорожки, SAMPLER / MONO / ORGANISM / FM, эффекты, TAPE и SONG. Проверена на GarlicOS 1.4.9; эта сборка на 1.3.9 ещё не перепроверялась.
 
 - [Руководство приложения](prototype/README.md)

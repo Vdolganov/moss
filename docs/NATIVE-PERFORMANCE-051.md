@@ -1,5 +1,9 @@
 # MOSS 0.5.1 — производительность и устройство кода
 
+**Русский** · [English](NATIVE-PERFORMANCE-051.en.md)
+
+Отчёт относится к 0.5.1. Проверка текущей 0.5.2: [отдельный отчёт](NATIVE-VERIFICATION-052.md).
+
 Проверки выполняются на оригинальной RG35XX с GarlicOS 1.4.9, по USB/ADB. Это измерения настоящего ARM Cortex-A9, а не оценка скорости компьютера. Целевая ABI остаётся ARMv7 softfp/uClibc GarlicOS 1.3.9–1.4.9; именно новую сборку на 1.3.9 повторно не запускали.
 
 ## Рабочие ограничения
@@ -97,7 +101,7 @@
 
 ## Повторение проверки
 
-Из `native/prototype`: `node scripts/build.cjs` собирает ARM/Windows и запускает семь тестовых наборов; `node scripts/benchmark.cjs` собирает сравнимый headless workload для обеих платформ. Toolchain и O3-флаги определены в `scripts/toolchain.cjs`; SDK закреплён через существующий hardware lab.
+Из `native/prototype`: `node scripts/build.cjs` собирает ARM/Windows и запускает семь тестовых наборов версии 0.5.1; в текущей 0.5.2 добавлен восьмой, v052. `node scripts/benchmark.cjs` собирает сравнимый headless workload для обеих платформ. Toolchain и O3-флаги определены в `scripts/toolchain.cjs`; SDK закреплён через существующий hardware lab.
 
 Windows: `build/performance.exe <папка-банка> 20 - 32000 1024 256 0 stress-4-ORGANISM 10`. Последнее число — битовая маска эффектов, 10 означает POND + REEL. Программа сначала загружает пользовательский банк, затем для stress создаёт полную синтетическую библиотеку. Измеряемая область содержит только рендер звука.
 

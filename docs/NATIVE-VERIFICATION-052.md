@@ -1,5 +1,7 @@
 # MOSS 0.5.2 — проверка 13 ноября 2026
 
+**Русский** · [English](NATIVE-VERIFICATION-052.en.md)
+
 Сборка установлена на оригинальную RG35XX с GarlicOS 1.4.9. SHA256 ARM-бинарника: `e22b6a3da14a8ae88a4d4db7015ad5760374d96ce78ae6c3bd0bdaaac473c942`.
 
 ## Компьютер
