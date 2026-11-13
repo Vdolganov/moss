@@ -397,6 +397,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             if(view.running) value=int((view.head*1000u+32768u)/65536u);
           }
           unit=a.page==Pattern?"STEP LOCK":spec.unit;
+          if(a.page==Sampler && (parameter==0 || parameter==4) && t.granular.values[7]==100) unit="SCAN ANCHOR";
           if(value==Inherit) strcpy(b,"--");
           else if(parameter==0) snprintf(b,sizeof(b),"%.2f",value*.01);
           else if(parameter>=4 && parameter<=6) snprintf(b,sizeof(b),"%.1f",value*.1);
@@ -453,7 +454,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           ? "L1+ARROWS FX / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Pattern && !a.project.tracks[a.track].instrument
           ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
-      : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS PLAY-SCAN-TEXTURE / L1/R1 BANK"
+      : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"
       : a.page == Pattern && a.bank == 1 ? "L1+ARROWS CORE-CHAR / L1/R1 BANK"
       : a.page == Pattern ? "ARROWS STEP / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Sampler && a.granularTrack()

@@ -3,11 +3,11 @@
 // Generates a portable single-track audition sequence; never overwrites a file.
 int main(int argc, char **argv) {
   using namespace moss;
-  if (argc < 2 || argc > 3 || exists(argv[1])) return 2;
-  int asset = argc == 3 ? atoi(argv[2]) : 1;
+  if (argc < 2 || argc > 4 || exists(argv[1])) return 2;
+  int asset = argc >= 3 ? atoi(argv[2]) : 1;
   if (asset < 0 || asset >= 32) return 2;
   Project p;
-  snprintf(p.name, sizeof(p.name), "LENS STUDY");
+  snprintf(p.name, sizeof(p.name), "%s", argc == 4 ? argv[3] : "LENS STUDY");
   p.trackCount = 1;
   p.bpm = 70;
   p.master = 85;

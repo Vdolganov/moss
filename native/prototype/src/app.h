@@ -103,7 +103,7 @@ struct App {
     return id >= 0 && id < engine->sampleCount && engine->samples[id].frames;
   }
   bool granularTrack() const { return project.tracks[track].instrument == GranularInstrument; }
-  int voiceBanks() const { return granularTrack() ? 3 : 2; }
+  int voiceBanks() const { return granularTrack() ? GranularBankCount : 2; }
   void assignSample(int id) {
     change(granularTrack() ? Command{Op::GranularSource, track, 0, 0, id}
                            : Command{Op::Key, track, key, 0, id});
@@ -749,6 +749,10 @@ struct App {
       int v = granularEdit(i, base, d, repetitions);
       if (i == 5) v = clamp(v, 0, t.granular.values[6] - 1);
       if (i == 6) v = clamp(v, t.granular.values[5] + 1, 1000);
+      if (i == 12 || i == 13) {
+        int other = i == 12 ? 13 : 12;
+        if (v + t.granular.values[other] > 100) change({Op::GranularParam, track, 0, other, 100-v});
+      }
       change({Op::GranularParam, track, 0, i, v});
     } else if (page == Sampler && t.instrument) {
       i += synthBank * 4;

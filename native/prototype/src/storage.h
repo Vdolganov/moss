@@ -42,7 +42,7 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 7) {
+  void fields(Project &p, bool writing, int version = 8) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -94,7 +94,7 @@ struct Codec {
       if (version >= 7) {
         value(t.granular.asset);
         value(t.granular.freeze);
-        for (auto &n : t.granular.values) value(n);
+        for (int i=0;i<(version>=8?GranularParameterCount:12);++i) value(t.granular.values[i]);
       }
       for (auto &row : t.synthParams)
         for (auto &n : row)
@@ -155,7 +155,7 @@ struct Codec {
       for (auto &s : t.steps) {
         value(s.note);
         if (version >= 7)
-          for (auto &n : s.grainLocks) value(n);
+          for (int i=0;i<(version>=8?GranularParameterCount:12);++i) value(s.grainLocks[i]);
         for (auto &row : s.synthLocks)
           for (auto &n : row)
             value(n);
@@ -185,8 +185,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MOS7", 4);
-    word(4, 7);
+    memcpy(bytes, "MOS8", 4);
+    word(4, 8);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -194,14 +194,32 @@ struct Codec {
   bool decode(Project &p, unsigned size) {
     bool legacy = !memcmp(bytes, "MOS5", 4) && word(4) == 5;
     bool v6 = !memcmp(bytes, "MOS6", 4) && word(4) == 6;
+    bool v7 = !memcmp(bytes, "MOS7", 4) && word(4) == 7;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && (memcmp(bytes, "MOS7", 4) || word(4) != 7)) ||
+        (!legacy && !v6 && !v7 && (memcmp(bytes, "MOS8", 4) || word(4) != 8)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : v6 ? 6 : 7);
+    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : 8);
+    // Experimental MOS7 used milliseconds in slot 7. Never interpret them as
+    // percentages. Upgrade that control to the new cloud default; old jitter
+    // locks have no source-independent equivalent and are explicitly discarded.
+    if (v7) for (auto &t : temp.tracks) {
+      if (t.granular.values[7] < 0 || t.granular.values[7] > 500) ok = false;
+      t.granular.values[7] = t.granular.values[7] ? 100 : 0;
+      if (t.granular.values[11] < 0 || t.granular.values[11] > 9000) ok = false;
+      t.granular.values[14] = t.granular.values[15] = t.granular.values[11];
+      t.granular.values[11] = 100;
+      for (auto &s : t.steps) {
+        if (s.grainLocks[7] != Inherit && (s.grainLocks[7] < 0 || s.grainLocks[7] > 500)) ok = false;
+        s.grainLocks[7] = Inherit;
+        if (s.grainLocks[11] != Inherit && (s.grainLocks[11] < 0 || s.grainLocks[11] > 9000)) ok = false;
+        s.grainLocks[14] = s.grainLocks[15] = s.grainLocks[11];
+        s.grainLocks[11] = Inherit;
+      }
+    }
     if (!ok || cursor != size || !valid(temp))
       return false;
     p = temp;

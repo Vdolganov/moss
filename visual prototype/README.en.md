@@ -14,7 +14,7 @@ Open the separate [granular.html](granular.html): SPLICE / FIELD / LENS show one
 
 Here Z/X/C/V maps to physical **Y/B/A/X**. Hold a key with arrows to edit the four fields; Q/E selects PLAY/SCAN/TEXTURE, short **C / A toggles FREEZE**, Space controls movement, Q+E opens options, Esc cancels, and Ctrl+Z undoes. Pointer users can select a field and use arrows; static mode retains a readable diagram. Switching views preserves settings; reload restores them with transport paused.
 
-The working native GRANULAR is documented in the [separate 0.6.0-dev guide](../docs/GRANULAR-INSTRUMENT.en.md). Its short **X / V toggles FREEZE**, while **A / C auditions or assigns a sample**; study controls do not replace native controls.
+The working native GRANULAR is documented in the [separate 0.6.1-dev guide](../docs/GRANULAR-INSTRUMENT.en.md). Its short **X / V toggles FREEZE**, while **A / C auditions or assigns a sample**; study controls do not replace native controls.
 
 ## Structure
 

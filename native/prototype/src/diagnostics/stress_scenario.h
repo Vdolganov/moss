@@ -87,8 +87,9 @@ inline void stressGranular(Project &p, unsigned mask, int mode = 0) {
       auto &s=tr.steps[i];
       s.note=72; // +24 note +24 PITCH: worst measured PCM cache traversal.
       const int values[]={i%2?300:-300,24,mode==2?1:mode==3&&(i%4==0)?1:500,128,
-                           (i*13)%1000,0,1000,500,100,100,i%2?14000:20,20};
-      for(int k=0;k<12;++k) s.grainLocks[k]=int16_t(values[k]);
+                           (i*13)%1000,0,1000,100,100,100,i%2?14000:20,200,
+                           i%2?90:10,i%2?10:90,20,20};
+      for(int k=0;k<GranularParameterCount;++k) s.grainLocks[k]=int16_t(values[k]);
     }
   }
 }

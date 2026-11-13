@@ -1,4 +1,19 @@
 const test=require('node:test'),assert=require('node:assert/strict'),G=require('./granular-model.js');
+test('full cloud distributes simultaneous births across the selected region regardless of anchor',()=>{
+ const a=new G.Cloud({...G.DEFAULTS,start:20,end:80,position:25,scatter:100,size:500,density:128,irregularity:0});
+ const b=new G.Cloud({...a.params,position:75,speed:-3});b.freeze=true;
+ a.advance(.07);b.advance(.07);
+ assert.equal(a.grains.length,8);assert.equal(new Set(a.grains.map(g=>g.zone)).size,8);
+ assert.deepEqual(a.grains.map(g=>g.birth),b.grains.map(g=>g.birth));
+ for(let i=0;i<500;i++){a.advance(.02);for(const g of a.grains){assert.ok(g.birth>=.2&&g.birth<.8);assert.ok(a.readPosition(g)>=.2&&a.readPosition(g)<.8);}}
+});
+test('grain envelopes are separate from note fades and remain latched after edits',()=>{
+ let p=G.edit({...G.DEFAULTS},'grainIn',1,true);assert.equal(p.grainIn,60);assert.equal(p.grainOut,40);
+ const c=new G.Cloud({...p,grainIn:10,grainOut:20});c.advance(.02);const g=c.grains[0];
+ c.configure({...c.params,grainIn:90,grainOut:10});assert.equal(g.grainIn,.1);assert.equal(g.grainOut,.2);
+ g.age=g.life*.5;assert.equal(G.windowGain(g),1);g.age=0;assert.equal(G.windowGain(g),0);g.age=g.life;assert.equal(G.windowGain(g),0);
+ const s=G.restore({bank:3,params:{fade:900}});assert.equal(s.bank,3);assert.equal(s.params.noteIn,900);assert.equal(s.params.noteOut,900);
+});
 test('fine and coarse edits use displayed units and preserve ordered scan limits',()=>{
  let p={...G.DEFAULTS};p=G.edit(p,'pitch',1);assert.equal(p.pitch,-6);p=G.edit(p,'pitch',1,true);assert.equal(p.pitch,6);
  p=G.edit(p,'size',1);assert.equal(p.size,321);p=G.edit(p,'size',1,true);assert.equal(p.size,421);

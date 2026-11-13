@@ -27,6 +27,7 @@ static void render(unsigned n) {
     for (unsigned k = 0; k < voice.count; ++k) {
       const auto &g = voice.grains[k];
       assert(g.index < sample.frames);
+      assert(g.index >= g.first && g.index < g.last);
       assert(g.fraction >= 0 && g.fraction < 1.000001f);
       assert(g.age < g.length);
     }
@@ -37,7 +38,7 @@ static void event(GranularVoice &v, unsigned frame) {
   if (frame == 1501) {
     p.speed = -3;
     p.pitch = 24;
-    p.jitterMs = 500;
+    p.scatter = 1;
     p.spread = 1;
   }
   if (frame == 3907) {
@@ -58,7 +59,7 @@ static void event(GranularVoice &v, unsigned frame) {
   if (frame == 24111) {
     p.freeze = false;
     p.cutoff = 14000;
-    p.fadeMs = 45;
+    p.attackMs = p.releaseMs = 45;
   }
   v.setParameters(p);
   if (frame == 30003)
@@ -98,6 +99,73 @@ int main() {
     assert(fabsf(tables.densityFactor(x) - powf(2, x)) < .00002f);
   }
   source();
+  // Full cloud covers all eight source regions simultaneously, for long and
+  // short PCM alike. Births must not depend on a hidden sequential scan head.
+  const unsigned cloudFrames[] = {320u, 32000u, 262144u};
+  for(unsigned frames : cloudFrames) {
+    source(32000, 1, frames);
+    assert(voice.init(sample,tables,32000,8,43));
+    assert(independent.init(sample,tables,32000,8,43));
+    GranularParameters cloud;
+    cloud.start=.2f; cloud.end=.8f; cloud.scatter=1;
+    cloud.position=.25f; cloud.speed=-3; cloud.spread=1;
+    voice.setParameters(cloud);
+    cloud.position=.75f; cloud.speed=3; cloud.freeze=true;
+    independent.setParameters(cloud);
+    unsigned occupied=0;
+    for(unsigned i=0;i<8;++i) {
+      voice.spawn(); independent.spawn();
+      auto &g=voice.grains[i];
+      assert(!(occupied & (1u<<g.zone))); occupied|=1u<<g.zone;
+      assert(g.index==independent.grains[i].index);
+      assert(g.fraction==independent.grains[i].fraction);
+      assert(g.index>=g.first && g.index<g.last);
+      unsigned bin=unsigned((double(g.index-g.first)+g.fraction)*8/(g.last-g.first));
+      assert(bin==g.zone);
+      assert(fabsf(g.panLeft*g.panLeft+g.panRight*g.panRight-2)<1e-5f);
+    }
+    assert(occupied==255);
+    float pan=voice.grains[0].panLeft;
+    voice.spawn(); assert(voice.stats.skipped==1 && voice.grains[0].panLeft==pan);
+    voice.noteOn(); render(15000);
+    cloud=voice.parameters; cloud.scatter=0; cloud.position=.5f; cloud.spread=0;
+    voice.stop(); voice.setParameters(cloud);
+    for(unsigned i=0;i<8;++i) {voice.spawn(); assert(voice.grains[i].index==unsigned(voice.head>>32));}
+    // A bound change affects new grains, not existing windows/read boundaries.
+    unsigned first=voice.grains[0].first, last=voice.grains[0].last;
+    cloud.start=.6f; cloud.end=.61f; voice.setParameters(cloud);
+    assert(voice.grains[0].first==first && voice.grains[0].last==last);
+    voice.noteOn(); render(17000);
+  }
+  puts("PASS granular cloud: eight simultaneous source regions, anchor-independent full scatter, zero-scatter scan, per-grain stereo and latched bounds");
+  source();
+  const float fades[] = {0, .1f, .5f, .9f, 1};
+  for (float in : fades) for (float out : fades) {
+    assert(voice.init(sample,tables,32000));
+    GranularParameters shape; shape.grainIn=in; shape.grainOut=out; shape.sizeMs=100;
+    voice.setParameters(shape); voice.spawn();
+    auto &g=voice.grains[0];
+    float prior=0;
+    for(unsigned age=0;age<g.length;++age) {
+      g.age=age; float w=voice.grainWindow(g);
+      assert(isfinite(w) && w>=0 && w<=1.000001f);
+      if(!age || age+1==g.length) assert(w==0);
+      if(age<g.attackFrames) assert(w>=prior);
+      if(age>g.releaseStart) assert(w<=prior);
+      prior=w;
+    }
+    unsigned originalAttack=g.attackFrames, originalRelease=g.releaseStart;
+    shape.grainIn=.2f; shape.grainOut=.1f; voice.setParameters(shape);
+    assert(g.attackFrames==originalAttack && g.releaseStart==originalRelease);
+  }
+  assert(voice.init(sample,tables,32000));
+  GranularParameters loud; loud.sizeMs=500; loud.density=128;
+  voice.setParameters(loud);
+  assert(voice.gainTarget>.42f && voice.gainTarget<.44f); // old fixed gain was .125
+  loud.sizeMs=100; loud.density=2; voice.setParameters(loud);
+  assert(fabsf(voice.gainTarget-.75f)<1e-6f);
+  loud.level=0; voice.setParameters(loud); assert(voice.gainTarget==0);
+  puts("PASS granular envelopes: independent in/out shapes, zero endpoints, latched windows, sparse/dense level compensation");
   assert(voice.init(sample, tables, 32000));
   assert(voice.capacity == 8);
   assert(!voice.init(sample, tables, 32000, 0));
@@ -145,7 +213,7 @@ int main() {
     p = GranularParameters{};
     p.density = 512;
     p.sizeMs = 500;
-    p.fadeMs = 0;
+    p.attackMs = p.releaseMs = 0;
     voice.setParameters(p);
     voice.noteOn();
     render(20000);
@@ -189,7 +257,7 @@ int main() {
     p.pitch = pitch;
     p.sizeMs = 64;
     p.density = 31.25f;
-    p.fadeMs = 0;
+    p.attackMs = p.releaseMs = 0;
     voice.setParameters(p);
     voice.noteOn();
     voice.renderBlock(a, 64000);
@@ -224,7 +292,7 @@ int main() {
   for (unsigned hz : releaseRates) {
     assert(voice.init(sample, tables, hz, 16));
     p = GranularParameters{};
-    p.fadeMs = 10;
+    p.attackMs = p.releaseMs = 10;
     voice.setParameters(p);
     voice.noteOn();
     render(hz / 10);
@@ -248,7 +316,7 @@ int main() {
         p.speed = -3;
         p.sizeMs = 1;
         p.density = 512;
-        p.jitterMs = 500;
+        p.scatter = 1;
         p.spread = 1;
         p.irregularity = 1;
         p.cutoff = 20;
@@ -278,7 +346,7 @@ int main() {
   voice.setParameters(p);
   render(32000);
   assert(voice.count == 0);
-  puts("PASS granular: 1-frame sources, full 1 MiB, 8..96 kHz, extreme transpose/jitter, invalid "
+  puts("PASS granular: 1-frame sources, full 1 MiB, 8..96 kHz, extreme transpose/scatter, invalid "
        "controls and density zero");
   printf("MEMORY voice=%u tables=%u (shared PCM excluded)\n", unsigned(sizeof(voice)),
          unsigned(sizeof(tables)));

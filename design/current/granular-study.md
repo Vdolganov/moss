@@ -12,7 +12,7 @@ OWN-WORLD: Inherit the neutral graphite, flat strokes, monospace instrument labe
 
 STORY: Start with a prepared demo, change size/density, freeze the scan, explore the range, then switch views without losing parameters. The magic comes from seeing grains form and dissolve.
 
-FIRST VIEWPORT: A working 640×480 VOICE with source at the top, a central data-driven diagram, PLAY/SCAN/TEXTURE banks and four fixed fields at the bottom. Outside the device, three equal comparison controls and a concise key guide; no decorative hero.
+FIRST VIEWPORT: A working 640×480 VOICE with source at the top, a central data-driven diagram, PLAY/SCAN/TEXTURE/ENVELOPE banks and four fixed fields at the bottom. Outside the device, three equal comparison controls and a concise key guide; no decorative hero.
 
 FORM: Code-led local extension, no concept roll: the shell and interaction grammar are already specified. SPLICE uses source-aligned grain windows; FIELD uses birth position, age and pitch; LENS wraps source position into a circle. Their geometry must be distinguishable at thumbnail size.
 
@@ -27,3 +27,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 - Local storage failure retains an in-memory working state and explains that it cannot persist. No fabricated file-loading or permission state: this study uses bundled synthetic fixtures.
 - Reduced-motion/static mode stops continuous animation but retains readable diagram state and parameter feedback. Hidden tabs pause the simulation; resuming never fast-forwards.
 - Native integration now uses the selected LENS view, native short X for FREEZE and the ranges in its own contract. Hardware performance is verified separately; this study and its visual SHIP verdict do not establish that result.
+
+## Cloud follow-up · 0.6.1
+
+The study now mirrors normalized SCATTER, per-grain pan, selected-range reading and four banks. At 100%, birth areas cover the selected source independently of the anchor. LENS displays birth marks and read markers; the anchor marker returns below 100%. Grain opacity follows the latched GRAIN IN/OUT envelope. LEVEL and NOTE IN/OUT remain silent visual controls; there is still no audio engine. Existing study data receives default SCATTER and maps former FADE to both note fades. Native controls remain documented separately.

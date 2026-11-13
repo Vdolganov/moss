@@ -16,7 +16,7 @@ struct Engine {
     return whole * gain + (value - whole * 10000) * gain / 10000;
   }
   static int monitor(int value) {
-    int64_t scaled = int64_t(value) * 135 / 100;
+    int64_t scaled = int64_t(value) * MonitorGainPercent / 100;
     int sign = scaled < 0 ? -1 : 1;
     int64_t magnitude = scaled * sign;
     constexpr int knee = 27852, headroom = 4915;

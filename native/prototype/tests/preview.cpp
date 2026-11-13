@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
       strcpy(app.project.name,"SLOW SIGNAL"); auto &tr=app.project.tracks[0];
       tr.instrument=GranularInstrument; tr.granular.asset=1; strcpy(tr.name,"DUST");
       app.synthBank=!strcmp(argv[3],"grainscan")?1:!strcmp(argv[3],"graintexture")?2:0;
+      if(!strcmp(argv[3],"grainenvelope")) { app.synthBank=3; tr.granular.values[12]=10; tr.granular.values[13]=60; }
       if(!strcmp(argv[3],"grainempty")) tr.granular.asset=-1;
       if(!strcmp(argv[3],"grainfrozen")) tr.granular.freeze=1;
       engine.init(app.project,samples,AudioRate);engine.handle({Op::Audition,0});

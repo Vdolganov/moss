@@ -22,9 +22,10 @@ function remember(before){if(before!==snapshot()){history.push(before);if(histor
 function save(){try{localStorage.setItem(KEY,snapshot());storageOk=true;}catch{storageOk=false;}$('#study-save').textContent=storageOk?'Настройки сохранены':'Только этот сеанс';if(!storageOk)message('Браузер не разрешил сохранение. Настройки работают до закрытия страницы.');}
 function message(text){$('#study-message').textContent=text;}
 function configure(){cloud.configure(state.params,source(),state.freeze);if(!playing||state.static)cloud.prime();}
+const fieldName=key=>({irregularity:'IRREGULAR',spread:'STEREO',grainIn:'GRAIN IN',grainOut:'GRAIN OUT',noteIn:'NOTE IN',noteOut:'NOTE OUT'}[key]||key.toUpperCase());
 function value(key){const n=key==='position'&&!gesture&&!pointerEdit?cloud.head*100:state.params[key];return key==='speed'?n.toFixed(2):['position','start','end'].includes(key)?n.toFixed(1):String(Math.round(n));}
 function editSnapshot(key){if(key==='position'){state.params.position=Math.round(cloud.head*1000)/10;cloud.params.position=state.params.position;}return snapshot();}
-function renderFields(){const focused=document.activeElement?.dataset?.parameter;$('#grain-params').innerHTML=G.BANKS[state.bank].map((key,i)=>`<button class="grain-param" data-slot="${i}" data-parameter="${key}" aria-label="${key.toUpperCase()}, ${value(key)} ${G.SPEC[key][4]}. Удерживайте ${['Z','X','C','V'][i]} и нажимайте стрелки"><span class="label"><b class="physical">${PHYSICAL[i]}</b>${key==='irregularity'?'IRREGULAR':key.toUpperCase()}</span><span class="value">${value(key)}<span class="unit">${G.SPEC[key][4]}</span></span></button>`).join('');if(focused)$(`[data-parameter="${focused}"]`)?.focus({preventScroll:true});markGesture();}
+function renderFields(){const focused=document.activeElement?.dataset?.parameter;$('#grain-params').innerHTML=G.BANKS[state.bank].map((key,i)=>`<button class="grain-param" data-slot="${i}" data-parameter="${key}" aria-label="${fieldName(key)}, ${value(key)} ${G.SPEC[key][4]}. Удерживайте ${['Z','X','C','V'][i]} и нажимайте стрелки"><span class="label"><b class="physical">${PHYSICAL[i]}</b>${fieldName(key)}</span><span class="value">${value(key)}<span class="unit">${G.SPEC[key][4]}</span></span></button>`).join('');if(focused)$(`[data-parameter="${focused}"]`)?.focus({preventScroll:true});markGesture();}
 function markGesture(){const key=gesture?.key||pointerEdit?.key;$$('.grain-param').forEach(el=>el.classList.toggle('editing',el.dataset.parameter===key));$('#grain-hint').textContent=key?'← → FINE · ↑ ↓ COARSE · ESC CANCEL':source()?'A FREEZE · HOLD + ARROWS EDIT':'A ASSIGN SAMPLE';}
 function render(){
  screen.dataset.playing=String(playing&&!state.static&&!!source());
@@ -39,14 +40,14 @@ function render(){
  $$('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===state.variant)));
  $$('[data-bank]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.bank===state.bank)));
  $('#variant-title').textContent=DESCRIPTIONS[state.variant][0];$('#variant-copy').textContent=DESCRIPTIONS[state.variant][1];
- canvas.setAttribute('aria-label',`${DESCRIPTIONS[state.variant][0]}. ${state.freeze?'Позиция заморожена. ':''}До восьми зёрен. ${['Скорость, высота, размер, плотность','Позиция, границы сканирования, разброс','Стереоразлёт, нерегулярность, фильтр, проявление'][state.bank]}.`);
+ canvas.setAttribute('aria-label',`${DESCRIPTIONS[state.variant][0]}. ${state.freeze?'Позиция заморожена. ':''}До восьми зёрен. ${['Скорость, высота, размер, плотность','Позиция, границы сканирования, разброс','Стерео, нерегулярность, фильтр, уровень','Атака и затухание зерна, атака и затухание ноты'][state.bank]}.`);
  renderFields();$('#undo-study').disabled=!history.length;draw();
 }
 function finishGesture(cancel=false){if(!gesture&&!pointerEdit)return;if(gesture){if(cancel)state=G.restore(JSON.parse(gesture.before));else remember(gesture.before);gesture=null;}if(pointerEdit){if(cancel)state=G.restore(JSON.parse(pointerEdit.before));else remember(pointerEdit.before);pointerEdit=null;}configure();markGesture();save();}
 function change(fn){finishGesture();const before=snapshot();fn();remember(before);configure();save();render();}
-function bank(index){finishGesture();state.bank=(index+3)%3;save();render();}
+function bank(index){finishGesture();state.bank=(index+G.BANKS.length)%G.BANKS.length;save();render();}
 function undo(){finishGesture();if(!history.length)return;state=G.restore(JSON.parse(history.pop()));configure();save();render();message('Изменение отменено.');}
-function toggleFreeze(){if(!source())return;change(()=>state.freeze=!state.freeze);message(state.freeze?'Головка заморожена. Зёрна продолжают рождаться.':'Сканирование продолжается.');}
+function toggleFreeze(){if(!source())return;change(()=>state.freeze=!state.freeze);message(state.params.scatter===100?'При SCATTER 100% зёрна рождаются по всему диапазону; заморозка удерживает только якорь сканирования.':state.freeze?'Якорь заморожен. Зёрна продолжают рождаться.':'Сканирование продолжается.');}
 function togglePlay(){if(!source())return;finishGesture();if(state.static){for(let i=0;i<12;i++)cloud.advance(.025);draw();message('Новый неподвижный снимок облака.');return;}playing=!playing;if(playing)reveal=0;last=0;render();}
 function dialogIsolation(on){$$('.study-header,.variant-tabs,.study-guide,.study-transport,#grain-screen > :not(#grain-overlay)').forEach(el=>el.inert=on);}
 function openDialog(kind){finishGesture();if(!modal)returnFocus=document.activeElement;modal=kind;const overlay=$('#grain-overlay');overlay.hidden=false;dialogIsolation(true);let rows='';
@@ -62,7 +63,7 @@ $$('[data-bank]').forEach(b=>b.addEventListener('click',()=>bank(+b.dataset.bank
 $('#source-button').onclick=()=>openDialog('source');$('#assign-empty').onclick=()=>openDialog('source');$('#options').onclick=()=>openDialog('options');
 $('#freeze').onclick=toggleFreeze;$('#transport').onclick=togglePlay;$('#motion-toggle').onclick=()=>{togglePlay();screen.focus({preventScroll:true});};$('#undo-study').onclick=undo;
 $('#static-mode').onchange=e=>{finishGesture();state.static=e.target.checked;if(state.static)cloud.prime();last=0;save();render();};
-$$('[data-preset]').forEach(b=>b.onclick=()=>{change(()=>{state.params=b.dataset.preset==='mist'?{...G.DEFAULTS,size:440,density:14,speed:.12,pitch:-12}:{...G.DEFAULTS,size:65,density:12,speed:.8,pitch:7,jitter:420,spread:90};state.freeze=false;if(!source())state.source='air';});cloud.prime();playing=true;reveal=0;render();screen.focus({preventScroll:true});message('Настройки изменены. Все три вида показывают одно облако.');});
+$$('[data-preset]').forEach(b=>b.onclick=()=>{change(()=>{state.params=b.dataset.preset==='mist'?{...G.DEFAULTS,size:440,density:24,speed:.12,pitch:-12}:{...G.DEFAULTS,size:65,density:12,speed:.8,pitch:7,scatter:100,spread:90};state.freeze=false;if(!source())state.source='air';});cloud.prime();playing=true;reveal=0;render();screen.focus({preventScroll:true});message('Настройки изменены. Все три вида показывают одно облако.');});
 document.addEventListener('keydown',e=>{
  if(e.metaKey||e.ctrlKey){if(e.code==='KeyZ'){e.preventDefault();if(modal)closeDialog();undo();}return;}
  if(modal){if(e.code==='Escape'||e.code==='KeyX'){e.preventDefault();closeDialog();return;}const items=[...$('#grain-overlay').querySelectorAll('button:not(:disabled)')],at=items.indexOf(document.activeElement);if(e.code==='Tab'){e.preventDefault();items[(at+(e.shiftKey?-1:1)+items.length)%items.length].focus();}else if(['ArrowDown','ArrowUp','KeyQ','KeyE'].includes(e.code)){e.preventDefault();items[(at+(['ArrowUp','KeyQ'].includes(e.code)?-1:1)+items.length)%items.length].focus();}else if(e.code==='KeyC'){e.preventDefault();document.activeElement?.click();}return;}
@@ -88,13 +89,13 @@ function line(x1,y1,x2,y2,color=col.line,width=1,alpha=1){ctx.globalAlpha=alpha;
 function label(text,x,y,color=col.dim,align='left'){ctx.fillStyle=color;ctx.font="11px Consolas, 'Courier New', monospace";ctx.textAlign=align;ctx.globalAlpha=1;ctx.fillText(text,x,y);}
 function waveLine(y,amplitude){ctx.beginPath();for(let i=0;i<=552;i++){const x=i/552,h=G.wave(x,source().seed,state.params.cutoff)*amplitude;i?ctx.lineTo(26+i,y+h):ctx.moveTo(26+i,y+h);}ctx.strokeStyle=col.dim;ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;}
 function accent(key){const active=gesture?.key||pointerEdit?.key;return active===key?faces[G.BANKS[state.bank].indexOf(key)]:col.text;}
-function grainAlpha(g){return (.15+.85*Math.sin(Math.PI*g.age/g.life)**2)*(state.static?1:reveal);}
-function sourceAxis(y){const p=state.params,head=26+cloud.head*552;line(26+p.start/100*552,y,26+p.end/100*552,y,col.dim);for(const x of [26+p.start/100*552,26+p.end/100*552])line(x,y-3,x,y+3,col.dim);line(head,y-8,head,y+3,accent('position'),1.5);label('0',26,187);label(source().seconds.toFixed(1)+' s',578,187,col.dim,'right');}
+function grainAlpha(g){return (.15+.85*G.windowGain(g))*(state.static?1:reveal);}
+function sourceAxis(y){const p=state.params,head=26+cloud.head*552;line(26+p.start/100*552,y,26+p.end/100*552,y,col.dim);for(const x of [26+p.start/100*552,26+p.end/100*552])line(x,y-3,x,y+3,col.dim);if(p.scatter<100)line(head,y-8,head,y+3,accent('position'),1.5);label('0',26,187);label(source().seconds.toFixed(1)+' s',578,187,col.dim,'right');}
 function drawSplice(){
  const p=state.params,head=26+cloud.head*552;
  for(let i=0;i<8;i++)line(26,26+i*14,578,26+i*14,col.line,.5,.35);
- waveLine(154,15);sourceAxis(172);line(head,20,head,172,accent('position'),1,.6);
- for(const g of cloud.grains){const y=26+g.slot*14,len=g.life*g.rate/source().seconds*552,start=g.birth*552,read=G.wrap(g.birth+g.age*g.rate/source().seconds)*552,alpha=grainAlpha(g);const tone=accent('size');for(const offset of [0,-552]){const x=Math.max(0,start+offset),end=Math.min(552,start+offset+len);if(end>=0&&x<end){ctx.fillStyle=tone;ctx.globalAlpha=alpha*.2;ctx.fillRect(26+x,y-3,end-x,6);ctx.globalAlpha=1;line(26+x,y,26+end,y,tone,2,alpha);line(26+x,y-3,26+x,y+3,tone,1,alpha);}}line(26+read,y-4,26+read,y+4,accent('pitch'),1,alpha);}
+ waveLine(154,15);sourceAxis(172);if(p.scatter<100)line(head,20,head,172,accent('position'),1,.6);
+ for(const g of cloud.grains){const y=26+g.slot*14,first=g.first*552,last=(g.first+g.span)*552,len=Math.min(g.span,g.life*g.rate/source().seconds)*552,start=g.birth*552,read=cloud.readPosition(g)*552,alpha=grainAlpha(g);const tone=accent('size');for(const offset of [0,-g.span*552]){const x=Math.max(first,start+offset),end=Math.min(last,start+offset+len);if(x<end){ctx.fillStyle=tone;ctx.globalAlpha=alpha*.2;ctx.fillRect(26+x,y-3,end-x,6);ctx.globalAlpha=1;line(26+x,y,26+end,y,tone,2,alpha);line(26+x,y-3,26+x,y+3,tone,1,alpha);}}line(26+read,y-4,26+read,y+4,accent('pitch'),1,alpha);}
 }
 function drawField(){
  waveLine(157,10);sourceAxis(172);
@@ -103,7 +104,7 @@ function drawField(){
  line(origin,150,x,y,col.line,.7,alpha*.55);line(x-half,y+half*tilt,x+half,y-half*tilt,accent('size'),1.5,alpha);
  line(x,y-2.5,x,y+2.5,accent('pitch'),1,alpha);ctx.fillStyle=col.text;ctx.globalAlpha=alpha;ctx.fillRect(Math.round(x)-1,Math.round(y)-1,2,2);ctx.globalAlpha=1;
  }
- const head=26+cloud.head*552;line(head,143,head,167,accent('position'),1.5);label('BIRTH',26,141);label('LIFE',26,27);
+ const head=26+cloud.head*552;if(p.scatter<100)line(head,143,head,167,accent('position'),1.5);label('BIRTH',26,141);label('LIFE',26,27);
  if(p.density===0)label('DENSITY 0 / NO NEW GRAINS',302,88,col.dim,'center');
 }
 function point(turn,r){const a=turn*Math.PI*2-Math.PI/2;return [302+Math.cos(a)*r,98+Math.sin(a)*r];}
@@ -112,11 +113,11 @@ function drawLens(){
  const p=state.params;arc(0,1,70,col.line);arc(p.start/100,p.end/100,78,col.dim,1);
  ctx.beginPath();for(let i=0;i<=220;i++){const t=i/220,r=70+G.wave(t,source().seed,p.cutoff)*5,[x,y]=point(t,r);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle=col.dim;ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;
  for(let i=0;i<16;i++){const a=point(i/16,82),b=point(i/16,i%4===0?87:84);line(...a,...b,col.line);}
- for(const g of cloud.grains){const read=G.wrap(g.birth+g.age*g.rate/source().seconds),length=Math.min(.9,g.life*g.rate/source().seconds),r=14+g.age/g.life*50,alpha=grainAlpha(g);arc(0,1,r,col.dim,.7,alpha*.32);arc(read-length*g.age/g.life,read+length*(1-g.age/g.life),r,accent('size'),1.5,alpha);const a=point(read,r-2),b=point(read,r+2);line(...a,...b,accent('pitch'),1,alpha);}
- const a=point(cloud.head,68),b=point(cloud.head,89);line(...a,...b,accent('position'),1.5);for(const turn of [p.start/100,p.end/100])line(...point(turn,75),...point(turn,82),col.dim);
- label('SOURCE',26,41);label(source().seconds.toFixed(1)+' s',26,57,col.text);label('SCAN',578,133,col.dim,'right');label((cloud.head*100).toFixed(1)+' %',578,149,col.text,'right');
+ for(const g of cloud.grains){const read=cloud.readPosition(g),r=14+g.age/g.life*50,alpha=grainAlpha(g);arc(0,1,r,col.dim,.7,alpha*.32);line(...point(g.birth,r-2),...point(g.birth,r+2),col.dim,1,alpha);arc(read-.012,read+.012,r,accent('size'),1.5,alpha);const a=point(read,r-2),b=point(read,r+2);line(...a,...b,accent('pitch'),1,alpha);}
+ const a=point(cloud.head,68),b=point(cloud.head,89);if(p.scatter<100)line(...a,...b,accent('position'),1.5);for(const turn of [p.start/100,p.end/100])line(...point(turn,75),...point(turn,82),col.dim);
+ label('SOURCE',26,41);label(source().seconds.toFixed(1)+' s',26,57,col.text);label(p.scatter===100?'FULL CLOUD':'ANCHOR',578,133,col.dim,'right');label(p.scatter===100?cloud.grains.length+' / 8':(cloud.head*100).toFixed(1)+' %',578,149,col.text,'right');
 }
-function draw(){ctx.clearRect(0,0,604,196);if(!source())return;({splice:drawSplice,field:drawField,lens:drawLens})[state.variant]();label(state.freeze?'POSITION HELD':'SCAN '+(state.params.speed<0?'REVERSE':'FORWARD'),26,11);label((cloud.head*source().seconds).toFixed(2)+' s',578,11,col.dim,'right');if(state.bank===2){label('LP '+state.params.cutoff+' Hz',26,187);label('FADE '+state.params.fade+' ms',578,187,col.dim,'right');}}
-function frame(now){const elapsed=last?Math.min((now-last)/1000,.05):0;last=now;if(!document.hidden&&playing&&!state.static&&source()&&!modal){cloud.advance(elapsed);reveal=Math.min(1,reveal+elapsed/Math.max(.002,state.params.fade/1000));if(now-paintTime>=32){draw();paintTime=now;if(state.bank===1&&!gesture&&!pointerEdit){const el=$('[data-parameter="position"]');el.querySelector('.value').firstChild.nodeValue=value('position');el.setAttribute('aria-label',`POSITION, ${value('position')} %. Удерживайте Z и нажимайте стрелки`);}}}requestAnimationFrame(frame);}
+function draw(){ctx.clearRect(0,0,604,196);if(!source())return;({splice:drawSplice,field:drawField,lens:drawLens})[state.variant]();label(state.params.scatter===100?'FULL CLOUD':state.freeze?'ANCHOR HELD':'SCAN '+(state.params.speed<0?'REVERSE':'FORWARD'),26,11);label(state.params.scatter===100?'ALL REGIONS':(cloud.head*source().seconds).toFixed(2)+' s',578,11,col.dim,'right');if(state.bank===2){label('LP '+state.params.cutoff+' Hz',26,187);label('LEVEL '+state.params.level+' %',578,187,col.dim,'right');}}
+function frame(now){const elapsed=last?Math.min((now-last)/1000,.05):0;last=now;if(!document.hidden&&playing&&!state.static&&source()&&!modal){cloud.advance(elapsed);reveal=Math.min(1,reveal+elapsed/Math.max(.002,state.params.noteIn/1000));if(now-paintTime>=32){draw();paintTime=now;if(state.bank===1&&!gesture&&!pointerEdit){const el=$('[data-parameter="position"]');el.querySelector('.value').firstChild.nodeValue=value('position');el.setAttribute('aria-label',`POSITION, ${value('position')} %. Удерживайте Z и нажимайте стрелки`);}}}requestAnimationFrame(frame);}
 render();save();screen.focus({preventScroll:true});requestAnimationFrame(frame);
 })();

@@ -27,10 +27,10 @@ int main(int argc, char **argv) {
       p.pitch = -12;
       p.sizeMs = 180;
       p.density = 40;
-      p.jitterMs = 30;
+      p.scatter = 1;
       p.spread = .4f;
       p.cutoff = 2400;
-      p.fadeMs = 800;
+      p.attackMs = p.releaseMs = 800;
       e.select(1);
       e.enable(true);
       e.values[1][3] = 35;
@@ -40,10 +40,10 @@ int main(int argc, char **argv) {
       p.sizeMs = 35;
       p.density = 80;
       p.irregularity = .7f;
-      p.jitterMs = 200;
+      p.scatter = .65f;
       p.spread = .8f;
       p.cutoff = 6000;
-      p.fadeMs = 300;
+      p.attackMs = p.releaseMs = 300;
       e.select(1);
       e.enable(true);
       e.values[1][3] = 25;
@@ -51,10 +51,10 @@ int main(int argc, char **argv) {
       p.speed = 0;
       p.sizeMs = 100;
       p.density = 70;
-      p.jitterMs = 2;
+      p.scatter = .02f;
       p.spread = .3f;
       p.cutoff = 8000;
-      p.fadeMs = 60;
+      p.attackMs = p.releaseMs = 60;
       e.enable(true);
       e.values[0][0] = 1;
       e.values[0][2] = 30;

@@ -150,7 +150,7 @@ static void sound() {
   }
   assert(tailEnergy > 10000 && engine.activeFxStep[0] == 0 &&
          !engine.voices[0].active);
-  assert(Engine::monitor(10000) == 13500 && Engine::monitor(-10000) == -13500);
+  assert(Engine::monitor(10000) == 18000 && Engine::monitor(-10000) == -18000);
   assert(Engine::monitor(50000) < 32767 && Engine::monitor(-50000) > -32767);
   t.division = 8;
   engine.init(p, library.pcm, 8000, Assets);
@@ -165,7 +165,7 @@ static void sound() {
   }
   assert(engine.triggerCount[0] == reference.triggerCount[0]);
   puts("PASS v05 audio: four simultaneous keys, forced one-shots, delay lock "
-       "tails over rests, +35% gain/soft peak protection, resolution leaves "
+       "tails over rests, 180% monitor gain/soft peak protection, resolution leaves "
        "audio duration unchanged");
 }
 static void namedImport() {

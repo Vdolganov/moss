@@ -2,7 +2,7 @@
 
 [Русский](README.md) · **English**
 
-The stable application version is **0.5.2**; experimental **0.6.0-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
+The stable application version is **0.5.2**; experimental **0.6.1-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
 
 | Document | Русский | English |
 |---|---|---|
@@ -13,7 +13,9 @@ The stable application version is **0.5.2**; experimental **0.6.0-dev / GRANULAR
 | 0.5.1 performance: optimization history | [Отчёт](NATIVE-PERFORMANCE-051.md) | [Performance](NATIVE-PERFORMANCE-051.en.md) |
 | Browser prototype v0.6 | [Руководство](<../visual prototype/README.md>) | [Guide](<../visual prototype/README.en.md>) |
 | 0.5.2 release notes | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
-| GRANULAR / LENS: experimental 0.6.0-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| GRANULAR / LENS: experimental 0.6.1-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| Cloud, envelopes and gain / 0.6.1 | [Проверка](GRANULAR-CLOUD-v2.md) | [Verification](GRANULAR-CLOUD-v2.en.md) |
+| Trigless locks: proposal | [План](TRIGLESS-LOCKS-PLAN.md) | [Plan](TRIGLESS-LOCKS-PLAN.en.md) |
 | GRANULAR: integration and RG35XX verification | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
 | Effects: Elektron research and redesign plan | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
 

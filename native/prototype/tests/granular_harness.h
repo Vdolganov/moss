@@ -77,11 +77,11 @@ struct GranularHarness {
       p.sizeMs = mode == 1 ? 1 : mode == 2 && edits % 4 == 3 ? 1 : 500;
       p.pitch = mode == 3 ? 24 : ((edits + i) % 3 - 1.f) * 24;
       p.speed = i % 2 ? -3 : 3;
-      p.jitterMs = 500;
+      p.scatter = 1;
       p.spread = 1;
       p.irregularity = 1;
       p.cutoff = (edits + i) % 2 ? 14000 : 20;
-      p.fadeMs = 20;
+      p.attackMs = p.releaseMs = 20;
       p.freeze = mode == 2 && edits % 7 == 3;
       p.position = ((edits * 13 + i * 7) % 100) / 100.f;
       p.start = mode == 2 ? .3f : 0;

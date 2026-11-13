@@ -23,18 +23,30 @@ static void gesture(int face,int direction) {
 static void setup() {
   project=Project{}; project.trackCount=1; project.bpm=120;
   auto &t=project.tracks[0]; t.instrument=GranularInstrument; t.granular.asset=0;
-  t.granular.values[1]=0; t.granular.values[11]=20;
+  t.granular.values[1]=0; t.granular.values[14]=t.granular.values[15]=20;
   t.steps[0].on=1; t.steps[0].length=16; t.steps[0].note=48;
   t.steps[32].on=1; t.steps[32].note=60; t.steps[32].length=8;
   t.steps[32].grainLocks[0]=-50; t.steps[32].grainLocks[4]=800;
 }
 static void codecAndProtection() {
   setup(); project.tracks[0].granular.freeze=1;
-  for(int i=0;i<12;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
-  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MOS7",4));
+  for(int i=0;i<GranularParameterCount;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
+  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MOS8",4));
   assert(codec.decode(restored,codec.cursor));
   unsigned storedSize=codec.cursor; uint32_t storedHash=codec.hash(storedSize);
   assert(codec.encode(restored)); assert(codec.cursor==storedSize && codec.hash(codec.cursor)==storedHash);
+  // MOS7 milliseconds cannot silently become percentages. The beta migration
+  // changes only the replaced control; other locks, sources and notes survive.
+  project.tracks[0].granular.values[7]=180;
+  project.tracks[0].steps[31].grainLocks[7]=500;
+  codec.cursor=16; codec.ok=true; codec.fields(project,true,7);
+  memcpy(codec.bytes,"MOS7",4); codec.word(4,7); codec.word(8,codec.cursor); codec.word(12,codec.hash(codec.cursor));
+  assert(codec.decode(restored,codec.cursor));
+  assert(restored.tracks[0].granular.values[7]==100);
+  assert(restored.tracks[0].steps[31].grainLocks[7]==Inherit);
+  assert(restored.tracks[0].steps[31].grainLocks[10]==GranularSpecs[10].high);
+  assert(restored.tracks[0].granular.asset==0);
+  project=restored;
   // Real MOS6 payload, not a tag-only fake: defaults must fill the new fields.
   project.tracks[0].instrument=MonoInstrument;
   codec.cursor=16; codec.ok=true; codec.fields(project,true,6);
@@ -89,6 +101,10 @@ static void controls() {
   tap(lab::X); assert(app.project.tracks[0].granular.freeze==1);
   tap(lab::R1); assert(app.synthBank==1); tap(lab::R1); assert(app.synthBank==2);
   gesture(lab::A,lab::Up); assert(app.project.tracks[0].granular.values[10]==7700);
+  tap(lab::R1); assert(app.synthBank==3);
+  gesture(lab::Y,lab::Up);
+  assert(app.project.tracks[0].granular.values[12]==60 && app.project.tracks[0].granular.values[13]==40);
+  gesture(lab::X,lab::Up); assert(app.project.tracks[0].granular.values[15]==120);
   tap(lab::R1); assert(app.synthBank==0);
   app.page=Pattern; app.bank=1; app.synthBank=2; app.step=0;
   gesture(lab::A,lab::Down); assert(app.project.tracks[0].steps[0].grainLocks[10]==7600);
@@ -102,8 +118,8 @@ static void controls() {
   assert(app.voiceChoice==GranularInstrument); tap(lab::A);
   app.assignSample(2); assert(app.project.tracks[0].granular.asset==2);
   assert(app.optionName(app.optionIndex(4)) && !strcmp(app.optionName(app.optionIndex(4)),"ASSIGN / REPLACE SAMPLE"));
-  draw(canvas,app); // All three banks and lock banks use the native renderer.
-  for(int bank=0;bank<3;++bank) { app.synthBank=bank; draw(canvas,app); app.page=Pattern;app.bank=1;draw(canvas,app);app.page=Sampler; }
+  draw(canvas,app); // All four banks and lock banks use the native renderer.
+  for(int bank=0;bank<GranularBankCount;++bank) { app.synthBank=bank; draw(canvas,app); app.page=Pattern;app.bank=1;draw(canvas,app);app.page=Sampler; }
 }
 static void arrangement() {
   // The static bank is already initialized. A temporary would exceed ARM's 8 MiB stack.
@@ -160,5 +176,5 @@ static void importWorkflow() {
 int main() {
   for(int i=0;i<3;++i) assert(samples[i].load(lab::sampleFiles[i]));
   codecAndProtection(); playback(); controls(); arrangement(); importWorkflow();
-  puts("PASS granular integration: MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 12 locks, lens render, SONG and capture");
+  puts("PASS granular integration: MOS8/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture");
 }

@@ -11,8 +11,8 @@ struct Key {
   int asset = -1, pitch = 0, start = 0, end = 100, level = 80, mode = 0;
 };
 struct Step {
-  int16_t grainLocks[12] = {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
-                            Inherit, Inherit, Inherit, Inherit, Inherit, Inherit};
+  int16_t grainLocks[GranularParameterCount] = {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
+                            Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit};
   int note = 48;
   int16_t synthLocks[3][8] = {
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
@@ -162,7 +162,7 @@ inline bool valid(const Project &p) {
         t.granular.freeze < 0 || t.granular.freeze > 1 ||
         t.granular.values[5] >= t.granular.values[6])
       return false;
-    for (int i = 0; i < 12; ++i)
+    for (int i = 0; i < GranularParameterCount; ++i)
       if (t.granular.values[i] < GranularSpecs[i].low ||
           t.granular.values[i] > GranularSpecs[i].high)
         return false;
@@ -201,7 +201,7 @@ inline bool valid(const Project &p) {
           k.level > 100 || k.mode < 0 || k.mode > 2)
         return false;
     for (const auto &s : t.steps) {
-      for (int i = 0; i < 12; ++i)
+      for (int i = 0; i < GranularParameterCount; ++i)
         if (s.grainLocks[i] != Inherit &&
             (s.grainLocks[i] < GranularSpecs[i].low || s.grainLocks[i] > GranularSpecs[i].high))
           return false;
@@ -313,9 +313,9 @@ inline void apply(Project &p, const Command &c) {
   if (c.track < 0 || c.track >= Tracks)
     return;
   auto &t = p.tracks[c.track];
-  if (c.op == Op::GranularParam && c.field >= 0 && c.field < 12)
+  if (c.op == Op::GranularParam && c.field >= 0 && c.field < GranularParameterCount)
     t.granular.values[c.field] = c.value;
-  if (c.op == Op::GranularLock && c.index >= 0 && c.index < Steps && c.field >= 0 && c.field < 12)
+  if (c.op == Op::GranularLock && c.index >= 0 && c.index < Steps && c.field >= 0 && c.field < GranularParameterCount)
     t.steps[c.index].grainLocks[c.field] = int16_t(c.value);
   if (c.op == Op::GranularSource)
     t.granular.asset = c.value;

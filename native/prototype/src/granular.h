@@ -7,8 +7,9 @@ namespace moss {
 // Original implementation of conventional granular synthesis; no Mangl code.
 struct GranularParameters {
   float speed = 1, pitch = 0, sizeMs = 100, density = 20;
-  float position = 0, start = 0, end = 1, jitterMs = 0;
-  float spread = 0, irregularity = 0, cutoff = 12000, fadeMs = 100;
+  float position = 0, start = 0, end = 1, scatter = 0;
+  float spread = 0, irregularity = 0, cutoff = 12000, level = 1;
+  float grainIn = .5f, grainOut = .5f, attackMs = 100, releaseMs = 100;
   bool freeze = false;
 };
 
@@ -83,11 +84,16 @@ struct GranularVoice {
   // Conservative RG35XX integration budget; larger pools are for measurement only.
   static constexpr unsigned NativeGrains = 8;
   static constexpr unsigned MaxGrains = 32;
-  // Fixed headroom, not density-dependent normalization.
-  static constexpr float OutputGain = .125f;
+  // Nominal RMS for decorrelated grains relative to their source. Prepared
+  // once on edits, never an input-dependent compressor or per-sample sqrt.
+  static constexpr float NominalGain = .75f;
   struct Grain {
     unsigned index = 0, stepWhole = 0, age = 0, length = 0;
-    float fraction = 0, stepFraction = 0, window = 0, windowStep = 0;
+    unsigned first = 0, last = 1, zone = 0;
+    float fraction = 0, stepFraction = 0;
+    unsigned attackFrames = 1, releaseStart = 1;
+    float attackStep = 0, releaseStep = 0;
+    float origin = 0, panLeft = 1, panRight = 1;
   } grains[MaxGrains];
   struct Statistics {
     uint64_t attempts = 0, spawned = 0, skipped = 0;
@@ -101,11 +107,11 @@ struct GranularVoice {
   unsigned control = 0;
   uint32_t randomState = 1;
   int64_t head = 0, scanFirst = 0, scanLast = 0, scanStep = 0;
-  float readStep = 1, note = 0, velocity = 1, envelope = 0, envelopeStep = 1;
+  float readStep = 1, note = 0, velocity = 1, envelope = 0, attackStep = 1, releaseStep = 1;
+  float outputGain = 0, gainTarget = 1, gainSmoothing = .001f;
   float currentVelocity = 0;
   float scheduler = 0, schedulerStep = 0, noise = 0, noiseTarget = 0;
   float noiseStep = 0, noiseClock = 1;
-  float pan[2] = {1, 1}, panTarget[2] = {1, 1};
   bool gate = false, running = false;
 
   static float bounded(float v, float lo, float hi, float fallback) {
@@ -130,6 +136,7 @@ struct GranularVoice {
     sample = &source;
     tables = &lookup;
     rate = outputRate;
+    gainSmoothing = 1.f - expf(-1.f / (rate * .02f));
     capacity = limit;
     randomState = seed ? seed : 1;
     setParameters(parameters);
@@ -148,18 +155,28 @@ struct GranularVoice {
     p.position = bounded(p.position, 0, 1, 0);
     p.start = bounded(p.start, 0, 1, 0);
     p.end = bounded(p.end, p.start, 1, 1);
-    p.jitterMs = bounded(p.jitterMs, 0, 500, 0);
+    p.scatter = bounded(p.scatter, 0, 1, 0);
     p.spread = bounded(p.spread, 0, 1, 0);
     p.irregularity = bounded(p.irregularity, 0, 1, 0);
     p.cutoff = bounded(p.cutoff, 20, rate * .4375f, rate * .375f);
-    p.fadeMs = bounded(p.fadeMs, 0, 9000, 100);
+    p.level = bounded(p.level, 0, 2, 1);
+    p.grainIn = bounded(p.grainIn, 0, 1, .5f);
+    p.grainOut = bounded(p.grainOut, 0, 1, .5f);
+    float sum = p.grainIn + p.grainOut;
+    if (sum > 1) { p.grainIn /= sum; p.grainOut /= sum; }
+    p.attackMs = bounded(p.attackMs, 0, 9000, 100);
+    p.releaseMs = bounded(p.releaseMs, 0, 9000, 100);
     bool seekChanged = p.position != parameters.position;
     bool filterChanged = p.cutoff != parameters.cutoff;
     parameters = p;
     grainFrames = unsigned(p.sizeMs * .001f * rate + .5f);
     if (grainFrames < 2)
       grainFrames = 2;
-    envelopeStep = 1.f / (rate * (p.fadeMs < 2 ? .002f : p.fadeMs * .001f));
+    attackStep = 1.f / (rate * (p.attackMs < 2 ? .002f : p.attackMs * .001f));
+    releaseStep = 1.f / (rate * (p.releaseMs < 2 ? .002f : p.releaseMs * .001f));
+    float overlap = bounded(p.density * p.sizeMs * .001f, 1, float(capacity), 1);
+    float windowEnergy = 1 - .625f * (p.grainIn + p.grainOut);
+    gainTarget = p.level * NominalGain / sqrtf(fmaxf(1, overlap * windowEnergy));
     if (filterChanged)
       filter.tune(p.cutoff, rate);
     preparePitch();
@@ -212,40 +229,83 @@ struct GranularVoice {
   }
   void spawn() {
     ++stats.attempts;
-    float jitter = randomBipolar() * parameters.jitterMs * .001f * sample->rate;
-    float balance = randomBipolar() * parameters.spread;
-    panTarget[0] = sqrtf(1 - balance);
-    panTarget[1] = sqrtf(1 + balance);
     if (count == capacity) {
       ++stats.skipped;
       return; // Never steal a grain or enlarge the pool.
     }
-    double position = double(head >> 32) + double(uint32_t(head)) / 4294967296. + jitter;
-    position -= floor(position / sample->frames) * sample->frames;
+    // Stratify births across eight regions. A randomly chosen least-occupied
+    // region prevents a full cloud clustering around one scan head. Zone is
+    // latched per grain, so replacement preserves coverage without ordered scans.
+    unsigned population[NativeGrains] = {};
+    for (unsigned i = 0; i < count; ++i) ++population[grains[i].zone];
+    unsigned least = MaxGrains, candidates[NativeGrains], choices = 0;
+    for (unsigned i = 0; i < NativeGrains; ++i) {
+      if (population[i] < least) { least = population[i]; choices = 0; }
+      if (population[i] == least) candidates[choices++] = i;
+    }
+    unsigned zone = candidates[unsigned((randomBipolar() + 1) * .5f * choices)];
+    double fraction = (zone + (randomBipolar() + 1) * .5) / NativeGrains;
+    unsigned first = unsigned(scanFirst >> 32), last = unsigned(scanLast >> 32);
+    unsigned span = last - first;
+    // At full scatter the anchor, scan speed and freeze do not bias births.
+    // At smaller widths the window is centered on the head and wraps locally.
+    double position = first + fraction * span;
+    if (parameters.scatter < 1) {
+      position = double(head >> 32) + double(uint32_t(head)) / 4294967296. +
+                 (fraction - .5) * parameters.scatter * span;
+      if (position < first) position += span;
+      else if (position >= last) position -= span;
+    }
     Grain &g = grains[count++];
     g.index = unsigned(position);
     g.fraction = float(position - g.index);
+    g.first = first; g.last = last; g.zone = zone;
+    g.origin = float(position / sample->frames);
+    float balance = randomBipolar() * parameters.spread;
+    g.panLeft = sqrtf(1 - balance); g.panRight = sqrtf(1 + balance);
     // Tiny sources are valid. Reduce the integer stride once at birth.
-    g.stepWhole = unsigned(readStep) % sample->frames;
+    g.stepWhole = unsigned(readStep) % span;
     g.stepFraction = readStep - unsigned(readStep);
     g.age = 0;
     g.length = grainFrames;
-    g.window = 0;
-    g.windowStep = float(GranularTables::Size) / (g.length - 1);
+    g.attackFrames = unsigned((g.length - 1) * parameters.grainIn);
+    unsigned releaseFrames = unsigned((g.length - 1) * parameters.grainOut);
+    if (!g.attackFrames) g.attackFrames = 1;
+    if (!releaseFrames) releaseFrames = 1;
+    // Even nominally zero fades retain one endpoint sample. Take that guard
+    // from the longer ramp rather than overlapping attack and release.
+    if (g.attackFrames + releaseFrames > g.length - 1) {
+      if (g.attackFrames >= releaseFrames) g.attackFrames = g.length - 1 - releaseFrames;
+      else releaseFrames = g.length - 1 - g.attackFrames;
+    }
+    g.releaseStart = g.length - 1 - releaseFrames;
+    g.attackStep = float(GranularTables::Size / 2) / g.attackFrames;
+    g.releaseStep = float(GranularTables::Size / 2) / releaseFrames;
     ++stats.spawned;
     if (count > stats.peak)
       stats.peak = count;
+  }
+  float grainWindow(const Grain &g) const {
+    if (!g.age || g.age + 1 >= g.length) return 0;
+    float phase;
+    if (g.age < g.attackFrames) phase = g.age * g.attackStep;
+    else if (g.age >= g.releaseStart)
+      phase = GranularTables::Size / 2 + (g.age - g.releaseStart) * g.releaseStep;
+    else return 1;
+    unsigned at = unsigned(phase);
+    return at >= GranularTables::Size ? 0 : tables->hann[at] +
+      (tables->hann[at + 1] - tables->hann[at]) * (phase - at);
   }
   void render(float &left, float &right) {
     left = right = 0;
     if (!running || !sample)
       return;
     if (gate) {
-      envelope += envelopeStep;
+      envelope += attackStep;
       if (envelope > 1)
         envelope = 1;
     } else {
-      envelope -= envelopeStep;
+      envelope -= releaseStep;
       if (envelope <= 0) {
         stop();
         return;
@@ -281,11 +341,8 @@ struct GranularVoice {
     }
     for (unsigned i = 0; i < count;) {
       Grain &g = grains[i];
-      unsigned wi = unsigned(g.window);
-      float window = 0;
-      if (g.age + 1 < g.length && wi < GranularTables::Size)
-        window = tables->hann[wi] + (tables->hann[wi + 1] - tables->hann[wi]) * (g.window - wi);
-      unsigned next = g.index + 1 == sample->frames ? 0 : g.index + 1;
+      float window = grainWindow(g);
+      unsigned next = g.index + 1 == g.last ? g.first : g.index + 1;
       unsigned at = g.index * sample->channels, after = next * sample->channels;
       float l = sample->pcm[at];
       l += (sample->pcm[after] - l) * g.fraction;
@@ -294,27 +351,24 @@ struct GranularVoice {
         r = sample->pcm[at + 1];
         r += (sample->pcm[after + 1] - r) * g.fraction;
       }
-      left += l * window;
-      right += r * window;
+      left += l * (window * g.panLeft);
+      right += r * (window * g.panRight);
       g.fraction += g.stepFraction;
       g.index += g.stepWhole;
       if (g.fraction >= 1) {
         g.fraction -= 1;
         ++g.index;
       }
-      if (g.index >= sample->frames)
-        g.index -= sample->frames;
-      g.window += g.windowStep;
+      if (g.index >= g.last)
+        g.index -= g.last - g.first;
       if (++g.age == g.length)
         grains[i] = grains[--count];
       else
         ++i;
     }
-    // Cloud-level balance, as opposed to independently panning each grain.
-    for (unsigned ch = 0; ch < 2; ++ch)
-      pan[ch] += (panTarget[ch] - pan[ch]) * .015625f;
-    left *= (OutputGain / 32768.f) * pan[0];
-    right *= (OutputGain / 32768.f) * pan[1];
+    outputGain += (gainTarget - outputGain) * gainSmoothing;
+    left *= outputGain / 32768.f;
+    right *= outputGain / 32768.f;
     filter.process(left, right);
     currentVelocity += (velocity - currentVelocity) * .015625f;
     left *= envelope * currentVelocity;

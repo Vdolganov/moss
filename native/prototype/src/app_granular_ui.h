@@ -45,6 +45,9 @@ inline void drawGranular(lab::Canvas &c, const App &a) {
   if (a.available(p.asset)) {
     const auto &sample=a.engine->samples[p.asset];
     float head=view.running?view.head/65536.f:p.values[4]*.001f;
+    float first=view.running?view.first/65536.f:p.values[5]*.001f;
+    float last=view.running?view.last/65536.f:p.values[6]*.001f;
+    float scatter=view.running?view.scatter/65536.f:p.values[7]*.01f;
     lens.arc(c,0,1,70,LINE);
     // The prepared source's immutable peak overview wraps once around the ring.
     int x1=0,y1=0;
@@ -54,28 +57,31 @@ inline void drawGranular(lab::Canvas &c, const App &a) {
       int x2,y2; lens.point(i/128.f,70+peak*8,x2,y2);
       if(i) grainLine(c,x1,y1,x2,y2,DIM); x1=x2;y1=y2;
     }
-    lens.arc(c,p.values[5]*.001f,p.values[6]*.001f,80,DIM);
+    lens.arc(c,first,last,80,DIM);
     for(int i=0;i<16;++i) lens.radial(c,i/16.f,84,i%4?86:89,LINE);
-    lens.radial(c,p.values[5]*.001f,77,83,DIM);
-    lens.radial(c,p.values[6]*.001f,77,83,DIM);
+    lens.radial(c,first,77,83,DIM);
+    lens.radial(c,last,77,83,DIM);
     for(unsigned i=0;i<view.count && i<8;++i) {
-      const auto &g=view.grains[i]; float age=g.age/65536.f, at=g.position/65536.f, extent=g.extent/65536.f;
+      const auto &g=view.grains[i]; float age=g.age/65536.f, at=g.position/65536.f, origin=g.origin/65536.f;
       float radius=14+age*50; uint32_t ink=age<.12f||age>.88f?DIM:TEXT;
       lens.arc(c,0,1,radius,LINE);
-      lens.arc(c,at-extent*age,at+extent*(1-age),radius,ink);
-      lens.radial(c,at,radius-2,radius+2,ink);
+      lens.radial(c,origin,radius-2,radius+2,DIM);
+      lens.arc(c,at-.012f,at+.012f,radius,ink);
+      lens.radial(c,at,radius-3,radius+3,ink);
     }
-    lens.radial(c,head,68,91,TEXT);
+    if(scatter<1) lens.radial(c,head,68,91,TEXT);
     snprintf(b,sizeof(b),"%.2f S",double(sample.frames)/sample.rate); text(c,18,204,"SOURCE",DIM); text(c,18,225,b,TEXT);
-    text(c,490,264,p.freeze?"FROZEN":"SCAN",DIM);
-    snprintf(b,sizeof(b),"%.1f%%",head*100); text(c,490,285,b,TEXT);
+    text(c,478,204,scatter>=1?"FULL CLOUD":scatter>0?"SCATTER":"SCAN",DIM);
+    snprintf(b,sizeof(b),"%u / 8",view.count); text(c,478,225,b,TEXT);
+    text(c,478,264,scatter>=1?"ALL REGIONS":p.freeze?"ANCHOR HELD":"ANCHOR",DIM);
+    if(scatter<1) { snprintf(b,sizeof(b),"%.1f%%",head*100); text(c,478,285,b,TEXT); }
     text(c,18,285,midiNote(tr.audition),TEXT);
   } else {
     text(c,220,214,"NO SAMPLE",TEXT,3);
     text(c,202,259,"A ASSIGN SAMPLE",DIM);
   }
-  for(int i=0;i<3;++i) {
-    int x=18+i*140; text(c,x,326,GranularBanks[i],i==a.synthBank?TEXT:DIM);
+  for(int i=0;i<GranularBankCount;++i) {
+    int x=18+i*112; text(c,x,326,GranularBanks[i],i==a.synthBank?TEXT:DIM);
     if(i==a.synthBank) c.rect(x,343,100,1,TEXT);
   }
   text(c,478,326,"L1/R1 BANK",DIM);
