@@ -6,6 +6,12 @@ A native groovebox for the original **Anbernic RG35XX**: up to **32 sequences wi
 
 The build has been tested on **GarlicOS 1.4.9 over ADB**. GarlicOS 1.3.9 remains a compatibility target; this 0.5.2 binary has not been retested there. Current results are in the [0.5.2 verification report](../../docs/NATIVE-VERIFICATION-052.en.md); the previous version's longer tests are in the [0.5.1 performance report](../../docs/NATIVE-PERFORMANCE-051.en.md). MOSS LAB and browser prototype v0.6 are separate applications; their limits and controls do not replace this guide.
 
+## Experimental 0.6.0-dev · GRANULAR
+
+The development build adds a fifth instrument, **GRANULAR**, with the selected **LENS** view, one prepared sample up to 1 MiB and eight grains per track. PLAY / SCAN / TEXTURE exposes 12 parameters and their locks; A auditions or assigns the source, and short X toggles FREEZE. See the [GRANULAR guide](../../docs/GRANULAR-INSTRUMENT.en.md) for controls, import and limits.
+
+The experiment reads MOS5/MOS6 but saves **MOS7**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS, with a copied library and the LENS STUDY demo. [Hardware verification](../../docs/GRANULAR-NATIVE-v1.en.md) is complete. The rest of this guide remains the **0.5.2 / MOS6** contract.
+
 ## Launching and updating
 
 Open Consoles → APPS → MOSS. On first initialization of an empty project library, SLOW SIGNAL is created with ORGANISM / MONO / FM. Select it, press A, then START. There is no create-DEMO menu action.

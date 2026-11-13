@@ -4,12 +4,15 @@
 #include "effect_defs.h"
 #include "sample.h"
 #include "synth_defs.h"
+#include "granular_defs.h"
 namespace moss {
 using lab::clamp;
 struct Key {
   int asset = -1, pitch = 0, start = 0, end = 100, level = 80, mode = 0;
 };
 struct Step {
+  int16_t grainLocks[12] = {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
+                            Inherit, Inherit, Inherit, Inherit, Inherit, Inherit};
   int note = 48;
   int16_t synthLocks[3][8] = {
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
@@ -28,6 +31,7 @@ struct Hit {
   int16_t length = 0; // 0 = full one-shot; otherwise a cap in 1/64 notes.
 };
 struct Track {
+  GranularPatch granular;
   char name[25] = "TRACK";
   int instrument = SampleInstrument, audition = 48;
   int synthParams[3][8] = {{1200, 30, 8, 600, 35, 25, 0, 20},
@@ -151,9 +155,17 @@ inline bool valid(const Project &p) {
   for (const auto &t : p.tracks) {
     if (!nameValid(t.name))
       return false;
-    if (t.instrument < 0 || t.instrument > 3 || t.audition < 24 ||
+    if (t.instrument < 0 || t.instrument >= InstrumentCount || t.audition < 24 ||
         t.audition > 96)
       return false;
+    if (t.granular.asset < -1 || t.granular.asset >= 32 ||
+        t.granular.freeze < 0 || t.granular.freeze > 1 ||
+        t.granular.values[5] >= t.granular.values[6])
+      return false;
+    for (int i = 0; i < 12; ++i)
+      if (t.granular.values[i] < GranularSpecs[i].low ||
+          t.granular.values[i] > GranularSpecs[i].high)
+        return false;
     for (int type = 0; type < 3; type++) {
       if (t.synthMode[type] < 0 || t.synthMode[type] > 1 ||
           t.synthPreset[type] < -1 || t.synthPreset[type] > 3)
@@ -189,6 +201,10 @@ inline bool valid(const Project &p) {
           k.level > 100 || k.mode < 0 || k.mode > 2)
         return false;
     for (const auto &s : t.steps) {
+      for (int i = 0; i < 12; ++i)
+        if (s.grainLocks[i] != Inherit &&
+            (s.grainLocks[i] < GranularSpecs[i].low || s.grainLocks[i] > GranularSpecs[i].high))
+          return false;
       if (s.note < 24 || s.note > 96)
         return false;
       for (int type = 0; type < 3; type++)
@@ -235,7 +251,11 @@ enum class Op {
   SynthMode,
   SynthPreset,
   SynthLock,
-  AuditionNote
+  AuditionNote,
+  GranularParam,
+  GranularLock,
+  GranularSource,
+  GranularFreeze
 };
 struct Command {
   Op op;
@@ -293,6 +313,14 @@ inline void apply(Project &p, const Command &c) {
   if (c.track < 0 || c.track >= Tracks)
     return;
   auto &t = p.tracks[c.track];
+  if (c.op == Op::GranularParam && c.field >= 0 && c.field < 12)
+    t.granular.values[c.field] = c.value;
+  if (c.op == Op::GranularLock && c.index >= 0 && c.index < Steps && c.field >= 0 && c.field < 12)
+    t.steps[c.index].grainLocks[c.field] = int16_t(c.value);
+  if (c.op == Op::GranularSource)
+    t.granular.asset = c.value;
+  if (c.op == Op::GranularFreeze)
+    t.granular.freeze = c.value;
   if (c.op == Op::Hit && c.index >= 0 && c.index < Steps && c.field >= 0 &&
       c.field < Keys * HitFieldCount) {
     auto &h = t.hits[c.field / HitFieldCount][c.index];

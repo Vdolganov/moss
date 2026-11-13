@@ -4,7 +4,7 @@
 inline void drawSynth(lab::Canvas &c, const App &a) {
   using namespace lab;
   const auto &tr = a.project.tracks[a.track];
-  if (a.page != Sampler || !tr.instrument)
+  if (a.page != Sampler || !tr.instrument || tr.instrument == GranularInstrument)
     return;
   int type = tr.instrument - 1;
   const int *p = tr.synthParams[type];

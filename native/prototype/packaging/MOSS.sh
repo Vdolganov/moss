@@ -4,7 +4,7 @@ cd "$MOSS_BASE/MOSS" || exit 1
 mkdir -p projects reports || exit 1
 MOSS_STAMP=$(date +%Y%m%d-%H%M%S)
 exec >>"reports/startup-$MOSS_STAMP-$$.log" 2>&1
-echo "MOSS 0.5.2 / original RG35XX / GarlicOS 1.3.9-1.4.9"
+echo "MOSS 0.6.0-dev / original RG35XX / GarlicOS 1.3.9-1.4.9"
 date
 uname -a
 chmod +x ./moss 2>/dev/null

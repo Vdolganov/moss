@@ -212,13 +212,20 @@ void prepareSong() {
       say("SEQUENCE MISSING OR DAMAGED / X REPLACE");
       return;
     }
-    for (int t = 0; t < p.trackCount; ++t)
+    for (int t = 0; t < p.trackCount; ++t) {
+      if (p.tracks[t].instrument == GranularInstrument &&
+          p.tracks[t].granular.asset >= 0 &&
+          !available(p.tracks[t].granular.asset)) {
+        say("MISSING GRANULAR SAMPLE / OPEN SEQUENCE");
+        return;
+      }
       if (!p.tracks[t].instrument)
         for (const auto &k : p.tracks[t].keys)
           if (k.asset >= 0 && !available(k.asset)) {
             say("MISSING SAMPLE / OPEN SEQUENCE TO FIX");
             return;
           }
+    }
     b.map[id] = b.count++;
   }
   engine->startSong(b, clamp(songRow, 0, song.count - 1));

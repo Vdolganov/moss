@@ -3,7 +3,7 @@
 #include <math.h>
 
 namespace moss {
-// Experimental DSP only: not registered as a project instrument yet.
+// Fixed-pool DSP used by the native GRANULAR instrument and isolated lab.
 // Original implementation of conventional granular synthesis; no Mangl code.
 struct GranularParameters {
   float speed = 1, pitch = 0, sizeMs = 100, density = 20;

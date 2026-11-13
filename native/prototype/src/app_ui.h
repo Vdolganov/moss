@@ -32,6 +32,7 @@ inline void drawSampleSlots(lab::Canvas &c, const App &a, int y) {
 }
 #include "app_song_ui.h"
 #include "app_synth_ui.h"
+#include "app_granular_ui.h"
 #include "app_tools_ui.h"
 inline void draw(lab::Canvas &c, const App &a) {
   using namespace lab;
@@ -177,7 +178,9 @@ inline void draw(lab::Canvas &c, const App &a) {
                on ? (tr.instrument ? midiNote(st.note) : note(a.key)) : "--",
                ink);
           bool locked = false;
-          if (tr.instrument) {
+          if (tr.instrument == GranularInstrument) {
+            for (int n : st.grainLocks) locked |= n != Inherit;
+          } else if (tr.instrument) {
             for (int n : st.synthLocks[tr.instrument - 1])
               locked |= n != Inherit;
           } else {
@@ -241,6 +244,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       }
       text(c, 520, 326,
            a.bank == 2                    ? fxName(tr.fx.type)
+           : a.bank == 1 && a.granularTrack() ? GranularBanks[a.synthBank]
            : a.bank == 1 && tr.instrument ? (a.synthBank ? "CHAR" : "CORE")
                                           : "L1/R1",
            DIM, 2, 8);
@@ -269,6 +273,7 @@ inline void draw(lab::Canvas &c, const App &a) {
     }
     drawTools(c, a);
     drawSynth(c, a);
+    drawGranular(c, a);
     if (a.page == Pattern || a.page == Sampler ||
         (a.page == Mix && (a.project.trackCount || a.mixTab == 1)) ||
         a.page == Space || (a.page == Tape && a.tapeTab < 2)) {
@@ -382,6 +387,20 @@ inline void draw(lab::Canvas &c, const App &a) {
           int vals[] = {t.level, t.pan, a.project.master, t.mute};
           snprintf(b, sizeof(b), "%d", vals[i]);
           unit = i == 3 ? "0 OFF 1 ON" : "";
+        } else if (a.granularTrack() &&
+                   (a.page == Sampler || (a.page == Pattern && a.bank == 1))) {
+          int parameter=i+a.synthBank*4;
+          const auto &spec=GranularSpecs[parameter]; label=spec.label;
+          int value=a.page==Sampler?t.granular.values[parameter]:s.grainLocks[parameter];
+          if (a.page==Sampler && parameter==4 && !(a.buttons.held & bit(Y))) {
+            auto view=a.engine->grainView[a.track].read();
+            if(view.running) value=int((view.head*1000u+32768u)/65536u);
+          }
+          unit=a.page==Pattern?"STEP LOCK":spec.unit;
+          if(value==Inherit) strcpy(b,"--");
+          else if(parameter==0) snprintf(b,sizeof(b),"%.2f",value*.01);
+          else if(parameter>=4 && parameter<=6) snprintf(b,sizeof(b),"%.1f",value*.1);
+          else snprintf(b,sizeof(b),"%d",value);
         } else if (t.instrument &&
                    (a.page == Sampler || (a.page == Pattern && a.bank == 1))) {
           int type = t.instrument - 1, parameter = i + a.synthBank * 4;
@@ -434,8 +453,11 @@ inline void draw(lab::Canvas &c, const App &a) {
           ? "L1+ARROWS FX / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Pattern && !a.project.tracks[a.track].instrument
           ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
+      : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS PLAY-SCAN-TEXTURE / L1/R1 BANK"
       : a.page == Pattern && a.bank == 1 ? "L1+ARROWS CORE-CHAR / L1/R1 BANK"
       : a.page == Pattern ? "ARROWS STEP / L1/R1 BANK / L1+R1 OPTIONS"
+      : a.page == Sampler && a.granularTrack()
+          ? (a.available(a.project.tracks[a.track].granular.asset) ? "A AUDITION / X FREEZE / L1/R1 BANK" : "A ASSIGN / L1/R1 BANK / L1+R1 OPTIONS")
       : a.page == Sampler && a.project.tracks[a.track].instrument
           ? "A AUDITION / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Sampler && a.project.tracks[a.track].keys[a.key].asset < 0
@@ -488,8 +510,8 @@ inline void draw(lab::Canvas &c, const App &a) {
          : a.voicePicker == 1 ? "INSTRUMENT / B CANCEL"
                               : "PRESET / B CANCEL",
          DIM);
-    for (int i = 0; i < 4; i++) {
-      int y = 166 + i * 45;
+    for (int i = 0; i < (a.voicePicker == 2 ? 4 : InstrumentCount); i++) {
+      int y = 162 + i * 40;
       if (i == a.voiceChoice)
         c.box(68, y - 8, 504, 33, TEXT);
       text(c, 80, y,

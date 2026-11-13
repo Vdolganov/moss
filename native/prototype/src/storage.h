@@ -42,7 +42,7 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 6) {
+  void fields(Project &p, bool writing, int version = 7) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -91,6 +91,11 @@ struct Codec {
       name(t.name);
       value(t.instrument);
       value(t.audition);
+      if (version >= 7) {
+        value(t.granular.asset);
+        value(t.granular.freeze);
+        for (auto &n : t.granular.values) value(n);
+      }
       for (auto &row : t.synthParams)
         for (auto &n : row)
           value(n);
@@ -149,6 +154,8 @@ struct Codec {
       }
       for (auto &s : t.steps) {
         value(s.note);
+        if (version >= 7)
+          for (auto &n : s.grainLocks) value(n);
         for (auto &row : s.synthLocks)
           for (auto &n : row)
             value(n);
@@ -178,22 +185,23 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MOS6", 4);
-    word(4, 6);
+    memcpy(bytes, "MOS7", 4);
+    word(4, 7);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
   }
   bool decode(Project &p, unsigned size) {
     bool legacy = !memcmp(bytes, "MOS5", 4) && word(4) == 5;
+    bool v6 = !memcmp(bytes, "MOS6", 4) && word(4) == 6;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && (memcmp(bytes, "MOS6", 4) || word(4) != 6)) ||
+        (!legacy && !v6 && (memcmp(bytes, "MOS7", 4) || word(4) != 7)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : 6);
+    fields(temp, false, legacy ? 5 : v6 ? 6 : 7);
     if (!ok || cursor != size || !valid(temp))
       return false;
     p = temp;

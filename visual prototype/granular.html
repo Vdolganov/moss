@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MOSS — гранулярные этюды</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="granular.css"></head>
+<body class="grain-study">
+<header class="study-header"><a href="index.html" class="wordmark">MOSS</a><a href="index.html">К основному прототипу</a></header>
+<main class="study-layout">
+ <section class="study-instrument" aria-label="Сравнение гранулярного инструмента">
+  <h1>Один звук. Три способа его увидеть.</h1>
+  <div class="variant-tabs" aria-label="Варианты визуализации">
+   <button data-variant="splice" aria-pressed="false"><span>Срез</span><small>Внутри сэмпла</small></button>
+   <button data-variant="field" aria-pressed="true"><span>Поле</span><small>Жизнь облака</small></button>
+   <button data-variant="lens" aria-pressed="false"><span>Линза</span><small>Круговое движение</small></button>
+  </div>
+  <div class="study-caption"><span>VOICE / GRANULAR · 640 × 480</span><span>UI ONLY · NO AUDIO</span></div>
+  <div id="grain-wrap"><section id="grain-screen" tabindex="0" aria-label="Гранулярный инструмент. Z X C V и стрелки — параметры; Q E — банки; пробел — движение.">
+   <header class="grain-status"><button id="transport" aria-label="Приостановить движение"><span class="transport-mark"></span><span id="transport-label">PLAY</span></button><span>SLOW SIGNAL</span><span class="grain-bpm">70 <small>BPM</small></span></header>
+   <div class="grain-heading"><h2>GRANULAR</h2><span>03 / DUST · VOICE</span></div>
+   <div class="grain-source"><button id="source-button" aria-haspopup="dialog">AIR / 6.4 s</button><button id="freeze" aria-pressed="false">A · FREEZE</button></div>
+   <canvas id="grain-canvas" width="604" height="196" role="img" aria-label="Схема гранулярного облака"></canvas>
+   <div id="empty-source" hidden><span>NO SAMPLE</span><p>Одно облако начинается с одного сэмпла.</p><button id="assign-empty">A · ASSIGN SAMPLE</button></div>
+   <nav class="grain-banks" aria-label="Банк параметров"><button data-bank="0" aria-current="true">PLAY</button><button data-bank="1">SCAN</button><button data-bank="2">TEXTURE</button><span>L1 / R1</span></nav>
+   <div id="grain-params"></div>
+   <footer class="grain-footer"><button id="options" aria-haspopup="dialog">L1+R1 · OPTIONS</button><span id="grain-hint">A FREEZE · HOLD + ARROWS EDIT</span></footer>
+   <div id="grain-overlay" hidden></div>
+  </section></div>
+  <div class="study-transport"><button id="motion-toggle">Пауза / Space</button><label><input type="checkbox" id="static-mode"> Без анимации</label><span id="study-save">Настройки сохраняются</span></div>
+  <p class="study-note">Без звука. Волна и зёрна — модель для сравнения интерфейсов. Переключение варианта сохраняет все настройки.</p>
+ </section>
+ <aside class="study-guide">
+  <section class="variant-description" aria-live="polite"><h2 id="variant-title">Поле</h2><p id="variant-copy">Зёрна рождаются над сэмплом и растворяются по мере жизни. Наклон показывает высоту, разлёт — ширину облака.</p></section>
+  <section class="study-section"><h2>Почувствовать разницу</h2><button class="try-state" data-preset="mist">Медленный дрейф<span>Длинные зёрна, плотное облако</span></button><button class="try-state" data-preset="dust">Редкие искры<span>Короткие зёрна, большой разброс</span></button><p>Нажми <kbd>C</kbd> — головка замрёт, но облако продолжит жить. Меняй SIZE и DENSITY, затем сравни виды.</p></section>
+  <section class="study-section"><h2>Четыре пальца, четыре параметра</h2><div class="key-map"><span class="face-y"><kbd>Z</kbd> Y</span><span class="face-b"><kbd>X</kbd> B</span><span class="face-a"><kbd>C</kbd> A</span><span class="face-x"><kbd>V</kbd> X</span></div><p>Удерживай клавишу и нажимай стрелки: <b>← →</b> — точно, <b>↑ ↓</b> — крупно. Долгое нажатие ускоряет изменение.</p><dl><div><dt>Q / E</dt><dd>PLAY / SCAN / TEXTURE</dd></div><div><dt>C коротко</dt><dd>Заморозить позицию</dd></div><div><dt>Q + E</dt><dd>Сэмпл и дополнительные действия</dd></div><div><dt>Esc</dt><dd>Отмена жеста / закрыть меню</dd></div><div><dt>Ctrl + Z</dt><dd>Отменить изменение</dd></div></dl><p>Мышью: выбери параметр и меняй его стрелками. Порядок и цвета здесь соответствуют нативной версии: <b>Y / B / A / X</b>.</p></section>
+  <div class="study-bottom"><button id="undo-study">Отменить изменение</button><span id="study-message" role="status" aria-live="polite"></span></div>
+ </aside>
+</main>
+<script src="granular-model.js"></script><script src="granular.js"></script>
+</body></html>

@@ -102,6 +102,12 @@ struct App {
   bool available(int id) const {
     return id >= 0 && id < engine->sampleCount && engine->samples[id].frames;
   }
+  bool granularTrack() const { return project.tracks[track].instrument == GranularInstrument; }
+  int voiceBanks() const { return granularTrack() ? 3 : 2; }
+  void assignSample(int id) {
+    change(granularTrack() ? Command{Op::GranularSource, track, 0, 0, id}
+                           : Command{Op::Key, track, key, 0, id});
+  }
   int assignedKey(int n, int d) const {
     for (int k = n + d; k >= 0 && k < Keys; k += d)
       if (available(project.tracks[track].keys[k].asset))
@@ -189,10 +195,12 @@ struct App {
   }
   bool assetUsed(int id) {
     auto uses = [&](const Project &p) {
-      for (int i = 0; i < p.trackCount; i++)
+      for (int i = 0; i < p.trackCount; i++) {
+        if (p.tracks[i].granular.asset == id) return true;
         for (const auto &k : p.tracks[i].keys)
           if (k.asset == id)
             return true;
+      }
       return false;
     };
     if (uses(project) || (haveUndo && uses(undoProject)))
@@ -274,10 +282,10 @@ struct App {
         job = PreviewAsset;
       if (b == lab::A) {
         if (assignMode) {
-          change({Op::Key, track, key, 0, asset});
+          assignSample(asset);
           assignMode = false;
           page = Sampler;
-          say("SAMPLE ASSIGNED TO KEY");
+          say(granularTrack() ? "SAMPLE ASSIGNED TO CLOUD" : "SAMPLE ASSIGNED TO KEY");
         } else {
           char p[128];
           library->assetPath(p, sizeof(p), asset);
@@ -475,7 +483,7 @@ struct App {
         track = importTrack;
         key = importKey;
         editing = false;
-        change({Op::Key, track, key, 0, asset});
+        assignSample(asset);
         importAssign = assignMode = false;
         page = Sampler;
         engine->init(project, library->pcm, engine->rate, Assets);
@@ -580,6 +588,7 @@ struct App {
     slot = index;
     page = Grid;
     track = step = key = bank = 0;
+    synthBank = 0;
     dirty = !exists(p);
     haveUndo = false;
     options = false;
@@ -630,7 +639,7 @@ struct App {
       nextEffect(d);
     else if ((page == Sampler || (page == Pattern && bank == 1)) &&
              project.tracks[track].instrument)
-      synthBank = clamp(synthBank + d, 0, 1);
+      synthBank = clamp(synthBank + d, 0, voiceBanks() - 1);
     else if (page == Pattern && !project.tracks[track].instrument)
       key = clamp(key + d, 0, Keys - 1);
     else if (fxPage())
@@ -682,6 +691,12 @@ struct App {
                        : clamp(vals[i] + d * amount, lo[i], hi[i]);
         change({Op::Step, track, step, i + 1, v});
       } else if (bank == 1) {
+        if (granularTrack()) {
+          i += synthBank * 4;
+          int v = s.grainLocks[i] == Inherit ? t.granular.values[i] : s.grainLocks[i];
+          change({Op::GranularLock, track, step, i, granularEdit(i, v, d, repetitions)});
+          return;
+        }
         if (t.instrument) {
           int type = t.instrument - 1;
           i += synthBank * 4;
@@ -724,6 +739,17 @@ struct App {
         }
         step = clamp(step, 0, t.cycle - 1);
       }
+    } else if (page == Sampler && granularTrack()) {
+      i += synthBank * 4;
+      int base = t.granular.values[i];
+      if (i == 4 && !editing) {
+        auto view = engine->grainView[track].read();
+        if (view.running) base = int((view.head * 1000u + 32768u) / 65536u);
+      }
+      int v = granularEdit(i, base, d, repetitions);
+      if (i == 5) v = clamp(v, 0, t.granular.values[6] - 1);
+      if (i == 6) v = clamp(v, t.granular.values[5] + 1, 1000);
+      change({Op::GranularParam, track, 0, i, v});
     } else if (page == Sampler && t.instrument) {
       i += synthBank * 4;
       int type = t.instrument - 1;
@@ -792,6 +818,10 @@ struct App {
     int delta = parameterDelta(amount, SynthParameters[kind - 1][i].coarse);
     return clamp(v + d * delta, synthMin(kind, i), synthMax(kind, i));
   }
+  int granularEdit(int i, int value, int direction, int repetitions) const {
+    const auto &s = GranularSpecs[i];
+    return clamp(value + direction * parameterDelta(repetitions, s.coarse), s.low, s.high);
+  }
 #include "app_menu.h"
   void backToAtlas() {
     if (captureBusy()) {
@@ -829,6 +859,7 @@ struct App {
     if (voicePicker) {
       if (b == lab::B || b == lab::Select)
         voicePicker = 0;
+      synthBank = 0;
       if (b == lab::A) {
         editing = false;
         if (voicePicker == 3) {
@@ -942,6 +973,14 @@ struct App {
     }
     if (b == lab::Y)
       return; // Y is the fourth parameter, never navigation.
+    if (page == Sampler && granularTrack() && b == lab::X) {
+      if (!available(project.tracks[track].granular.asset)) {
+        say("ASSIGN A SAMPLE FIRST");
+        return;
+      }
+      change({Op::GranularFreeze, track, 0, 0, 1 - project.tracks[track].granular.freeze});
+      return;
+    }
     if (page == Tape && (b == lab::A || b == lab::X)) {
       tapeAction(b);
       return;
@@ -994,7 +1033,9 @@ struct App {
                    : Command{Op::Hit, track, step, hitField(key, HitOn),
                              !t.hits[key][step].on});
       } else if (page == Sampler) {
-        if (project.tracks[track].instrument)
+        if (granularTrack() && !available(project.tracks[track].granular.asset))
+          pickAsset();
+        else if (project.tracks[track].instrument)
           send({Op::Audition, track, key});
         else if (project.tracks[track].keys[key].asset < 0) {
           pickAsset();
@@ -1044,6 +1085,7 @@ struct App {
       if (track >= Tracks)
         track = Tracks - 1;
       step = clamp(step, 0, project.tracks[track].cycle - 1);
+      synthBank = clamp(synthBank, 0, voiceBanks() - 1);
     }
   }
   void parameterPage(int direction) {
@@ -1065,7 +1107,7 @@ struct App {
     if (page == Pattern)
       bank = (bank + 4 + direction) % 4;
     else if (page == Sampler && project.tracks[track].instrument)
-      synthBank = (synthBank + 2 + direction) % 2;
+      synthBank = (synthBank + voiceBanks() + direction) % voiceBanks();
     else if (page == Sampler)
       key = clamp(key + direction, 0, Keys - 1);
     else if (page == Mix) {
@@ -1131,7 +1173,7 @@ struct App {
       return;
     }
     if (voicePicker) {
-      voiceChoice = clamp(voiceChoice + d, 0, 3);
+      voiceChoice = clamp(voiceChoice + d, 0, voicePicker == 2 ? 3 : InstrumentCount - 1);
       return;
     }
     if (naming) {

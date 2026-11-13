@@ -5,10 +5,12 @@ enum Instrument {
   SampleInstrument,
   MonoInstrument,
   OrganismInstrument,
-  FmInstrument
+  FmInstrument,
+  GranularInstrument,
+  InstrumentCount
 };
 inline const char *instrumentName(int i) {
-  const char *n[] = {"SAMPLER", "MONO", "ORGANISM", "FM"};
+  const char *n[] = {"SAMPLER", "MONO", "ORGANISM", "FM", "GRANULAR"};
   return n[i];
 }
 inline constexpr ParameterSpec SynthParameters[3][8] = {

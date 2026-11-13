@@ -21,10 +21,12 @@ int rawOptionCount() const {
   return page == Sampler ? 7 : page == Pattern ? 7 : 5;
 }
 bool projectUses(const Project &p, int id) const {
-  for (int t = 0; t < p.trackCount; ++t)
+  for (int t = 0; t < p.trackCount; ++t) {
+    if (p.tracks[t].granular.asset == id) return true;
     for (const auto &k : p.tracks[t].keys)
       if (k.asset == id)
         return true;
+  }
   return false;
 }
 bool assetProtected(int id) const {
@@ -39,10 +41,13 @@ bool assetProtected(int id) const {
 uint32_t assetMask(const Project &p) const {
   static_assert(Assets == 32, "Saved sample references use one 32-bit mask");
   uint32_t mask = 0;
-  for (int t = 0; t < p.trackCount; ++t)
+  for (int t = 0; t < p.trackCount; ++t) {
+    int grain = p.tracks[t].granular.asset;
+    if (grain >= 0 && grain < Assets) mask |= uint32_t(1) << grain;
     for (const auto &k : p.tracks[t].keys)
       if (k.asset >= 0 && k.asset < Assets)
         mask |= uint32_t(1) << k.asset;
+  }
   return mask;
 }
 bool currentLocksPresent() const {
@@ -52,6 +57,7 @@ bool currentLocksPresent() const {
   for (int i = 0; i < 4; ++i) {
     int value =
         bank == 2 ? t.steps[step].fxLocks[t.fx.type][i]
+        : granularTrack() ? t.steps[step].grainLocks[synthBank * 4 + i]
         : t.instrument
             ? t.steps[step].synthLocks[t.instrument - 1][synthBank * 4 + i]
             : t.hits[key][step].locks[i];
@@ -103,8 +109,8 @@ bool optionVisible(int id) const {
   }
   if (page == Sampler)
     return id == 3 || id == 4 ||
-           (id == 5 && (project.tracks[track].instrument ||
-                        project.tracks[track].keys[key].asset >= 0));
+           (id == 5 && (granularTrack() ? project.tracks[track].granular.asset >= 0 : (project.tracks[track].instrument ||
+                        project.tracks[track].keys[key].asset >= 0)));
   if (page == Pattern)
     return (id == 3 && bank == 0 &&
             (project.tracks[track].instrument ||
@@ -179,7 +185,7 @@ const char *optionName(int i) const {
   if (page == Sampler) {
     if (i == 3)
       return "CHOOSE INSTRUMENT";
-    if (project.tracks[track].instrument) {
+    if (project.tracks[track].instrument && !granularTrack()) {
       const char *n[] = {"CHOOSE PRESET", "CHANGE MODE", "EXIT MOSS"};
       return n[i - 4];
     }
@@ -410,6 +416,11 @@ void chooseOption() {
       voiceChoice = t.instrument;
       return;
     }
+    if (granularTrack()) {
+      if (i == 4) pickAsset();
+      if (i == 5) assignSample(-1);
+      return;
+    }
     if (t.instrument) {
       if (i == 4) {
         voicePicker = 2;
@@ -445,6 +456,8 @@ void chooseOption() {
         change(
             bank == 2
                 ? Command{Op::FxLock, track, step, t.fx.type * 4 + j, Inherit}
+            : granularTrack()
+                ? Command{Op::GranularLock, track, step, synthBank * 4 + j, Inherit}
             : t.instrument
                 ? Command{Op::SynthLock, track, step,
                           (t.instrument - 1) * 8 + synthBank * 4 + j, Inherit}

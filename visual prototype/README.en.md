@@ -8,6 +8,14 @@ This is a separate browser prototype without audio. Native 0.5.2 controls and li
 
 Open START.cmd or index.html. For development, run `node server.cjs`, then open http://127.0.0.1:4173. No audio engines are included.
 
+## Granular study · LENS selected
+
+Open the separate [granular.html](granular.html): SPLICE / FIELD / LENS show one cloud with shared settings. **LENS was selected on 13 November 2026** for the native instrument; all three views remain available. The study is silent, with a synthetic waveform, demo sources and separate storage; it does not modify the main prototype's projects.
+
+Here Z/X/C/V maps to physical **Y/B/A/X**. Hold a key with arrows to edit the four fields; Q/E selects PLAY/SCAN/TEXTURE, short **C / A toggles FREEZE**, Space controls movement, Q+E opens options, Esc cancels, and Ctrl+Z undoes. Pointer users can select a field and use arrows; static mode retains a readable diagram. Switching views preserves settings; reload restores them with transport paused.
+
+The working native GRANULAR is documented in the [separate 0.6.0-dev guide](../docs/GRANULAR-INSTRUMENT.en.md). Its short **X / V toggles FREEZE**, while **A / C auditions or assigns a sample**; study controls do not replace native controls.
+
 ## Structure
 
 - **ATLAS:** project selection and creation only. Inside a project, the top tabs are exactly GRID / MIX / TAPE.

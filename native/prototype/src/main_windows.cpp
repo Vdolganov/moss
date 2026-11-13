@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
   AdjustWindowRect(
       &rect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
   window = CreateWindowA(
-      wc.lpszClassName, "MOSS 0.5.2 / Z X C V + arrows / Q E / [ ]",
+      wc.lpszClassName, "MOSS 0.6.0-dev / Z X C V + arrows / Q E / [ ]",
       WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT,
       CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, nullptr,
       nullptr, instance, nullptr);

@@ -6,6 +6,7 @@
 #include "song.h"
 #include "stream_preview.h"
 #include "synth.h"
+#include "granular.h"
 namespace moss {
 struct Engine {
   static int scaleTrack(int value, int gain) {
@@ -59,6 +60,7 @@ struct Engine {
   bool playing = false, first = true;
   uint32_t shownTick = 0, shownPlaying = 0, shownPeak[Tracks] = {},
            triggerCount[Tracks] = {}, lastTrigger[Tracks] = {};
+#include "engine_granular.h"
 #include "song_engine.h"
   void init(const Project &p, const moss::SampleBuffer *buffers, unsigned hz,
             int count = 3) {
@@ -71,6 +73,7 @@ struct Engine {
     samples = buffers;
     rate = hz;
     tables.init();
+    grainTables.init();
     sampleCount = count;
     for (auto &f : fx)
       f.reset();
@@ -95,6 +98,8 @@ struct Engine {
       synthTails[t] = SynthVoice{};
       muteGain[t] = p.tracks[t].mute ? 0 : 1;
       triggerCount[t] = lastTrigger[t] = 0;
+      bindGranular(t);
+      grainView[t].publish(granular[t]);
     }
     for (int s = 0; s < sampleCount; s++)
       for (int pitch = -24; pitch <= 24; pitch++)
@@ -144,6 +149,10 @@ struct Engine {
   }
   void trigger(int t, const Step &step) {
     const auto &tr = project.tracks[t];
+    if (tr.instrument == GranularInstrument) {
+      triggerGranular(t, step);
+      return;
+    }
     if (tr.instrument != SampleInstrument) {
       int params[8];
       synthSettings(t, &step, params);
@@ -191,6 +200,10 @@ struct Engine {
   }
   void refreshSynth(int t) {
     const auto &tr = project.tracks[t];
+    if (tr.instrument == GranularInstrument) {
+      refreshGranular(t, activeVoiceStep[t] >= 0 ? &tr.steps[activeVoiceStep[t]] : nullptr);
+      return;
+    }
     if (!tr.instrument)
       return;
     int params[8];
@@ -210,6 +223,8 @@ struct Engine {
           --synth[t].remaining <= 0)
         synth[t].off();
       const auto &tr = project.tracks[t];
+      if (granular[t].gate && !grainPreview[t] && grainRemaining[t] > 0 && !--grainRemaining[t])
+        granular[t].noteOff();
       int at = int(tick % tr.cycle);
       const Step &s = tr.steps[at];
       bool fired = false;
@@ -298,6 +313,8 @@ struct Engine {
           stopSamples(t);
           synth[t].stop();
           synthTails[t].stop();
+          granular[t].noteOff();
+          grainPreview[t] = 0;
         }
       }
       __atomic_store_n(&shownPlaying, playing ? 1u : 0u, __ATOMIC_RELEASE);
@@ -313,7 +330,9 @@ struct Engine {
       s.length = project.tracks[c.track].instrument ? 1 : 0;
       trigger(c.track, s);
       voice(c.track, c.index).mode = 0;
-      if (project.tracks[c.track].instrument)
+      if (project.tracks[c.track].instrument == GranularInstrument)
+        grainPreview[c.track] = rate * 2;
+      else if (project.tracks[c.track].instrument)
         synth[c.track].previewFrames = rate * 2;
     } else {
       if (c.op == Op::Instrument) {
@@ -323,8 +342,15 @@ struct Engine {
         synth[c.track] = SynthVoice{};
         activeFxStep[c.track] = -1;
         activeVoiceStep[c.track] = -1;
+        granular[c.track].stop();
       }
       apply(project, c);
+      if (c.op == Op::Instrument || c.op == Op::GranularSource) {
+        bindGranular(c.track);
+        transitionFrames = 128;
+        transitionFrom[0] = previousOutput[0];
+        transitionFrom[1] = previousOutput[1];
+      }
       if (c.op == Op::Key)
         settings(c.track, nullptr, c.index);
       if (c.op == Op::Track && c.field == 0) {
@@ -337,6 +363,8 @@ struct Engine {
         stopSamples(c.track);
         synth[c.track].stop();
         synthTails[c.track].stop();
+        granular[c.track].noteOff();
+        grainPreview[c.track] = 0;
       }
     }
   }
@@ -394,6 +422,7 @@ struct Engine {
         }
         synth[t].render(l, r, tables);
         synthTails[t].render(l, r, tables);
+        renderGranular(t, l, r);
         auto &tr = project.tracks[t];
         fx[t].processChain(l, r, tr.fx, params[t], rate, project.bpm);
         muteGain[t] += ((tr.mute ? 0.f : 1.f) - muteGain[t]) * .015625f;
@@ -436,8 +465,10 @@ struct Engine {
         clock += unsigned(project.bpm) * 16;
     }
     __atomic_store_n(&capture.shownFrames, capture.frames, __ATOMIC_RELEASE);
-    for (int t = 0; t < Tracks; t++)
+    for (int t = 0; t < Tracks; t++) {
       __atomic_store_n(&shownPeak[t], peaks[t], __ATOMIC_RELEASE);
+      grainView[t].publish(granular[t]);
+    }
   }
 };
 } // namespace moss

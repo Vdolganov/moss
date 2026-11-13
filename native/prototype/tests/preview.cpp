@@ -33,6 +33,20 @@ int main(int argc, char **argv) {
   app.projectTracks[0] = 3;
   app.projectTempos[0] = 70;
   if (argc == 4) {
+    if (!strncmp(argv[3], "grain", 5)) {
+      app.project=Project{}; app.project.trackCount=1; app.page=Sampler;app.track=0;app.key=0;
+      strcpy(app.project.name,"SLOW SIGNAL"); auto &tr=app.project.tracks[0];
+      tr.instrument=GranularInstrument; tr.granular.asset=1; strcpy(tr.name,"DUST");
+      app.synthBank=!strcmp(argv[3],"grainscan")?1:!strcmp(argv[3],"graintexture")?2:0;
+      if(!strcmp(argv[3],"grainempty")) tr.granular.asset=-1;
+      if(!strcmp(argv[3],"grainfrozen")) tr.granular.freeze=1;
+      engine.init(app.project,samples,AudioRate);engine.handle({Op::Audition,0});
+      int16_t audio[2048];for(int n=0;n<11;++n) engine.render(audio,1024);
+      if(!strcmp(argv[3],"grainlocks")) {app.page=Pattern;app.bank=1;app.synthBank=2;app.step=0;tr.steps[0].on=1;tr.steps[0].grainLocks[10]=8500;}
+      if(!strcmp(argv[3],"grainheld")) app.buttons.held=lab::bit(lab::Y);
+      if(!strcmp(argv[3],"grainmenu")) app.options=true;
+      if(!strcmp(argv[3],"grainpicker")) {app.voicePicker=1;app.voiceChoice=GranularInstrument;}
+    }
     if (!strcmp(argv[3], "drums") || !strcmp(argv[3], "drumlocks")) {
       app.page = Pattern;
       app.track = 0;

@@ -183,8 +183,7 @@ static void writeReport(const ReportRequest &request) {
   }
   fprintf(
       f,
-      "{\"build\":\"MOSS "
-      "0.5.2\",\"completed\":%s,\"rate\":%u,\"buffer\":%u,\"callbacks\":%"
+      "{\"build\":\"MOSS %s\",\"completed\":%s,\"rate\":%u,\"buffer\":%u,\"callbacks\":%"
       "u,\"callback_max_us\":%llu,\"over_budget\":%u,\"late_intervals\":%u,"
       "\"frames\":%llu,\"triggers\":[%u,%u,%u,%u],\"track_count\":%"
       "u,\"stream_underruns\":%u,\"project_saved\":%s,\"pcm_"
@@ -195,7 +194,7 @@ static void writeReport(const ReportRequest &request) {
       "\"profile_effect_mask\":%u,\"profile_target_seconds\":%u,\"elapsed_"
       "seconds\":%u,\"audio_realtime_error\":%d,\"audio_priority\":%d,"
       "\"profile_passed\":%s}\n",
-      completed ? "true" : "false", hz, audioFrames, snapshot.count,
+      Version, completed ? "true" : "false", hz, audioFrames, snapshot.count,
       (unsigned long long)snapshot.maxUs, snapshot.overBudget,
       snapshot.lateIntervals, (unsigned long long)frames, triggers[0],
       triggers[1], triggers[2], triggers[3], trackCount, streamUnderruns,
@@ -251,7 +250,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 4 || profileMask > 15 ||
+    if (profileKind < -1 || profileKind > 9 || profileMask > 15 ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -301,10 +300,14 @@ int main(int argc, char **argv) {
     return 6;
   }
   if (profiling) {
-    for (auto &sample : library.pcm)
+    for (auto &sample : library.pcm) {
       stressSample(sample);
-    stressProject(app.project, Tracks, profileKind == 4 ? 2 : profileKind,
-                  profileMask);
+      if (profileKind >= 5) sample.rate = 96000;
+    }
+    if (profileKind >= 5)
+      stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:0);
+    else
+      stressProject(app.project, Tracks, profileKind == 4 ? 2 : profileKind, profileMask);
     app.page = Pattern;
   }
   engine.init(app.project, library.pcm, got.freq, Assets);
@@ -312,7 +315,7 @@ int main(int argc, char **argv) {
   if (!profiling)
     app.seedProjects();
   else {
-    if (profileKind == 4) {
+    if (profileKind == 4 || profileKind == 7) {
       void *memory = malloc(sizeof(SongBank));
       if (!memory)
         return 7;
@@ -326,8 +329,11 @@ int main(int argc, char **argv) {
       const unsigned masks[] = {3, 5, 9, 6, 10, 12};
       for (int i = 0; i < Projects; ++i) {
         b.map[i] = i;
-        stressProject(b.sequences[i], Tracks, i % 2 ? 2 : (i / 2) % 4,
-                      masks[i % 6]);
+        if(profileKind==7) {
+          stressGranular(b.sequences[i],masks[i%6],i%2);
+          if(i%3==0) b.sequences[i].tracks[3].instrument=SampleInstrument;
+        } else
+          stressProject(b.sequences[i], Tracks, i % 2 ? 2 : (i / 2) % 4, masks[i % 6]);
         snprintf(b.sequences[i].name, 25, "MAX LOAD %02d", i + 1);
         app.saved[i] = true;
         snprintf(app.projectNames[i], 25, "MAX LOAD %02d", i + 1);
@@ -362,14 +368,19 @@ int main(int argc, char **argv) {
     if (profiling) {
       unsigned seconds = unsigned((micros() - start) / 1000000);
       const Page pages[] = {Pattern, Sampler, Space, Mix, Grid, Tape};
-      app.page = profileKind == 4 ? SongPage : pages[(seconds / 2) % 6];
-      if (profileKind == 4)
+      app.page = (profileKind == 4 || profileKind == 7) ? SongPage : pages[(seconds / 2) % 6];
+      if (profileKind == 4 || profileKind == 7)
         app.songRow = int(seconds % SongSlots);
       app.track = int((seconds / 3) % Tracks);
       app.bank = int((seconds / 2) % 4);
-      app.synthBank = int((seconds / 2) % 2);
+      app.synthBank = int((seconds / 2) % app.voiceBanks());
       app.fxDetail = (seconds / 3) % 2;
       app.step = int(seconds * 7 % Steps);
+      // Repeated capture writeback and real UI command dispatch under dense DSP load.
+      if (profileKind>=5 && !app.captureBusy() && seconds % 10 == 0)
+        app.capturePending=app.send({Op::CaptureStart,0,0,0,4});
+      if (profileKind==9 && app.granularTrack())
+        app.change({Op::GranularFreeze,app.track,0,0,int(seconds%2)});
       if (seconds >= profileSeconds)
         app.exit = true;
     }
