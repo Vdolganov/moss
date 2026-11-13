@@ -33,6 +33,17 @@ int main(int argc, char **argv) {
   app.projectTracks[0] = 3;
   app.projectTempos[0] = 70;
   if (argc == 4) {
+    if (!strncmp(argv[3],"newfx",5)) {
+      app.project=makeSynthDemo();app.track=1;app.page=Space;app.fxDetail=true;
+      auto &f=app.project.tracks[1].fx;f.select(Drive);f.enable(true);
+      f.values[Drive][0]=64;f.values[Drive][4]=1;f.values[Drive][5]=15;
+      app.fxBank=!strcmp(argv[3],"newfx-drive")?0:1;
+      if(!strcmp(argv[3],"newfx-orbit")) {f.select(Orbit);f.enable(true);}
+      if(!strcmp(argv[3],"newfx-chain")) app.fxDetail=false;
+      if(!strcmp(argv[3],"newfx-locks")) {
+        app.page=Pattern;app.bank=2;app.step=0;app.project.tracks[1].steps[0].fxLocks[Drive][4]=2;
+      }
+    }
     if (!strncmp(argv[3], "grain", 5)) {
       app.project=Project{}; app.project.trackCount=1; app.page=Sampler;app.track=0;app.key=0;
       strcpy(app.project.name,"SLOW SIGNAL"); auto &tr=app.project.tracks[0];

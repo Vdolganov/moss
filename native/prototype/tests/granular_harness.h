@@ -40,13 +40,13 @@ struct GranularHarness {
       auto &e = effects[i];
       e = Effect{};
       e.enabled = effectMask & 1;
-      for (unsigned type = 0; type < 4; ++type) {
+      for (unsigned type = 0; type < EffectTypes; ++type) {
         e.enabledTypes[type] = (effectMask >> type) & 1;
-        e.order[type] = (type + i) % 4;
+        e.order[type] = (type + i) % EffectTypes;
       }
       e.values[0][0] = 7;
       e.values[0][1] = 95;
-      e.values[0][2] = 100;
+      e.values[0][3] = 100;
       e.values[1][0] = 100;
       e.values[1][1] = 100;
       e.values[1][3] = 100;

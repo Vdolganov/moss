@@ -56,7 +56,7 @@ bool currentLocksPresent() const {
   const auto &t = project.tracks[track];
   for (int i = 0; i < 4; ++i) {
     int value =
-        bank == 2 ? t.steps[step].fxLocks[t.fx.type][i]
+        bank == 2 ? t.steps[step].fxLocks[t.fx.type][clamp(fxBank,0,fxBanks(t.fx.type)-1)*4+i]
         : granularTrack() ? t.steps[step].grainLocks[synthBank * 4 + i]
         : t.instrument
             ? t.steps[step].synthLocks[t.instrument - 1][synthBank * 4 + i]
@@ -455,7 +455,7 @@ void chooseOption() {
       for (int j = 0; j < 4; j++)
         change(
             bank == 2
-                ? Command{Op::FxLock, track, step, t.fx.type * 4 + j, Inherit}
+                ? Command{Op::FxLock, track, step, t.fx.type * EffectParameters + clamp(fxBank,0,fxBanks(t.fx.type)-1)*4 + j, Inherit}
             : granularTrack()
                 ? Command{Op::GranularLock, track, step, synthBank * 4 + j, Inherit}
             : t.instrument

@@ -1,0 +1,61 @@
+{
+  "alias_fixture": "32 kHz, 16384 samples, periodic 1978.515625 Hz sine, input amplitude 3",
+  "curves": [
+    {
+      "curve": 0,
+      "naive_alias_db_vs_fundamental": -27.61073254948184,
+      "adaa_alias_db_vs_fundamental": -33.46605408151892,
+      "reduction_db": 5.855321532037081
+    },
+    {
+      "curve": 1,
+      "naive_alias_db_vs_fundamental": -18.522591274967372,
+      "adaa_alias_db_vs_fundamental": -25.613460213366047,
+      "reduction_db": 7.090868938398675
+    },
+    {
+      "curve": 2,
+      "naive_alias_db_vs_fundamental": -15.370358252389888,
+      "adaa_alias_db_vs_fundamental": -23.490131359594145,
+      "reduction_db": 8.119773107204256
+    }
+  ],
+  "renders": [
+    {
+      "file": "01-dry.wav",
+      "peak": 0.165496826171875,
+      "rms": 0.05377523482734903,
+      "dc": 7.521963119506837e-05
+    },
+    {
+      "file": "02-drive-round.wav",
+      "peak": 0.389404296875,
+      "rms": 0.23818894454467807,
+      "dc": 2.061168352762858e-05
+    },
+    {
+      "file": "03-drive-bite.wav",
+      "peak": 0.4024658203125,
+      "rms": 0.22543279850783518,
+      "dc": 1.1135498682657877e-05
+    },
+    {
+      "file": "04-drive-edge.wav",
+      "peak": 0.418853759765625,
+      "rms": 0.2193037595997354,
+      "dc": 7.544755935668945e-06
+    },
+    {
+      "file": "05-orbit-dub.wav",
+      "peak": 0.157684326171875,
+      "rms": 0.037668552561598595,
+      "dc": 4.691632588704427e-05
+    },
+    {
+      "file": "06-drive-orbit.wav",
+      "peak": 0.39093017578125,
+      "rms": 0.15135437894835835,
+      "dc": 1.4117161432902018e-05
+    }
+  ]
+}

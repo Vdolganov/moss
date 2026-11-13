@@ -31,7 +31,7 @@ static void setup() {
 static void codecAndProtection() {
   setup(); project.tracks[0].granular.freeze=1;
   for(int i=0;i<GranularParameterCount;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
-  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MOS8",4));
+  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MOS9",4));
   assert(codec.decode(restored,codec.cursor));
   unsigned storedSize=codec.cursor; uint32_t storedHash=codec.hash(storedSize);
   assert(codec.encode(restored)); assert(codec.cursor==storedSize && codec.hash(codec.cursor)==storedHash);
@@ -176,5 +176,5 @@ static void importWorkflow() {
 int main() {
   for(int i=0;i<3;++i) assert(samples[i].load(lab::sampleFiles[i]));
   codecAndProtection(); playback(); controls(); arrangement(); importWorkflow();
-  puts("PASS granular integration: MOS8/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture");
+  puts("PASS granular integration: MOS9/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture");
 }

@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 9 || profileMask > 15 ||
+    if (profileKind < -1 || profileKind > 10 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -305,7 +305,7 @@ int main(int argc, char **argv) {
       if (profileKind >= 5) sample.rate = 96000;
     }
     if (profileKind >= 5)
-      stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:0);
+      stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:profileKind==10?4:0);
     else
       stressProject(app.project, Tracks, profileKind == 4 ? 2 : profileKind, profileMask);
     app.page = Pattern;
@@ -326,14 +326,14 @@ int main(int argc, char **argv) {
       b.song.loop = 1;
       b.count = Projects;
       strcpy(b.song.name, "TRANSITION STRESS");
-      const unsigned masks[] = {3, 5, 9, 6, 10, 12};
+      const unsigned masks[] = {3,5,9,17,6,10,18,12,20,24};
       for (int i = 0; i < Projects; ++i) {
         b.map[i] = i;
         if(profileKind==7) {
-          stressGranular(b.sequences[i],masks[i%6],i%2);
+          stressGranular(b.sequences[i],masks[i%10],i%2);
           if(i%3==0) b.sequences[i].tracks[3].instrument=SampleInstrument;
         } else
-          stressProject(b.sequences[i], Tracks, i % 2 ? 2 : (i / 2) % 4, masks[i % 6]);
+          stressProject(b.sequences[i], Tracks, i % 2 ? 2 : (i / 2) % 4, masks[i % 10]);
         snprintf(b.sequences[i].name, 25, "MAX LOAD %02d", i + 1);
         app.saved[i] = true;
         snprintf(app.projectNames[i], 25, "MAX LOAD %02d", i + 1);

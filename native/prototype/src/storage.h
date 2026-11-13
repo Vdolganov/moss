@@ -42,7 +42,7 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 8) {
+  void fields(Project &p, bool writing, int version = 9) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -54,13 +54,13 @@ struct Codec {
     auto fx = [&](Effect &e) {
       value(e.type);
       value(e.enabled);
-      for (auto &n : e.enabledTypes)
-        value(n);
-      for (auto &n : e.order)
-        value(n);
-      for (auto &row : e.values)
-        for (auto &v : row)
-          value(v);
+      const int types=version>=9?EffectTypes:4, parameters=version>=9?EffectParameters:4;
+      for(int i=0;i<types;++i) value(e.enabledTypes[i]);
+      for(int i=0;i<types;++i) value(e.order[i]);
+      for(int t=0;t<types;++t) for(int i=0;i<parameters;++i) value(e.values[t][i]);
+      if(!writing && version<9) {
+        int mix=e.values[Orbit][2];e.values[Orbit][2]=e.values[Orbit][3];e.values[Orbit][3]=mix;
+      }
     };
     auto name = [&](char *text) {
       for (int i = 0; i < 25; i++) {
@@ -159,9 +159,11 @@ struct Codec {
         for (auto &row : s.synthLocks)
           for (auto &n : row)
             value(n);
-        for (auto &row : s.fxLocks)
-          for (auto &v : row)
-            value(v);
+        for(int type=0;type<(version>=9?EffectTypes:4);++type)
+          for(int i=0;i<(version>=9?EffectParameters:4);++i) value(s.fxLocks[type][i]);
+        if(!writing && version<9) {
+          int16_t mix=s.fxLocks[Orbit][2];s.fxLocks[Orbit][2]=s.fxLocks[Orbit][3];s.fxLocks[Orbit][3]=mix;
+        }
         value(s.on);
         value(s.key);
         value(s.velocity);
@@ -185,8 +187,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MOS8", 4);
-    word(4, 8);
+    memcpy(bytes, "MOS9", 4);
+    word(4, 9);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -195,14 +197,15 @@ struct Codec {
     bool legacy = !memcmp(bytes, "MOS5", 4) && word(4) == 5;
     bool v6 = !memcmp(bytes, "MOS6", 4) && word(4) == 6;
     bool v7 = !memcmp(bytes, "MOS7", 4) && word(4) == 7;
+    bool v8 = !memcmp(bytes, "MOS8", 4) && word(4) == 8;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && (memcmp(bytes, "MOS8", 4) || word(4) != 8)) ||
+        (!legacy && !v6 && !v7 && !v8 && (memcmp(bytes, "MOS9", 4) || word(4) != 9)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : 8);
+    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : 9);
     // Experimental MOS7 used milliseconds in slot 7. Never interpret them as
     // percentages. Upgrade that control to the new cloud default; old jitter
     // locks have no source-independent equivalent and are explicitly discarded.

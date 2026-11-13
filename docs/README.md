@@ -2,7 +2,7 @@
 
 **Русский** · [English](README.en.md)
 
-Стабильная версия приложения — **0.5.2**; отдельно развивается экспериментальная **0.6.1-dev / GRANULAR**. Выбирайте нативное руководство для RG35XX и Windows; браузерный прототип — отдельная реализация без звука с другой раскладкой и ограничениями.
+Стабильная версия приложения — **0.5.2**; отдельно развивается экспериментальная **0.6.2-dev / GRANULAR**. Выбирайте нативное руководство для RG35XX и Windows; браузерный прототип — отдельная реализация без звука с другой раскладкой и ограничениями.
 
 | Документ | Русский | English |
 |---|---|---|
@@ -13,7 +13,8 @@
 | Производительность 0.5.1: история оптимизации | [Отчёт](NATIVE-PERFORMANCE-051.md) | [Performance](NATIVE-PERFORMANCE-051.en.md) |
 | Браузерный прототип v0.6 | [Руководство](<../visual prototype/README.md>) | [Guide](<../visual prototype/README.en.md>) |
 | Описание релиза 0.5.2 | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
-| GRANULAR / LENS: экспериментальная 0.6.1-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| GRANULAR / LENS: экспериментальная 0.6.2-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| DRIVE / ORBIT: 0.6.2-dev | [Эффекты и проверка](FX-CHARACTER-v1.md) | [Effects and verification](FX-CHARACTER-v1.en.md) |
 | Cloud, envelopes and gain / 0.6.1 | [Проверка](GRANULAR-CLOUD-v2.md) | [Verification](GRANULAR-CLOUD-v2.en.md) |
 | Trigless locks: proposal | [План](TRIGLESS-LOCKS-PLAN.md) | [Plan](TRIGLESS-LOCKS-PLAN.en.md) |
 | GRANULAR: интеграция и проверка на RG35XX | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
@@ -22,7 +23,7 @@
 
 ## Технические контракты
 
-Первый этап эксперимента: [гранулярный движок и испытательный стенд](GRANULAR-LAB-v1.md) · [English](GRANULAR-LAB-v1.en.md). Затем движок интегрирован в 0.6.1-dev; это не часть релиза 0.5.2.
+Первый этап эксперимента: [гранулярный движок и испытательный стенд](GRANULAR-LAB-v1.md) · [English](GRANULAR-LAB-v1.en.md). Затем движок интегрирован в 0.6.0-dev; это не часть релиза 0.5.2.
 
 Эти документы изначально написаны на английском; те же пользовательские сценарии по-русски описаны в полном руководстве:
 

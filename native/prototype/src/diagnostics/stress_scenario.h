@@ -17,7 +17,7 @@ inline void stressSample(SampleBuffer &sample) {
   }
 }
 inline void stressProject(Project &p, int tracks, int instrument,
-                          unsigned effectMask = 15) {
+                          unsigned effectMask = 3) {
   p = Project{};
   p.trackCount = tracks;
   p.bpm = 240;
@@ -25,8 +25,11 @@ inline void stressProject(Project &p, int tracks, int instrument,
   strcpy(p.name, "MAXIMUM LOAD");
   auto enable = [effectMask](Effect &fx) {
     fx.enabled = (effectMask & 1) != 0;
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < EffectTypes; ++i)
       fx.enabledTypes[i] = (effectMask >> i) & 1;
+    for(int kind=0;kind<EffectTypes;++kind) fx.values[kind][3]=100;
+    fx.values[Drive][0]=100;fx.values[Drive][4]=2;fx.values[Drive][7]=100;
+    fx.values[Orbit][6]=100;fx.values[Orbit][7]=100;
     fx.values[0][1] = 95;
     fx.values[1][1] = 100;
     fx.values[2][2] =
@@ -42,8 +45,8 @@ inline void stressProject(Project &p, int tracks, int instrument,
     tr.cycle = Steps;
     tr.division = 64;
     enable(tr.fx);
-    for (int i = 0; i < 4; ++i)
-      tr.fx.order[i] = (i + t) % 4;
+    for (int i = 0; i < EffectTypes; ++i)
+      tr.fx.order[i] = (i + t) % EffectTypes;
     for (int k = 0; k < Keys; ++k) {
       tr.keys[k].asset = (t * Keys + k) % 32;
       tr.keys[k].pitch = -24 + k * 48 / (Keys - 1);
@@ -61,12 +64,15 @@ inline void stressProject(Project &p, int tracks, int instrument,
           step.synthLocks[kind - 1][i] =
               int16_t(lo + (hi - lo) * ((s + t + i) % 3) / 2);
         }
-      for (int kind = 0; kind < 4; ++kind)
-        for (int i = 0; i < 4; ++i)
+      for (int kind = 0; kind < EffectTypes; ++kind)
+        for (int i = 0; i < fxParameters(kind); ++i)
           step.fxLocks[kind][i] =
               int16_t(fxLow(kind, i) + (fxHigh(kind, i) - fxLow(kind, i)) *
                                            ((s + t + i) % 3) / 2);
       step.fxLocks[2][2] = 1;
+      for(int kind=0;kind<EffectTypes;++kind) step.fxLocks[kind][3]=100;
+      step.fxLocks[Drive][4]=2; // most expensive polynomial
+      step.fxLocks[Orbit][7]=100;
       for (int k = 0; k < Keys; ++k) {
         auto &hit = tr.hits[k][s];
         hit.on = 1;
@@ -90,6 +96,7 @@ inline void stressGranular(Project &p, unsigned mask, int mode = 0) {
                            (i*13)%1000,0,1000,100,100,100,i%2?14000:20,200,
                            i%2?90:10,i%2?10:90,20,20};
       for(int k=0;k<GranularParameterCount;++k) s.grainLocks[k]=int16_t(values[k]);
+      if(mode==4) s.fxLocks[Drive][4]=int16_t(i%3); // 64 curve changes/second.
     }
   }
 }

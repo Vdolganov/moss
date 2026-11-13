@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
       p.attackMs = p.releaseMs = 60;
       e.enable(true);
       e.values[0][0] = 1;
-      e.values[0][2] = 30;
+      e.values[0][3] = 30;
     }
     fx.reset();
     fx.prepare(e.values, AudioRate, 80);

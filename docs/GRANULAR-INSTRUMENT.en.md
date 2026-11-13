@@ -1,4 +1,4 @@
-# GRANULAR / LENS · 0.6.1-dev
+# GRANULAR / LENS · 0.6.2-dev
 
 [Русский](GRANULAR-INSTRUMENT.md) · **English**
 
@@ -41,8 +41,10 @@ Locks without a new note are **not implemented yet**. The proposed interaction i
 
 ## Files and verification
 
-New saves use **MOS8**, with 16 parameters and locks. MOS5/MOS6/MOS7 remain readable. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 cannot read MOS8; use the separate experimental copy.
+New saves use **MOS9**, with 16 parameters and locks. MOS5/MOS6/MOS7/MOS8 remain readable. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 cannot read MOS9; use the separate experimental copy.
 
-Current verification: [GRANULAR-CLOUD-v2.en.md](GRANULAR-CLOUD-v2.en.md). [GRANULAR-NATIVE-v1.en.md](GRANULAR-NATIVE-v1.en.md) covers only 0.6.0-dev. Linear interpolation can still alias at large upward transpositions. This is original DSP, not a Mangl source port.
+Cloud 0.6.1 verification history: [GRANULAR-CLOUD-v2.en.md](GRANULAR-CLOUD-v2.en.md). [GRANULAR-NATIVE-v1.en.md](GRANULAR-NATIVE-v1.en.md) covers only 0.6.0-dev. Linear interpolation can still alias at large upward transpositions. This is original DSP, not a Mangl source port.
 
 The [browser study](../visual%20prototype/granular.html) remains silent and synthetic. It mirrors four banks and cloud distribution, but cannot validate audio. Its short C / A FREEZE intentionally differs from native X / V.
+
+New DRIVE/ORBIT, MOS9 and 0.6.2 verification: [FX-CHARACTER-v1.en.md](FX-CHARACTER-v1.en.md).

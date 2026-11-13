@@ -2,9 +2,11 @@
 
 [Русский](ELEKTRON-FX-RESEARCH.md) · **English** · 13 November 2026
 
+Implementation update: [0.6.2-dev](FX-CHARACTER-v1.en.md) adds new DRIVE and ORBIT. POND/REEL retain their previous algorithms; the dated proposal below remains research history.
+
 The next research stage is recorded separately: [DT1/DT2 and Heat firmware, memory and selected DSP analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md). The initial scope below is preserved; the new report distinguishes concrete findings from remaining unknowns.
 
-Goal: expressive reverb, delay, overdrive and tape effects with clear controls and reliable performance on the original RG35XX. This is research and a proposal for the next version. New effects have not been implemented; installed GRANULAR/LENS still uses the existing ORBIT/POND/CRUSH/REEL.
+Goal: expressive reverb, delay, overdrive and tape effects with clear controls and reliable performance on the original RG35XX. This is research and a proposal for the next version. At this initial research stage no new effects had been implemented; the then-installed GRANULAR/LENS used the original ORBIT/POND/CRUSH/REEL. See the implementation update above for the current build.
 
 ## What was actually inspected
 

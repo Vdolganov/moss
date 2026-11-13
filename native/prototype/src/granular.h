@@ -361,6 +361,11 @@ struct GranularVoice {
       }
       if (g.index >= g.last)
         g.index -= g.last - g.first;
+#if defined(__arm__)
+      // Each grain may visit a different PCM cache line. Start the next read
+      // while the remaining grains/tracks are processed; no signal change.
+      __builtin_prefetch(sample->pcm + g.index * sample->channels, 0, 1);
+#endif
       if (++g.age == g.length)
         grains[i] = grains[--count];
       else

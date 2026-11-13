@@ -1,13 +1,14 @@
 #pragma once
 #include "dsp_math.h"
 #include "effect_defs.h"
+#include "fx_character.h"
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
 namespace moss {
 struct FxState {
   static constexpr unsigned Delay = 384001;
-  int16_t delay[Delay][2] = {};
+  float delay[Delay][2] = {};
   unsigned cursor = 0;
   float comb[2][4][8192] = {}, filter[2][4] = {}, allpass[2][2][1024] = {};
   unsigned combPos[4] = {}, apPos[2] = {}, heldAt = 0;
@@ -16,12 +17,12 @@ struct FxState {
   unsigned combIndex[2][4] = {}, apIndex[2][2] = {}, combLength[2][4] = {};
   unsigned pondRate = 0;
   int pondSize = -1;
-  float held[2] = {}, wetness[4] = {}, delayTime = 1;
+  float held[2] = {}, wetness[EffectTypes] = {}, delayTime = 1;
   int16_t reel[4096][2] = {};
   unsigned reelPos = 0, reelWritten = 0;
   float reelPhase[2] = {}, reelTone[2] = {}, reelEnv = 0;
   uint32_t reelRandom = 357;
-  bool lastEnabled[4] = {};
+  bool lastEnabled[EffectTypes] = {};
   float reelToneCoefficient = .5f;
   int reelWear = -1;
   unsigned reelRate = 0;
@@ -29,16 +30,23 @@ struct FxState {
     float mix = 0, time = 0, cross = 0, feedback = 0, damp = 0;
     float drive = 0, levels = 0, inverseLevels = 0;
     float phase0 = 0, phase1 = 0, envelope = 0;
-  } prepared[4];
-  void prepare(const int values[4][4], unsigned rate, int bpm) {
-    for (int type = 0; type < 4; ++type) {
+  } prepared[EffectTypes];
+  OrbitDSP orbit;
+  DriveDSP drive;
+  int previousValues[EffectTypes][EffectParameters] = {};
+  unsigned preparedRate[EffectTypes] = {};
+  int preparedBpm = 0;
+  void prepare(const int values[EffectTypes][EffectParameters], unsigned rate, int bpm) {
+    for (int type = 0; type < EffectTypes; ++type) {
       const int *p = values[type];
+      if (preparedRate[type] == rate && (type != Orbit || preparedBpm == bpm) &&
+          !memcmp(previousValues[type], p, sizeof(previousValues[type]))) continue;
+      memcpy(previousValues[type], p, sizeof(previousValues[type]));
+      preparedRate[type] = rate;
       auto &c = prepared[type];
-      c.mix = (type == 0 ? p[2] : p[3]) / 100.f;
+      c.mix = p[3] / 100.f;
       if (type == 0) {
-        static constexpr float beats[] = {.25f, .5f, .75f, 1, 1.5f, 2, 3, 4};
-        c.time = minimum(beats[p[0]] * 60 * rate / bpm, Delay - 2);
-        c.cross = p[3] / 100.f;
+        orbit.prepare(p, rate, bpm, Delay);
       } else if (type == 1) {
         preparePond(p[0], rate);
         c.feedback = .45f + p[1] * .005f;
@@ -47,12 +55,15 @@ struct FxState {
         c.drive = 1 + p[0] * .15f;
         c.levels = float(1 << (p[1] - 1));
         c.inverseLevels = 1.f / c.levels;
-      } else {
+      } else if (type == Reel) {
         c.phase0 = .62f / rate;
         c.phase1 = 12.4f / rate;
         c.envelope = 1.f / (rate * .03f);
+      } else {
+        drive.prepare(p, rate);
       }
     }
+    preparedBpm = bpm;
   }
   static float sine(float x) {
     float v = 4 * x * (1 - fabsf(x));
@@ -61,7 +72,7 @@ struct FxState {
   unsigned delayWritten = 0;
   void invalidate() {
     // Each effect clears its logical history on the next enable edge.
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < EffectTypes; ++i) {
       lastEnabled[i] = false;
       wetness[i] = 0;
     }
@@ -96,30 +107,33 @@ struct FxState {
   static float clean(float v) { return fabsf(v) < 1e-15f ? 0 : v; }
   void process(int &left, int &right, const Effect &e,
                const int *overrideValues, unsigned rate, int bpm) {
-    int values[4][4];
+    int values[EffectTypes][EffectParameters];
     memcpy(values, e.values, sizeof(values));
     if (overrideValues)
       memcpy(values[e.type], overrideValues, sizeof(values[0]));
     prepare(values, rate, bpm);
-    for (int type : e.order)
-      processType(left, right, type, e.active(type),
-                  overrideValues && type == e.type ? overrideValues
-                                                   : e.values[type],
-                  rate, bpm);
+    processChain(left, right, e, values, rate, bpm);
   }
   void processChain(int &left, int &right, const Effect &e,
-                    const int values[4][4], unsigned rate, int bpm) {
-    for (int type : e.order)
-      processType(left, right, type, e.active(type), values[type], rate, bpm);
+                    const int values[EffectTypes][EffectParameters], unsigned rate, int bpm) {
+    float l=left/32768.f, r=right/32768.f;
+    for (int type : e.order) {
+      bool enabled=e.active(type);
+      if(!enabled && wetness[type]==0) { lastEnabled[type]=false;continue; }
+      processFloat(l, r, type, enabled, values[type], rate, bpm);
+    }
+    // Preserve headroom between inserts; convert only once per complete chain.
+    left=int(fxClamp(l,-8,8)*32768);right=int(fxClamp(r,-8,8)*32768);
   }
-  void processType(int &left, int &right, int type, bool enabled, const int *p,
+  void processFloat(float &left, float &right, int type, bool enabled, const int *p,
                    unsigned rate, int /*bpm*/) {
     const auto &coeff = prepared[type];
     if (enabled && !lastEnabled[type]) {
       if (type == 0) {
         cursor = delayWritten = 0;
-        delayTime = 1;
+        orbit.start();
       }
+      if (type == Drive) drive.start();
       if (type == 1) {
         memset(combPos, 0, sizeof(combPos));
         memset(apPos, 0, sizeof(apPos));
@@ -144,30 +158,9 @@ struct FxState {
       wet = 0;
       return;
     }
-    float dry[2] = {left / 32768.f, right / 32768.f}, signal[2] = {};
+    float dry[2] = {left, right}, signal[2] = {};
     if (type == 0) {
-      delayTime += (coeff.time - delayTime) * .002f;
-      unsigned whole = unsigned(delayTime);
-      float fraction = delayTime - whole;
-      unsigned index =
-                   cursor >= whole ? cursor - whole : cursor + Delay - whole,
-               previous = index ? index - 1 : Delay - 1;
-      for (int ch = 0; ch < 2; ch++)
-        signal[ch] = whole + 1 <= delayWritten
-                         ? (delay[index][ch] * (1 - fraction) +
-                            delay[previous][ch] * fraction) /
-                               32768.f
-                         : 0;
-      for (int ch = 0; ch < 2; ch++) {
-        float feedback =
-            signal[ch] * (1 - coeff.cross) + signal[1 - ch] * coeff.cross;
-        delay[cursor][ch] =
-            int16_t(bound(dry[ch] + feedback * p[1] / 100.f) * 32767);
-      }
-      if (++cursor == Delay)
-        cursor = 0;
-      if (delayWritten < Delay)
-        delayWritten++;
+      orbit.process(dry, signal, delay, cursor, delayWritten);
     } else if (type == 1) {
       float feedback = coeff.feedback, damp = coeff.damp;
       for (int k = 0; k < 4; k++) {
@@ -213,6 +206,8 @@ struct FxState {
         heldAt %= unsigned(p[2]);
       signal[0] = held[0];
       signal[1] = held[1];
+    } else if (type == Drive) {
+      drive.process(dry, signal);
     } else {
       reelPhase[0] += coeff.phase0;
       reelPhase[1] += coeff.phase1;
@@ -256,8 +251,8 @@ struct FxState {
       if (reelWritten < 4096)
         reelWritten++;
     }
-    left = int(bound(dry[0] * (1 - wet) + signal[0] * wet) * 32767);
-    right = int(bound(dry[1] * (1 - wet) + signal[1] * wet) * 32767);
+    left = dry[0] + wet * (signal[0] - dry[0]);
+    right = dry[1] + wet * (signal[1] - dry[1]);
   }
 };
 } // namespace moss

@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   t.fx.enabled = 1;
   t.fx.enabledTypes[0] = t.fx.enabledTypes[1] = 1;
   t.fx.values[0][1] = 55;
-  t.fx.values[0][2] = 15;
+  t.fx.values[0][3] = 15;
   t.fx.values[1][0] = 70;
   t.fx.values[1][1] = 70;
   t.fx.values[1][3] = 28;

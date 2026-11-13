@@ -18,10 +18,8 @@ struct Step {
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit}};
-  int16_t fxLocks[4][4] = {{Inherit, Inherit, Inherit, Inherit},
-                           {Inherit, Inherit, Inherit, Inherit},
-                           {Inherit, Inherit, Inherit, Inherit},
-                           {Inherit, Inherit, Inherit, Inherit}};
+  int16_t fxLocks[EffectTypes][EffectParameters];
+  Step() { for(auto &row:fxLocks) for(auto &v:row) v=Inherit; }
   int on = 0, key = 0, velocity = 90, length = 4, probability = 100;
   int16_t locks[4] = {Inherit, Inherit, Inherit, Inherit};
 };
@@ -134,17 +132,17 @@ inline bool valid(const Project &p) {
   auto effectValid = [](const Effect &f) {
     if (f.count() > ActiveEffects)
       return false;
-    if (f.type < 0 || f.type > 3 || f.enabled < 0 || f.enabled > 1)
+    if (f.type < 0 || f.type >= EffectTypes || f.enabled < 0 || f.enabled > 1)
       return false;
     unsigned seen = 0;
-    for (int i = 0; i < 4; i++) {
-      if (f.order[i] < 0 || f.order[i] > 3 || (seen & (1u << f.order[i])) ||
+    for (int i = 0; i < EffectTypes; i++) {
+      if (f.order[i] < 0 || f.order[i] >= EffectTypes || (seen & (1u << f.order[i])) ||
           f.enabledTypes[i] < 0 || f.enabledTypes[i] > 1)
         return false;
       seen |= 1u << f.order[i];
     }
-    for (int type = 0; type < 4; type++)
-      for (int i = 0; i < 4; i++)
+    for (int type = 0; type < EffectTypes; type++)
+      for (int i = 0; i < EffectParameters; i++)
         if (f.values[type][i] < fxLow(type, i) ||
             f.values[type][i] > fxHigh(type, i))
           return false;
@@ -213,8 +211,8 @@ inline bool valid(const Project &p) {
               (s.synthLocks[type][i] < synthMin(type + 1, i) ||
                s.synthLocks[type][i] > synthMax(type + 1, i)))
             return false;
-      for (int type = 0; type < 4; type++)
-        for (int i = 0; i < 4; i++)
+      for (int type = 0; type < EffectTypes; type++)
+        for (int i = 0; i < EffectParameters; i++)
           if (s.fxLocks[type][i] != Inherit &&
               (s.fxLocks[type][i] < fxLow(type, i) ||
                s.fxLocks[type][i] > fxHigh(type, i)))
@@ -292,14 +290,14 @@ inline void apply(Project &p, const Command &c) {
       f.select(c.value);
     else if (c.field == 1)
       f.enable(c.value != 0);
-    else if (c.field == 6)
+    else if (c.field == FxMoveField)
       f.move(c.index, c.value);
     else
       f.values[c.index][c.field - 2] = c.value;
     return;
   }
   if (c.op == Op::FxLock) {
-    p.tracks[c.track].steps[c.index].fxLocks[c.field / 4][c.field % 4] =
+    p.tracks[c.track].steps[c.index].fxLocks[c.field / EffectParameters][c.field % EffectParameters] =
         c.value;
     return;
   }

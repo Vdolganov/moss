@@ -242,7 +242,10 @@ inline void draw(lab::Canvas &c, const App &a) {
         if (a.bank == i)
           c.rect(x[i], 343, width[i], 1, TEXT);
       }
-      text(c, 520, 326,
+      if(a.bank==2) {
+        snprintf(b,sizeof(b),"%s %d/%d",fxName(tr.fx.type),clamp(a.fxBank,0,fxBanks(tr.fx.type)-1)+1,fxBanks(tr.fx.type));
+        text(c,510,326,b,DIM,2,10);
+      } else text(c, 520, 326,
            a.bank == 2                    ? fxName(tr.fx.type)
            : a.bank == 1 && a.granularTrack() ? GranularBanks[a.synthBank]
            : a.bank == 1 && tr.instrument ? (a.synthBank ? "CHAR" : "CORE")
@@ -342,18 +345,24 @@ inline void draw(lab::Canvas &c, const App &a) {
           unit = i == 0 ? "CELLS" : "RESOLUTION";
         } else if (a.fxPage() || (a.page == Pattern && a.bank == 2)) {
           const auto &f = a.page == Mix ? a.project.fx : t.fx;
-          label = fxLabel(f.type, i);
-          int value = f.values[f.type][i];
+          int parameter=i+clamp(a.fxBank,0,fxBanks(f.type)-1)*4;
+          label = fxLabel(f.type, parameter);
+          unit = FxSpecs[f.type][parameter].unit;
+          int value = f.values[f.type][parameter];
           if (a.page == Pattern) {
-            value = s.fxLocks[f.type][i];
+            value = s.fxLocks[f.type][parameter];
             unit = "STEP LOCK";
           }
           if (value == Inherit)
             strcpy(b, "--");
-          else if (f.type == 0 && i == 0) {
+          else if (f.type == Orbit && parameter == 0) {
             const char *n[] = {"1/16", "1/8", "3/16", "1/4",
                                "3/8",  "1/2", "3/4",  "1 BAR"};
             snprintf(b, sizeof(b), "%s", n[value]);
+          } else if(f.type==Drive && parameter==4) {
+            snprintf(b,sizeof(b),"%s",driveCurveName(value));
+          } else if(f.type==Orbit && parameter==4 && value==0) {
+            strcpy(b,"OFF");
           } else
             snprintf(b, sizeof(b), "%d", value);
         } else if (a.page == Tape) {
@@ -444,14 +453,14 @@ inline void draw(lab::Canvas &c, const App &a) {
       a.naming                   ? "A TYPE / X DELETE / START SAVE / B CANCEL"
       : a.importAssign           ? "A NAME + ASSIGN / X PLAY / B VOICE"
       : a.assignMode             ? "A SELECT / X AUDITION / B VOICE"
-      : a.fxPage() && a.fxDetail ? "X ON-OFF / L1+ARROWS FX / B CHAIN"
+      : a.fxPage() && a.fxDetail ? "L1/R1 BANK / L1+L-R FX / B CHAIN"
       : a.page == SongPage       ? "Y+UP-DOWN MOVE / R1+L-R PAGE / L1+R1 MENU"
       : a.page == Atlas          ? "A OPEN / L1-R1 TAB / L1+R1 OPTIONS"
       : a.page == Grid           ? "A OPEN / L1 R1 TRACK / L1+R1 OPTIONS"
       : a.fxPage()               ? "A EDIT / X BYPASS / Y+ARROWS ORDER"
       : a.page == Mix            ? "L1/R1 BANK / A MUTE / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 2
-          ? "L1+ARROWS FX / L1/R1 BANK / L1+R1 OPTIONS"
+          ? "L1+L-R FX / L1+U-D FX PAGE / L1-R1 BANK"
       : a.page == Pattern && !a.project.tracks[a.track].instrument
           ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"

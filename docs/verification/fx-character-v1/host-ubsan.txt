@@ -1,0 +1,16 @@
+PASS FX controls: two banks, physical gestures, master navigation, lock identity/reorder, MOS9 and MOS8 migration
+PASS DRIVE: polynomial primitives, monotonic curves, equal-input ADAA and parameter extrema at four sample rates
+PASS ORBIT: stereo feedback decay, no stale history, bounded rapid TIME locks and modulation
+BASS dry sampler 20 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 30 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 40 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 60 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 80 Hz: 0.0003 dB vs 1 kHz
+BASS dry sampler 100 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 200 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 500 Hz: -0.0002 dB vs 1 kHz
+BASS dry sampler 1000 Hz: 0.0000 dB vs 1 kHz
+PASS bass: dry sample -> track -> master -> monitor is flat within 0.1 dB from 20 Hz to 1 kHz
+PASS DRIVE neutrality: zero drive preserves 20 Hz within 0.5 dB; biased curves settle to silence
+PASS engine block invariance: DRIVE curve and ORBIT time/filter locks, hash 61c69909
+PASS all 16 DRIVE/ORBIT controls measurably change stereo output

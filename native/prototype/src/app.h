@@ -24,7 +24,7 @@ struct App {
   bool selectUsed = false, tempoTail = false, parameterTail = false;
   Page page = Atlas;
   int slot = 0, track = 0, step = 0, key = 0, bank = 0, option = 0;
-  int synthBank = 0;
+  int synthBank = 0, fxBank = 0;
   bool fxDetail = false, nestedUsed = false, nestedTail = false;
   lab::ParameterGesture nestedRepeat;
   int voicePicker = 0, voiceChoice = 0; // 1 instrument, 2 preset
@@ -627,16 +627,21 @@ struct App {
   void nextEffect(int direction) {
     auto &f = page == Mix ? project.fx : project.tracks[track].fx;
     int at = 0;
-    while (at < 3 && f.order[at] != f.type)
+    while (at < EffectTypes-1 && f.order[at] != f.type)
       at++;
     Command c{Op::Fx, page == Mix ? Tracks : track, 0, 0,
-              f.order[clamp(at + direction, 0, 3)]};
+              f.order[clamp(at + direction, 0, EffectTypes-1)]};
     if (send(c))
       apply(project, c); // browsing a chain must not replace undo
+    fxBank = clamp(fxBank, 0, fxBanks(f.type)-1);
   }
   void nested(int d) {
-    if (page == Pattern && bank == 2)
-      nextEffect(d);
+    if ((page == Pattern && bank == 2) || (fxPage() && fxDetail)) {
+      if(buttons.held & (lab::bit(lab::Up)|lab::bit(lab::Down))) {
+        const auto &f=page==Mix?project.fx:project.tracks[track].fx;
+        fxBank=clamp(fxBank+d,0,fxBanks(f.type)-1);
+      } else nextEffect(d);
+    }
     else if ((page == Sampler || (page == Pattern && bank == 1)) &&
              project.tracks[track].instrument)
       synthBank = clamp(synthBank + d, 0, voiceBanks() - 1);
@@ -720,11 +725,12 @@ struct App {
         change({Op::Hit, track, step, hitField(key, HitLock0 + i), v});
       } else if (bank == 2) {
         int type = t.fx.type;
+        i += clamp(fxBank,0,fxBanks(type)-1)*4;
         amount = parameterDelta(repetitions, fxCoarseStep(type, i));
         int v = s.fxLocks[type][i];
         if (v == Inherit)
           v = t.fx.values[type][i];
-        change({Op::FxLock, track, step, type * 4 + i,
+        change({Op::FxLock, track, step, type * EffectParameters + i,
                 clamp(v + d * amount, fxLow(type, i), fxHigh(type, i))});
       } else {
         if (i == 0)
@@ -770,7 +776,7 @@ struct App {
       if (!fxDetail) {
         if (i == parameterSlot(lab::Y))
           change({Op::Fx, page == Mix ? Tracks : track,
-                  (page == Mix ? project.fx : t.fx).type, 6,
+                  (page == Mix ? project.fx : t.fx).type, FxMoveField,
                   (buttons.held & (lab::bit(lab::Up) | lab::bit(lab::Down)))
                       ? -d
                       : d});
@@ -778,6 +784,7 @@ struct App {
       }
       int target = page == Mix ? Tracks : track;
       auto &f = page == Mix ? project.fx : t.fx;
+      i += clamp(fxBank,0,fxBanks(f.type)-1)*4;
       amount = parameterDelta(repetitions, fxCoarseStep(f.type, i));
       change({Op::Fx, target, f.type, i + 2,
               clamp(f.values[f.type][i] + d * amount, fxLow(f.type, i),
@@ -1108,7 +1115,10 @@ struct App {
       atlasTab = 1 - atlasTab;
       return;
     }
-    if (page == Pattern)
+    if (fxPage() && fxDetail) {
+      const auto &f=page==Mix?project.fx:project.tracks[track].fx;
+      fxBank=(fxBank+fxBanks(f.type)+direction)%fxBanks(f.type);
+    } else if (page == Pattern)
       bank = (bank + 4 + direction) % 4;
     else if (page == Sampler && project.tracks[track].instrument)
       synthBank = (synthBank + voiceBanks() + direction) % voiceBanks();

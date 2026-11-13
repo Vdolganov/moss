@@ -376,16 +376,16 @@ struct Engine {
       refreshSynth(t);
     for (int t = 0; t <= Tracks; t++) {
       const Effect &e = t == Tracks ? project.fx : project.tracks[t].fx;
-      for (int type = 0; type < 4; type++)
+      for (int type = 0; type < EffectTypes; type++)
         if (e.active(type) && (t == Tracks || t < project.trackCount))
           seenFxMask |= 1u << type;
     }
-    int params[Tracks + 1][4][4];
+    int params[Tracks + 1][EffectTypes][EffectParameters];
     auto refreshFx = [&]() {
       for (int t = 0; t <= Tracks; t++) {
         const Effect &e = t == Tracks ? project.fx : project.tracks[t].fx;
-        for (int type = 0; type < 4; type++)
-          for (int i = 0; i < 4; i++) {
+        for (int type = 0; type < EffectTypes; type++)
+          for (int i = 0; i < EffectParameters; i++) {
             params[t][type][i] = e.values[type][i];
             if (t < Tracks && activeFxStep[t] >= 0) {
               int v = project.tracks[t].steps[activeFxStep[t]].fxLocks[type][i];
@@ -447,7 +447,7 @@ struct Engine {
       fx[Tracks].processChain(mix[0], mix[1], project.fx, params[Tracks], rate,
                               project.bpm);
       if (capture.source < 0)
-        capture.append(mix[0], mix[1]);
+        capture.append(clamp(mix[0], -32768, 32767), clamp(mix[1], -32768, 32767));
       int pl = 0, pr = 0;
       preview.render(pl, pr);
       stream.render(pl, pr);

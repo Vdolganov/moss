@@ -16,15 +16,15 @@ inline void drawTools(lab::Canvas &c, const App &a) {
     if (!a.fxDetail) {
       if (a.page != Mix)
         text(c, 18, 109, "TRACK / EFFECT CHAIN", DIM);
-      for (int i = 0; i < 4; i++) {
-        int type = f.order[i], y = 155 + i * 55;
+      for (int i = 0; i < EffectTypes; i++) {
+        int type = f.order[i], y = 145 + i * 45;
         if (type == f.type)
-          c.rect(18, y - 11, 604, 46, PANEL);
+          c.rect(18, y - 9, 604, 38, PANEL);
         snprintf(b, sizeof(b), "%d  %s", i + 1, fxName(type));
         text(c, 30, y, b, TEXT, 3);
         text(c, 510, y + 4, f.active(type) ? "ON" : "BYPASS",
              f.active(type) ? TEXT : DIM);
-        c.rect(18, y + 35, 604, 1, LINE);
+        c.rect(18, y + 30, 604, 1, LINE);
       }
       text(c, 18, 389, "A EDIT / X ON-OFF / Y+UP-DOWN ORDER", DIM);
       snprintf(b, sizeof(b), "%d/2 ACTIVE / VOICE > FX CHAIN > MIX", f.count());
@@ -39,10 +39,15 @@ inline void drawTools(lab::Canvas &c, const App &a) {
     snprintf(b, sizeof(b), "%s / %s", fxName(f.type),
              f.enabled ? "ON" : "BYPASS");
     text(c, 18, 137, b, TEXT, 3);
-    text(c, 18, 181,
+    text(c, 18, 173,
          a.page == Mix ? "ALL TRACKS > MASTER EFFECT > OUTPUT"
                        : "VOICE > TRACK EFFECT > MIX",
          DIM);
+    for(int bank=0;bank<fxBanks(f.type);++bank) {
+      int x=18+bank*155;
+      text(c,x,198,fxBankName(bank),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
+      if(bank==clamp(a.fxBank,0,fxBanks(f.type)-1)) c.rect(x,214,130,1,TEXT);
+    }
     c.rect(18, 220, 604, 98, PANEL);
     c.rect(34, 299, 572, 1, LINE);
     if (f.type == 0) {
@@ -73,6 +78,15 @@ inline void drawTools(lab::Canvas &c, const App &a) {
         c.rect(38 + i * 2, 268 - int(v * 37), 2, 2, TEXT);
       }
       snprintf(b, sizeof(b), "TRANSFER CURVE / %d BIT / HOLD 1:%d", p[1], p[2]);
+    } else if(f.type==Drive) {
+      c.rect(320,228,1,78,LINE);
+      float gain=(1+63*(p[0]/100.f)*(p[0]/100.f))/(p[4]==0?1.5f:p[4]==1?4.f:8.f);
+      float bias=p[5]*.003f,offset=DriveDSP::shape(bias,p[4]);
+      for(int i=0;i<280;++i) {
+        float v=DriveDSP::shape((i-140)/140.f*gain+bias,p[4])-offset;
+        c.rect(38+i*2,268-int(fxClamp(v,-1,1)*37),2,2,TEXT);
+      }
+      snprintf(b,sizeof(b),"%s / TRANSFER CURVE / OUTPUT %d%%",driveCurveName(p[4]),p[2]);
     } else {
       for (int i = 0; i < 280; i++) {
         float phase = float(i) / 140 - 1;

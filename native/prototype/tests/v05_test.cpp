@@ -137,8 +137,8 @@ static void sound() {
   t.fx.enabled = 1;
   t.fx.values[0][0] = 0;
   t.fx.values[0][1] = 80;
-  t.fx.values[0][2] = 0;
-  t.steps[0].fxLocks[0][2] = 75;
+  t.fx.values[0][3] = 0;
+  t.steps[0].fxLocks[0][3] = 75;
   engine.init(p, library.pcm, 8000, Assets);
   engine.handle({Op::Transport});
   advance(engine, 8100);
@@ -262,7 +262,7 @@ static void chainStress() {
         peak = abs(output[i]);
     }
   }
-  assert(energy > 1000000 && peak < 32767 && engine.seenFxMask == 15 &&
+  assert(energy > 1000000 && peak < 32767 && engine.seenFxMask == ((1u << EffectTypes)-1) &&
          engine.capture.state == 2);
   printf("PASS v05 10-second stress: 4 synth tracks, transient full-chain load, "
          "capture; peak %d; desktop CPU %.3fs (ARM pending)\n",
