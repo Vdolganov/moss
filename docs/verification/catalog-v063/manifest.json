@@ -1,0 +1,34 @@
+{
+  "version": "0.6.3-dev",
+  "binary_sha256": "00488f29dacf4460ade8484339f26264b4faaac18b37ebebc2cd1840e8a2d184",
+  "previous_binary_sha256": "a372fc039e9dce6f3942e4d810f66913d9d4313604133e90399add44641adcd7",
+  "sources": 2048,
+  "date": "2026-11-13",
+  "device": "original RG35XX / GarlicOS 1.4.9",
+  "verification_scope": "Targeted catalog tests and normal UI, not full DSP stress qualification",
+  "catalog_display_count": 570,
+  "shared_library_wav_count": 567,
+  "shapes_wav_tested": 469,
+  "source_path_memory_added_bytes": 983040,
+  "visible_rows": 7,
+  "project_files_preserved": 9,
+  "project_hashes": {
+    "projects/deleted.moss": "f7060b4647785218419c76c47ccc40a7009951a1c8272e7d8d35a3206a541c5d",
+    "projects/initialized": "e3d70b91e185c5627d9fdc4283c0f1f31b2f5e1c8d3e4c2c4bd57b6b69468b07",
+    "projects/project-1.moss": "662c5e6f835e900bd587af2d9a2140c117b99fecc944caf7128c1f852ac70e26",
+    "projects/project-2.moss": "b6eac370408f88558f342f750f8a2225bd178633399472609986d193c2e389f5",
+    "projects/project-3.moss": "b20e2462fd3674feb4f90c2685f259d046b278e07e72eda8564d57d52428d52e",
+    "projects/project-4.moss": "bd074601eee86c32ebbfe9881035ab63ea9ed2f108ab577d5dafa9a97b47793f",
+    "projects/project-5.moss": "ec2007f85e1a07bfdab83f48e6579eec60902ce1b69f151fa9c45b59495a77cc",
+    "projects/project-6.moss": "bcce3427d9fab7a0ffffb9eb443b6b4a4656b454e2e6be4a6bd72a5a61be551c",
+    "projects/song-1.moss": "76c2467e85d23f053edc13700c5a3908930364aa79420fc6016959e61c6593ca"
+  },
+  "ui_checks": [
+    "141/570 selected after 20 seven-row page gestures",
+    "preview active beyond old 128-entry limit",
+    "source editor opens with 1024 KiB bound",
+    "MENU normal exit 0 and interactive governor restored"
+  ],
+  "full_audio_stress_repeated": false,
+  "known_decoder_probe_failure": "FAIL WAV: /mnt/mmc/MOSS-SampleLibrary/Master Sample Pack/Hollywoodedge,_Screams_2_Woman_Singl_PE133601.wav: USE PCM16/24/32 OR FLOAT32 WAV\n\nTEST_EXIT:3"
+}

@@ -1,0 +1,2 @@
+FAIL WAV: /mnt/mmc/MOSS-SampleLibrary/Master Sample Pack/Hollywoodedge,_Screams_2_Woman_Singl_PE133601.wav: USE PCM16/24/32 OR FLOAT32 WAV
+TEST_EXIT:3

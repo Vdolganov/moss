@@ -1168,7 +1168,7 @@ struct App {
       option = clamp(option + direction * 8, 0, optionCount() - 1);
     else if (filePicker)
       fileCursor =
-          clamp(fileCursor + direction * 6, 0,
+          clamp(fileCursor + direction * SourcePageRows, 0,
                 library && library->sourceCount ? library->sourceCount - 1 : 0);
     else if (page == Atlas)
       projectCursor = clamp(projectCursor + direction * 5, 0, projectCount);

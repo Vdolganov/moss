@@ -7,7 +7,8 @@
 #include <dirent.h>
 #endif
 namespace moss {
-constexpr int Assets = 32, Sources = 128;
+// Paths only: increasing the source catalog does not load more PCM into RAM.
+constexpr int Assets = 32, Sources = 2048, SourcePageRows = 7;
 inline void makeDir(const char *path) {
 #ifdef _WIN32
   _mkdir(path);

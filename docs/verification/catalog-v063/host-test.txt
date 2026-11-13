@@ -1,0 +1,4 @@
+PASS catalog: 469 real WAV headers, recursive categories, files beyond index 128
+PASS catalog paging: seven visible rows, boundary 128, partial last page
+PASS large WAV preview and bounded named slice import
+PASS bounded path catalog: 2048 entries, unchanged 32-slot PCM bank

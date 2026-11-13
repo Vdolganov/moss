@@ -2,7 +2,7 @@
 
 [Русский](README.md) · **English**
 
-The stable application version is **0.5.2**; experimental **0.6.2-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
+The stable application version is **0.5.2**; experimental **0.6.3-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
 
 | Document | Русский | English |
 |---|---|---|
@@ -15,6 +15,7 @@ The stable application version is **0.5.2**; experimental **0.6.2-dev / GRANULAR
 | 0.5.2 release notes | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
 | GRANULAR / LENS: experimental 0.6.2-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
 | DRIVE / ORBIT: 0.6.2-dev | [Эффекты и проверка](FX-CHARACTER-v1.md) | [Effects and verification](FX-CHARACTER-v1.en.md) |
+| WAV catalog: 0.6.3-dev | [Изменения и проверка](CATALOG-v063.md) | [Changes and verification](CATALOG-v063.en.md) |
 | Cloud, envelopes and gain / 0.6.1 | [Проверка](GRANULAR-CLOUD-v2.md) | [Verification](GRANULAR-CLOUD-v2.en.md) |
 | Trigless locks: proposal | [План](TRIGLESS-LOCKS-PLAN.md) | [Plan](TRIGLESS-LOCKS-PLAN.en.md) |
 | GRANULAR: integration and RG35XX verification | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |

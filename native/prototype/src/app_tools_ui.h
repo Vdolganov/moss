@@ -235,9 +235,9 @@ inline void drawOverlay(lab::Canvas &c, const App &a) {
       text(c, 32, 192, "NO WAV FOUND", TEXT);
       text(c, 32, 230, "COPY WAV INTO MOSS/imports", DIM);
     }
-    for (int i = a.fileCursor / 7 * 7;
-         i < count && i < (a.fileCursor / 7 + 1) * 7; i++) {
-      int y = 163 + (i % 7) * 35;
+    for (int i = a.fileCursor / SourcePageRows * SourcePageRows;
+         i < count && i < (a.fileCursor / SourcePageRows + 1) * SourcePageRows; i++) {
+      int y = 163 + (i % SourcePageRows) * 35;
       if (i == a.fileCursor)
         c.box(28, y - 7, 584, 31, TEXT);
       text(c, 40, y, leafName(a.library->sourcePaths[i]),
