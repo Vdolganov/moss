@@ -18,6 +18,7 @@
 | Trigless locks: proposal | [План](TRIGLESS-LOCKS-PLAN.md) | [Plan](TRIGLESS-LOCKS-PLAN.en.md) |
 | GRANULAR: интеграция и проверка на RG35XX | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
 | Эффекты: исследование Elektron и план переработки | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
+| Elektron: разбор прошивок, памяти и DSP | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
 
 ## Технические контракты
 

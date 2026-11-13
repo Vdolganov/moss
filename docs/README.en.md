@@ -18,6 +18,7 @@ The stable application version is **0.5.2**; experimental **0.6.1-dev / GRANULAR
 | Trigless locks: proposal | [План](TRIGLESS-LOCKS-PLAN.md) | [Plan](TRIGLESS-LOCKS-PLAN.en.md) |
 | GRANULAR: integration and RG35XX verification | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
 | Effects: Elektron research and redesign plan | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
+| Elektron: firmware, memory and DSP analysis | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
 
 ## Technical contracts
 
