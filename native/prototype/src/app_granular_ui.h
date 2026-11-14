@@ -18,7 +18,7 @@ struct LensGeometry {
   void point(float turn, float radius, int &px, int &py) const {
     turn-=floorf(turn); float at=turn*256; int i=int(at); float f=at-i;
     px=320+int((x[i]+(x[i+1]-x[i])*f)*radius);
-    py=244+int((y[i]+(y[i+1]-y[i])*f)*radius);
+    py=241+int((y[i]+(y[i+1]-y[i])*f)*radius);
   }
   void radial(lab::Canvas &c,float turn,float first,float last,uint32_t ink) const {
     int x1,y1,x2,y2; point(turn,first,x1,y1); point(turn,last,x2,y2); grainLine(c,x1,y1,x2,y2,ink);
@@ -27,6 +27,13 @@ struct LensGeometry {
     int x1,y1; point(first,radius,x1,y1);
     int segments=lab::clamp(int((last-first)*100),2,100);
     for(int i=1;i<=segments;++i) { int x2,y2; point(first+(last-first)*i/segments,radius,x2,y2); grainLine(c,x1,y1,x2,y2,ink); x1=x2;y1=y2; }
+  }
+  void grainArc(lab::Canvas &c,float origin,float span,float first,float last,float radius,uint32_t ink) const {
+    if (last<=first || span<=0) return;
+    if (span>=last-first) { arc(c,first,last,radius,ink); return; }
+    float end=origin+span;
+    arc(c,origin,fminf(end,last),radius,ink);
+    if(end>last) arc(c,first,first+end-last,radius,ink);
   }
 };
 inline void drawGranular(lab::Canvas &c, const App &a) {
@@ -47,35 +54,38 @@ inline void drawGranular(lab::Canvas &c, const App &a) {
     float head=view.running?view.head/65536.f:p.values[4]*.001f;
     float first=view.running?view.first/65536.f:p.values[5]*.001f;
     float last=view.running?view.last/65536.f:p.values[6]*.001f;
-    float scatter=view.running?view.scatter/65536.f:p.values[7]*.01f;
-    lens.arc(c,0,1,70,LINE);
-    // The prepared source's immutable peak overview wraps once around the ring.
-    int x1=0,y1=0;
-    for(int i=0;i<=128;++i) {
+    // Absolute source coordinates: the whole waveform stays in place while
+    // START/END dim the excluded samples. No decorative moving rings.
+    for(int i=0;i<128;++i) {
       int at=(i/2)%64, next=(at+1)%64;
       float peak=(sample.peaks[at]+(i%2)*(sample.peaks[next]-sample.peaks[at])*.5f)/32768.f;
-      int x2,y2; lens.point(i/128.f,70+peak*8,x2,y2);
-      if(i) grainLine(c,x1,y1,x2,y2,DIM); x1=x2;y1=y2;
+      float position=i/128.f, amplitude=1+peak*9;
+      lens.radial(c,position,67-amplitude,67+amplitude,
+                  position>=first && position<last ? DIM : LINE);
     }
-    lens.arc(c,first,last,80,DIM);
-    for(int i=0;i<16;++i) lens.radial(c,i/16.f,84,i%4?86:89,LINE);
-    lens.radial(c,first,77,83,DIM);
-    lens.radial(c,last,77,83,DIM);
+    lens.radial(c,first,64,79,TEXT);
+    lens.radial(c,last,64,79,TEXT);
+    bool looped=false;
     for(unsigned i=0;i<view.count && i<8;++i) {
-      const auto &g=view.grains[i]; float age=g.age/65536.f, at=g.position/65536.f, origin=g.origin/65536.f;
-      float radius=14+age*50; uint32_t ink=age<.12f||age>.88f?DIM:TEXT;
-      lens.arc(c,0,1,radius,LINE);
-      lens.radial(c,origin,radius-2,radius+2,DIM);
-      lens.arc(c,at-.012f,at+.012f,radius,ink);
-      lens.radial(c,at,radius-3,radius+3,ink);
+      const auto &g=view.grains[i];
+      float at=g.position/65536.f, origin=g.origin/65536.f;
+      float radius=27+g.lane*4;
+      uint32_t ink=g.gain>12000 ? TEXT : DIM;
+      lens.grainArc(c,origin,g.span/65536.f,g.first/65536.f,g.last/65536.f,radius,ink);
+      lens.radial(c,origin,radius-1,radius+1,DIM);
+      int x,y; lens.point(at,radius,x,y);
+      c.rect(x-2,y-2,5,5,BG); c.rect(x-1,y-1,3,3,TEXT);
+      looped|=g.loops>0;
     }
-    if(scatter<1) lens.radial(c,head,68,91,TEXT);
+    int hx,hy; lens.point(head,80,hx,hy); c.box(hx-2,hy-2,5,5,TEXT);
     snprintf(b,sizeof(b),"%.2f S",double(sample.frames)/sample.rate); text(c,18,204,"SOURCE",DIM); text(c,18,225,b,TEXT);
-    text(c,478,204,scatter>=1?"FULL CLOUD":scatter>0?"SCATTER":"SCAN",DIM);
+    text(c,478,204,looped?"LOOP GRAINS":"GRAINS",DIM);
     snprintf(b,sizeof(b),"%u / 8",view.count); text(c,478,225,b,TEXT);
-    text(c,478,264,scatter>=1?"ALL REGIONS":p.freeze?"ANCHOR HELD":"ANCHOR",DIM);
-    if(scatter<1) { snprintf(b,sizeof(b),"%.1f%%",head*100); text(c,478,285,b,TEXT); }
-    text(c,18,285,midiNote(tr.audition),TEXT);
+    text(c,478,264,p.freeze?"HEAD HELD":"HEAD",DIM);
+    snprintf(b,sizeof(b),"%.1f%%",head*100); text(c,478,285,b,TEXT);
+    snprintf(b,sizeof(b),"%.1f-%.1f%%",first*100,last*100); text(c,18,264,b,DIM);
+    if(view.running) { snprintf(b,sizeof(b),"%.1f G/S",view.density*.001); text(c,18,285,b,TEXT); }
+    else text(c,18,285,midiNote(tr.audition),TEXT);
   } else {
     text(c,220,214,"NO SAMPLE",TEXT,3);
     text(c,202,259,"A ASSIGN SAMPLE",DIM);

@@ -1,0 +1,8 @@
+PASS granular cloud: eight simultaneous source regions, anchor-independent full scatter, zero-scatter scan, per-grain stereo and latched bounds
+PASS granular envelopes: independent in/out shapes, zero endpoints, latched windows, sparse/dense level compensation
+PASS granular: windows, density lookup, invalid sources, block-invariant edits/seek/retrigger
+PASS granular: reverse scan, freeze/unfreeze, independent pitch, 8/16/32 hard caps, release and idle
+PASS granular: stereo isolation, mono coherence and measured octave pitch
+PASS granular: per-grain parameter latching, independent random streams and sample-rate-scaled release
+PASS granular: 1-frame sources, full 1 MiB, 8..96 kHz, extreme transpose/scatter, invalid controls and density zero
+MEMORY voice=2640 tables=5128 (shared PCM excluded)

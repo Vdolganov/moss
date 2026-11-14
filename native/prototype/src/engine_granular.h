@@ -8,11 +8,14 @@ int grainRemaining[Tracks] = {};
 unsigned grainPreview[Tracks] = {};
 struct GrainView {
   uint32_t head = 0, count = 0, running = 0;
-  uint32_t first = 0, last = 65536, scatter = 0;
-  struct Item { uint32_t position = 0, age = 0, origin = 0; } grains[8];
+  uint32_t first = 0, last = 65536, scatter = 0, density = 0;
+  struct Item {
+    uint32_t position = 0, age = 0, origin = 0, span = 0;
+    uint32_t first = 0, last = 65536, lane = 0, gain = 0, loops = 0;
+  } grains[8];
 };
 struct GrainMailbox {
-  static constexpr int Header = 6, Words = Header + 8 * 3;
+  static constexpr int Header = 7, Stride = 9, Words = Header + 8 * Stride;
   uint32_t sequence = 0, words[Words] = {};
   void publish(const GranularVoice &v) {
     uint32_t serial = __atomic_load_n(&sequence, __ATOMIC_RELAXED);
@@ -25,11 +28,19 @@ struct GrainMailbox {
       data[3] = uint32_t((uint64_t(v.scanFirst) >> 16) / v.sample->frames);
       data[4] = uint32_t((uint64_t(v.scanLast) >> 16) / v.sample->frames);
       data[5] = uint32_t(v.parameters.scatter * 65536);
+      data[6] = uint32_t(v.effectiveDensity * 1000);
+      const float scale = 65536.f / v.sample->frames;
       for (unsigned i = 0; i < v.count && i < 8; ++i) {
         const auto &g = v.grains[i];
-        data[Header + i * 3] = uint32_t(uint64_t(g.index) * 65536 / v.sample->frames);
-        data[Header + i * 3 + 1] = uint32_t(uint64_t(g.age) * 65536 / g.length);
-        data[Header + i * 3 + 2] = uint32_t(g.origin * 65536);
+        uint32_t *item = data + Header + i * Stride;
+        item[0] = uint32_t((g.index + g.fraction) * scale);
+        item[1] = uint32_t(uint64_t(g.age) * 65536 / g.length);
+        item[2] = uint32_t(g.origin * 65536);
+        item[3] = uint32_t(fminf(1, g.sourceSpan) * 65536);
+        item[4] = uint32_t(g.first * scale); item[5] = uint32_t(g.last * scale);
+        item[6] = g.lane;
+        item[7] = uint32_t(v.grainWindow(g) * 65536);
+        item[8] = uint32_t(g.sourceSpan * v.sample->frames / (g.last-g.first));
       }
     }
     for (int i = 0; i < Words; ++i) __atomic_store_n(&words[i], data[i], __ATOMIC_RELAXED);
@@ -45,8 +56,11 @@ struct GrainMailbox {
       __atomic_thread_fence(__ATOMIC_ACQUIRE);
       if (__atomic_load_n(&sequence, __ATOMIC_RELAXED) != before) continue;
       view.head = data[0]; view.count = data[1]; view.running = data[2];
-      view.first = data[3]; view.last = data[4]; view.scatter = data[5];
-      for (int i = 0; i < 8; ++i) view.grains[i] = {data[Header+i*3], data[Header+i*3+1], data[Header+i*3+2]};
+      view.first = data[3]; view.last = data[4]; view.scatter = data[5]; view.density=data[6];
+      for (int i = 0; i < 8; ++i) {
+        const uint32_t *g=data+Header+i*Stride;
+        view.grains[i] = {g[0],g[1],g[2],g[3],g[4],g[5],g[6],g[7],g[8]};
+      }
       break;
     }
     return view;
@@ -82,7 +96,7 @@ void refreshGranular(int t, const Step *step) {
   GranularParameters p;
   p.speed = v[0] * .01f; p.pitch = float(v[1]); p.sizeMs = float(v[2]); p.density = float(v[3]);
   p.position = v[4] * .001f; p.start = v[5] * .001f; p.end = v[6] * .001f; p.scatter = v[7] * .01f;
-  p.spread = v[8] * .01f; p.irregularity = v[9] * .01f; p.cutoff = float(v[10]); p.level = v[11] * .01f;
+  p.spread = v[8] * .01f; p.jump = v[9] * .01f; p.cutoff = float(v[10]); p.level = v[11] * .01f;
   p.grainIn = v[12] * .01f; p.grainOut = v[13] * .01f; p.attackMs = float(v[14]); p.releaseMs = float(v[15]);
   p.freeze = patch.freeze != 0;
   granular[t].setParameters(p);

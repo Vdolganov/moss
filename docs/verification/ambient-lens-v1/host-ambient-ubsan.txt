@@ -1,0 +1,3 @@
+PASS ambient: 8-second sustained pad, staggered replacements, bounded random jumps, continuous scan and FREEZE, stable lanes and truthful snapshots
+PASS independent head RNG: full SCATTER births unchanged by JUMP and FREEZE
+PASS MS10 long SIZE/JUMP roundtrip and MOS9 timing-irregularity migration

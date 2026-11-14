@@ -9,6 +9,7 @@ struct GranularParameters {
   float speed = 1, pitch = 0, sizeMs = 100, density = 20;
   float position = 0, start = 0, end = 1, scatter = 0;
   float spread = 0, irregularity = 0, cutoff = 12000, level = 1;
+  float jump = 0; // Scan-head displacement; independent from per-grain scatter.
   float grainIn = .5f, grainOut = .5f, attackMs = 100, releaseMs = 100;
   bool freeze = false;
 };
@@ -89,11 +90,11 @@ struct GranularVoice {
   static constexpr float NominalGain = .75f;
   struct Grain {
     unsigned index = 0, stepWhole = 0, age = 0, length = 0;
-    unsigned first = 0, last = 1, zone = 0;
+    unsigned first = 0, last = 1, zone = 0, lane = 0;
     float fraction = 0, stepFraction = 0;
     unsigned attackFrames = 1, releaseStart = 1;
     float attackStep = 0, releaseStep = 0;
-    float origin = 0, panLeft = 1, panRight = 1;
+    float origin = 0, sourceSpan = 0, panLeft = 1, panRight = 1;
   } grains[MaxGrains];
   struct Statistics {
     uint64_t attempts = 0, spawned = 0, skipped = 0;
@@ -105,7 +106,9 @@ struct GranularVoice {
   GranularFilter filter;
   unsigned rate = 32000, capacity = NativeGrains, count = 0, grainFrames = 3200;
   unsigned control = 0;
-  uint32_t randomState = 1;
+  uint32_t randomState = 1, jumpRandomState = 1;
+  unsigned jumpCountdown = 0;
+  float effectiveDensity = 0;
   int64_t head = 0, scanFirst = 0, scanLast = 0, scanStep = 0;
   float readStep = 1, note = 0, velocity = 1, envelope = 0, attackStep = 1, releaseStep = 1;
   float outputGain = 0, gainTarget = 1, gainSmoothing = .001f;
@@ -119,11 +122,22 @@ struct GranularVoice {
       return fallback;
     return v < lo ? lo : v > hi ? hi : v;
   }
-  float randomBipolar() {
-    randomState ^= randomState << 13;
-    randomState ^= randomState >> 17;
-    randomState ^= randomState << 5;
-    return float(randomState >> 8) * (1.f / 8388608.f) - 1;
+  static float randomBipolar(uint32_t &state) {
+    state ^= state << 13;
+    state ^= state >> 17;
+    state ^= state << 5;
+    return float(state >> 8) * (1.f / 8388608.f) - 1;
+  }
+  float randomBipolar() { return randomBipolar(randomState); }
+  void resetJumpClock() {
+    jumpCountdown = unsigned(rate * (1.25f + .5f * randomBipolar(jumpRandomState)));
+  }
+  void jumpHead() {
+    const int64_t span = scanLast - scanFirst;
+    head += int64_t(double(span) * .5 * parameters.jump * randomBipolar(jumpRandomState));
+    if (head < scanFirst) head += span;
+    else if (head >= scanLast) head -= span;
+    resetJumpClock();
   }
   bool init(const SampleBuffer &source, const GranularTables &lookup, unsigned outputRate,
             unsigned limit = NativeGrains, uint32_t seed = 357) {
@@ -139,6 +153,9 @@ struct GranularVoice {
     gainSmoothing = 1.f - expf(-1.f / (rate * .02f));
     capacity = limit;
     randomState = seed ? seed : 1;
+    jumpRandomState = randomState ^ 0xa511e9b3u;
+    if (!jumpRandomState) jumpRandomState = 1;
+    resetJumpClock();
     setParameters(parameters);
     filter.tune(parameters.cutoff, rate, true);
     return true;
@@ -150,7 +167,7 @@ struct GranularVoice {
   void setParameters(GranularParameters p) {
     p.speed = bounded(p.speed, -3, 3, 0);
     p.pitch = bounded(p.pitch, -24, 24, 0);
-    p.sizeMs = bounded(p.sizeMs, 1, 500, 100);
+    p.sizeMs = bounded(p.sizeMs, 1, 8000, 100);
     p.density = bounded(p.density, 0, 512, 20);
     p.position = bounded(p.position, 0, 1, 0);
     p.start = bounded(p.start, 0, 1, 0);
@@ -158,6 +175,7 @@ struct GranularVoice {
     p.scatter = bounded(p.scatter, 0, 1, 0);
     p.spread = bounded(p.spread, 0, 1, 0);
     p.irregularity = bounded(p.irregularity, 0, 1, 0);
+    p.jump = bounded(p.jump, 0, 1, 0);
     p.cutoff = bounded(p.cutoff, 20, rate * .4375f, rate * .375f);
     p.level = bounded(p.level, 0, 2, 1);
     p.grainIn = bounded(p.grainIn, 0, 1, .5f);
@@ -174,7 +192,11 @@ struct GranularVoice {
       grainFrames = 2;
     attackStep = 1.f / (rate * (p.attackMs < 2 ? .002f : p.attackMs * .001f));
     releaseStep = 1.f / (rate * (p.releaseMs < 2 ? .002f : p.releaseMs * .001f));
-    float overlap = bounded(p.density * p.sizeMs * .001f, 1, float(capacity), 1);
+    // Spread long grains through time instead of filling the pool in a burst
+    // and then dropping births until the entire burst expires. At most eight
+    // voices; no allocation, stealing, or larger PCM buffers.
+    effectiveDensity = fminf(p.density, float(capacity) * rate / grainFrames);
+    float overlap = bounded(effectiveDensity * grainFrames / rate, 1, float(capacity), 1);
     float windowEnergy = 1 - .625f * (p.grainIn + p.grainOut);
     gainTarget = p.level * NominalGain / sqrtf(fmaxf(1, overlap * windowEnergy));
     if (filterChanged)
@@ -215,8 +237,8 @@ struct GranularVoice {
     note = bounded(semitones, -48, 48, 0);
     velocity = bounded(strength, 0, 1, 1);
     preparePitch();
+    if (!running) scheduler = 1;
     gate = running = true;
-    scheduler = 1;
   }
   void noteOff() {
     gate = false;
@@ -261,6 +283,11 @@ struct GranularVoice {
     g.fraction = float(position - g.index);
     g.first = first; g.last = last; g.zone = zone;
     g.origin = float(position / sample->frames);
+    g.sourceSpan = readStep * grainFrames / sample->frames;
+    uint32_t lanes = 0;
+    for (unsigned i=0;i+1<count;++i) lanes |= 1u << grains[i].lane;
+    g.lane = 0;
+    while (lanes & (1u << g.lane)) ++g.lane;
     float balance = randomBipolar() * parameters.spread;
     g.panLeft = sqrtf(1 - balance); g.panRight = sqrtf(1 + balance);
     // Tiny sources are valid. Reduce the integer stride once at birth.
@@ -317,19 +344,20 @@ struct GranularVoice {
         head -= scanLast - scanFirst;
       else if (head < scanFirst)
         head += scanLast - scanFirst;
+      if (parameters.jump > 0 && !--jumpCountdown) jumpHead();
     }
     if (!control) {
       control = 32;
       float controlPeriod = 32.f / rate;
-      noiseClock += parameters.density * controlPeriod;
+      noiseClock += effectiveDensity * controlPeriod;
       if (noiseClock >= 1) {
         noiseClock -= floorf(noiseClock);
         noiseTarget = randomBipolar();
-        noiseStep = (noiseTarget - noise) * parameters.density * controlPeriod;
+        noiseStep = (noiseTarget - noise) * effectiveDensity * controlPeriod;
       }
       noise = bounded(noise + noiseStep, -1, 1, 0);
       schedulerStep =
-          parameters.density / rate * tables->densityFactor(noise * parameters.irregularity);
+          effectiveDensity / rate * tables->densityFactor(noise * parameters.irregularity);
     }
     --control;
     if (parameters.density > 0) {

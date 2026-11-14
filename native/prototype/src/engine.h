@@ -331,7 +331,8 @@ struct Engine {
       trigger(c.track, s);
       voice(c.track, c.index).mode = 0;
       if (project.tracks[c.track].instrument == GranularInstrument)
-        grainPreview[c.track] = rate * 2;
+        // Let long pads develop through two grain generations when auditioned.
+        grainPreview[c.track] = unsigned(rate * clamp(grainValues[c.track][2] * 2 + grainValues[c.track][14], 2000, 20000) / 1000);
       else if (project.tracks[c.track].instrument)
         synth[c.track].previewFrames = rate * 2;
     } else {

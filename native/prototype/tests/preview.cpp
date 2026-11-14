@@ -45,6 +45,10 @@ int main(int argc, char **argv) {
       }
     }
     if (!strncmp(argv[3], "grain", 5)) {
+      if(const char *source=getenv("MOSS_LENS_SOURCE")) {
+        if(!samples[1].load(source))return 2;
+        library.pcm[1]=samples[1];strcpy(library.names[1],"DRIFT SOURCE");
+      }
       app.project=Project{}; app.project.trackCount=1; app.page=Sampler;app.track=0;app.key=0;
       strcpy(app.project.name,"SLOW SIGNAL"); auto &tr=app.project.tracks[0];
       tr.instrument=GranularInstrument; tr.granular.asset=1; strcpy(tr.name,"DUST");
@@ -52,8 +56,11 @@ int main(int argc, char **argv) {
       if(!strcmp(argv[3],"grainenvelope")) { app.synthBank=3; tr.granular.values[12]=10; tr.granular.values[13]=60; }
       if(!strcmp(argv[3],"grainempty")) tr.granular.asset=-1;
       if(!strcmp(argv[3],"grainfrozen")) tr.granular.freeze=1;
+      if(!strcmp(argv[3],"grainrange")) { tr.granular.values[5]=200;tr.granular.values[6]=780;tr.granular.values[2]=8000;app.synthBank=1; }
+      if(!strcmp(argv[3],"graintexture")) tr.granular.values[9]=80;
       engine.init(app.project,samples,AudioRate);engine.handle({Op::Audition,0});
-      int16_t audio[2048];for(int n=0;n<11;++n) engine.render(audio,1024);
+      engine.grainPreview[0]=AudioRate*20; // Mature cloud in this visual fixture.
+      int16_t audio[2048];for(int n=0;n<220;++n) engine.render(audio,1024);
       if(!strcmp(argv[3],"grainlocks")) {app.page=Pattern;app.bank=1;app.synthBank=2;app.step=0;tr.steps[0].on=1;tr.steps[0].grainLocks[10]=8500;}
       if(!strcmp(argv[3],"grainheld")) app.buttons.held=lab::bit(lab::Y);
       if(!strcmp(argv[3],"grainmenu")) app.options=true;

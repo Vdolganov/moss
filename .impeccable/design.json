@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T17:03:37.438151+00:00",
-  "title": "MOSS · браузер v0.6 / native 0.5.2 / FX experiment 0.6.2",
+  "generatedAt": "2026-11-14T07:49:39.838050+00:00",
+  "title": "MOSS · браузер v0.6 / native 0.5.2 / Ambient LENS 0.6.4",
   "extensions": {
     "colorMeta": {
       "paper": {
@@ -406,6 +406,11 @@
       {
         "name": "The Nested FX Bank Rule",
         "body": "В native 0.6.2 DRIVE/ORBIT показывают CORE/CHARACTER и текущий FX. FX LOCKS сохраняет верхние банки L1/R1; вложенные L1+лево/право выбирают FX, L1+верх/низ его банк. CLEAR CURRENT LOCK BANK очищает только четыре видимых поля. HIGH CUT имеет крупный шаг 1000 Hz; LOW CUT — 100 Hz и OFF при нуле.",
+        "section": "components"
+      },
+      {
+        "name": "The Granular Source Position Rule",
+        "body": "В Ambient LENS 0.6.4 круг строится из пиков исходника. Вне START–END волна приглушена. Каждое зерно сохраняет свою полосу и дугу прочитываемого участка; заполненный квадрат показывает реальную позицию, яркость — огибающую. Контурный внешний квадрат показывает головку, в том числе скачки JUMP. Возраст не раздвигает кольца. SIZE до 8 секунд, TEXTURE / B JUMP, четыре прежних банка и Y/B/A/X. Браузерная волна остаётся явно обозначенной симуляцией.",
         "section": "components"
       }
     ],

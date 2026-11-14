@@ -31,7 +31,7 @@ static void setup() {
 static void codecAndProtection() {
   setup(); project.tracks[0].granular.freeze=1;
   for(int i=0;i<GranularParameterCount;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
-  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MOS9",4));
+  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MS10",4));
   assert(codec.decode(restored,codec.cursor));
   unsigned storedSize=codec.cursor; uint32_t storedHash=codec.hash(storedSize);
   assert(codec.encode(restored)); assert(codec.cursor==storedSize && codec.hash(codec.cursor)==storedHash);
@@ -82,7 +82,7 @@ static void playback() {
   render(engine,16000);
   assert(head==engine.granular[0].head && engine.granular[0].stats.spawned>births);
   auto view=engine.grainView[0].read(); assert(view.count<=8 && view.running);
-  render(engine,64000); assert(!engine.granular[0].running);
+  render(engine,32000*20); assert(!engine.granular[0].running);
   engine.handle({Op::GranularSource,0,0,0,1}); assert(engine.grainAsset[0]==1);
   engine.handle({Op::GranularSource,0,0,0,-1});
   engine.handle({Op::Audition,0}); render(engine,1024); assert(!engine.granular[0].running);
@@ -100,6 +100,8 @@ static void controls() {
   assert(!app.project.tracks[0].granular.freeze);
   tap(lab::X); assert(app.project.tracks[0].granular.freeze==1);
   tap(lab::R1); assert(app.synthBank==1); tap(lab::R1); assert(app.synthBank==2);
+  gesture(lab::B,lab::Up); assert(app.project.tracks[0].granular.values[9]==45);
+  render(engine,1024);assert(fabsf(engine.granular[0].parameters.jump-.45f)<1e-6f);
   gesture(lab::A,lab::Up); assert(app.project.tracks[0].granular.values[10]==7700);
   tap(lab::R1); assert(app.synthBank==3);
   gesture(lab::Y,lab::Up);
@@ -107,6 +109,9 @@ static void controls() {
   gesture(lab::X,lab::Up); assert(app.project.tracks[0].granular.values[15]==120);
   tap(lab::R1); assert(app.synthBank==0);
   app.page=Pattern; app.bank=1; app.synthBank=2; app.step=0;
+  gesture(lab::B,lab::Right); assert(app.project.tracks[0].steps[0].grainLocks[9]==46);
+  engine.init(app.project,samples,32000);engine.handle({Op::Transport});render(engine,1);
+  assert(fabsf(engine.granular[0].parameters.jump-.46f)<1e-6f);
   gesture(lab::A,lab::Down); assert(app.project.tracks[0].steps[0].grainLocks[10]==7600);
   assert(app.currentLocksPresent()); app.option=app.optionIndex(4); app.chooseOption();
   assert(!app.currentLocksPresent());
@@ -176,5 +181,5 @@ static void importWorkflow() {
 int main() {
   for(int i=0;i<3;++i) assert(samples[i].load(lab::sampleFiles[i]));
   codecAndProtection(); playback(); controls(); arrangement(); importWorkflow();
-  puts("PASS granular integration: MOS9/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture");
+  puts("PASS granular integration: MS10/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture");
 }

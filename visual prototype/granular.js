@@ -6,7 +6,7 @@ const KEY='moss.granular-study.v1',PHYSICAL=['Y','B','A','X'],CODES=['KeyZ','Key
 const DESCRIPTIONS={
  splice:['Срез','Сэмпл как партитура. Восемь линий показывают окна зёрен, а вертикальная головка — место, откуда берётся материал. Самый точный и спокойный вид.'],
  field:['Поле','Зёрна рождаются над сэмплом и растворяются по мере жизни. Наклон показывает высоту, разлёт — ширину облака. Самый живой и воздушный вид.'],
- lens:['Линза','Сэмпл замыкается в окружность. Кольца раскрываются по мере жизни зёрен, короткие дуги отмечают чтение. Самый сосредоточенный, почти гипнотический вид.']
+ lens:['Линза','Волна сэмпла образует круг. Дуга показывает участок зерна, квадрат — текущую позицию чтения. За START и END материал приглушён. Длинное зерно может несколько раз пройти выбранный участок.']
 };
 let stored=null,storageOk=true;try{stored=JSON.parse(localStorage.getItem(KEY)||'null');}catch{storageOk=false;}
 let state=G.restore(stored),playing=!stored,gesture=null,modal=null,returnFocus=null,history=[],held=new Set(),shoulderUsed=false,pointerEdit=null;
@@ -22,7 +22,7 @@ function remember(before){if(before!==snapshot()){history.push(before);if(histor
 function save(){try{localStorage.setItem(KEY,snapshot());storageOk=true;}catch{storageOk=false;}$('#study-save').textContent=storageOk?'Настройки сохранены':'Только этот сеанс';if(!storageOk)message('Браузер не разрешил сохранение. Настройки работают до закрытия страницы.');}
 function message(text){$('#study-message').textContent=text;}
 function configure(){cloud.configure(state.params,source(),state.freeze);if(!playing||state.static)cloud.prime();}
-const fieldName=key=>({irregularity:'IRREGULAR',spread:'STEREO',grainIn:'GRAIN IN',grainOut:'GRAIN OUT',noteIn:'NOTE IN',noteOut:'NOTE OUT'}[key]||key.toUpperCase());
+const fieldName=key=>({spread:'STEREO',grainIn:'GRAIN IN',grainOut:'GRAIN OUT',noteIn:'NOTE IN',noteOut:'NOTE OUT'}[key]||key.toUpperCase());
 function value(key){const n=key==='position'&&!gesture&&!pointerEdit?cloud.head*100:state.params[key];return key==='speed'?n.toFixed(2):['position','start','end'].includes(key)?n.toFixed(1):String(Math.round(n));}
 function editSnapshot(key){if(key==='position'){state.params.position=Math.round(cloud.head*1000)/10;cloud.params.position=state.params.position;}return snapshot();}
 function renderFields(){const focused=document.activeElement?.dataset?.parameter;$('#grain-params').innerHTML=G.BANKS[state.bank].map((key,i)=>`<button class="grain-param" data-slot="${i}" data-parameter="${key}" aria-label="${fieldName(key)}, ${value(key)} ${G.SPEC[key][4]}. Удерживайте ${['Z','X','C','V'][i]} и нажимайте стрелки"><span class="label"><b class="physical">${PHYSICAL[i]}</b>${fieldName(key)}</span><span class="value">${value(key)}<span class="unit">${G.SPEC[key][4]}</span></span></button>`).join('');if(focused)$(`[data-parameter="${focused}"]`)?.focus({preventScroll:true});markGesture();}
@@ -40,7 +40,7 @@ function render(){
  $$('[data-variant]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.variant===state.variant)));
  $$('[data-bank]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.bank===state.bank)));
  $('#variant-title').textContent=DESCRIPTIONS[state.variant][0];$('#variant-copy').textContent=DESCRIPTIONS[state.variant][1];
- canvas.setAttribute('aria-label',`${DESCRIPTIONS[state.variant][0]}. ${state.freeze?'Позиция заморожена. ':''}До восьми зёрен. ${['Скорость, высота, размер, плотность','Позиция, границы сканирования, разброс','Стерео, нерегулярность, фильтр, уровень','Атака и затухание зерна, атака и затухание ноты'][state.bank]}.`);
+ canvas.setAttribute('aria-label',`${DESCRIPTIONS[state.variant][0]}. ${state.freeze?'Позиция заморожена. ':''}До восьми зёрен. ${['Скорость, высота, размер, плотность','Позиция, границы сканирования, разброс','Стерео, дальность скачков маркера, фильтр, уровень','Атака и затухание зерна, атака и затухание ноты'][state.bank]}.`);
  renderFields();$('#undo-study').disabled=!history.length;draw();
 }
 function finishGesture(cancel=false){if(!gesture&&!pointerEdit)return;if(gesture){if(cancel)state=G.restore(JSON.parse(gesture.before));else remember(gesture.before);gesture=null;}if(pointerEdit){if(cancel)state=G.restore(JSON.parse(pointerEdit.before));else remember(pointerEdit.before);pointerEdit=null;}configure();markGesture();save();}
@@ -63,7 +63,7 @@ $$('[data-bank]').forEach(b=>b.addEventListener('click',()=>bank(+b.dataset.bank
 $('#source-button').onclick=()=>openDialog('source');$('#assign-empty').onclick=()=>openDialog('source');$('#options').onclick=()=>openDialog('options');
 $('#freeze').onclick=toggleFreeze;$('#transport').onclick=togglePlay;$('#motion-toggle').onclick=()=>{togglePlay();screen.focus({preventScroll:true});};$('#undo-study').onclick=undo;
 $('#static-mode').onchange=e=>{finishGesture();state.static=e.target.checked;if(state.static)cloud.prime();last=0;save();render();};
-$$('[data-preset]').forEach(b=>b.onclick=()=>{change(()=>{state.params=b.dataset.preset==='mist'?{...G.DEFAULTS,size:440,density:24,speed:.12,pitch:-12}:{...G.DEFAULTS,size:65,density:12,speed:.8,pitch:7,scatter:100,spread:90};state.freeze=false;if(!source())state.source='air';});cloud.prime();playing=true;reveal=0;render();screen.focus({preventScroll:true});message('Настройки изменены. Все три вида показывают одно облако.');});
+$$('[data-preset]').forEach(b=>b.onclick=()=>{change(()=>{state.params=b.dataset.preset==='mist'?{...G.DEFAULTS,size:3200,density:8,speed:.12,pitch:-12,jump:65}:{...G.DEFAULTS,size:65,density:12,speed:.8,pitch:7,scatter:100,spread:90};state.freeze=false;if(!source())state.source='air';});cloud.prime();playing=true;reveal=0;render();screen.focus({preventScroll:true});message('Настройки изменены. Все три вида показывают одно облако.');});
 document.addEventListener('keydown',e=>{
  if(e.metaKey||e.ctrlKey){if(e.code==='KeyZ'){e.preventDefault();if(modal)closeDialog();undo();}return;}
  if(modal){if(e.code==='Escape'||e.code==='KeyX'){e.preventDefault();closeDialog();return;}const items=[...$('#grain-overlay').querySelectorAll('button:not(:disabled)')],at=items.indexOf(document.activeElement);if(e.code==='Tab'){e.preventDefault();items[(at+(e.shiftKey?-1:1)+items.length)%items.length].focus();}else if(['ArrowDown','ArrowUp','KeyQ','KeyE'].includes(e.code)){e.preventDefault();items[(at+(['ArrowUp','KeyQ'].includes(e.code)?-1:1)+items.length)%items.length].focus();}else if(e.code==='KeyC'){e.preventDefault();document.activeElement?.click();}return;}
@@ -110,12 +110,22 @@ function drawField(){
 function point(turn,r){const a=turn*Math.PI*2-Math.PI/2;return [302+Math.cos(a)*r,98+Math.sin(a)*r];}
 function arc(start,end,r,color,width=1,alpha=1){ctx.beginPath();ctx.arc(302,98,r,start*Math.PI*2-Math.PI/2,end*Math.PI*2-Math.PI/2);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.stroke();ctx.globalAlpha=1;}
 function drawLens(){
- const p=state.params;arc(0,1,70,col.line);arc(p.start/100,p.end/100,78,col.dim,1);
- ctx.beginPath();for(let i=0;i<=220;i++){const t=i/220,r=70+G.wave(t,source().seed,p.cutoff)*5,[x,y]=point(t,r);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle=col.dim;ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;
- for(let i=0;i<16;i++){const a=point(i/16,82),b=point(i/16,i%4===0?87:84);line(...a,...b,col.line);}
- for(const g of cloud.grains){const read=cloud.readPosition(g),r=14+g.age/g.life*50,alpha=grainAlpha(g);arc(0,1,r,col.dim,.7,alpha*.32);line(...point(g.birth,r-2),...point(g.birth,r+2),col.dim,1,alpha);arc(read-.012,read+.012,r,accent('size'),1.5,alpha);const a=point(read,r-2),b=point(read,r+2);line(...a,...b,accent('pitch'),1,alpha);}
- const a=point(cloud.head,68),b=point(cloud.head,89);if(p.scatter<100)line(...a,...b,accent('position'),1.5);for(const turn of [p.start/100,p.end/100])line(...point(turn,75),...point(turn,82),col.dim);
- label('SOURCE',26,41);label(source().seconds.toFixed(1)+' s',26,57,col.text);label(p.scatter===100?'FULL CLOUD':'ANCHOR',578,133,col.dim,'right');label(p.scatter===100?cloud.grains.length+' / 8':(cloud.head*100).toFixed(1)+' %',578,149,col.text,'right');
+ const p=state.params,first=p.start/100,last=p.end/100;
+ for(let i=0;i<160;i++){const t=i/160,height=1+Math.abs(G.wave(t,source().seed))*13;line(...point(t,67-height),...point(t,67+height),t>=first&&t<last?col.dim:col.line);}
+ for(const t of [first,last])line(...point(t,64),...point(t,79),col.text);
+ let looped=false;
+ for(const g of cloud.grains){
+  const end=g.first+g.span,r=27+g.slot*4,length=g.life*g.rate/source().seconds,tone=accent('size'),alpha=.35+.65*G.windowGain(g);
+  if(length>=g.span){arc(g.first,end,r,tone,1,alpha);looped=true;}
+  else {arc(g.birth,Math.min(end,g.birth+length),r,tone,1,alpha);if(g.birth+length>end)arc(g.first,g.first+g.birth+length-end,r,tone,1,alpha);}
+  line(...point(g.birth,r-1),...point(g.birth,r+1),col.dim);
+  const [x,y]=point(cloud.readPosition(g),r);ctx.fillStyle=col.bg;ctx.fillRect(Math.round(x)-2,Math.round(y)-2,5,5);ctx.fillStyle=col.text;ctx.fillRect(Math.round(x)-1,Math.round(y)-1,3,3);
+ }
+ const [x,y]=point(cloud.head,82);ctx.strokeStyle=accent('position');ctx.lineWidth=1;ctx.strokeRect(Math.round(x)-2,Math.round(y)-2,4,4);
+ label('SOURCE',26,41);label(source().seconds.toFixed(1)+' s',26,57,col.text);
+ label(looped?'LOOP GRAINS':'GRAINS',578,41,col.dim,'right');label(cloud.grains.length+' / 8',578,57,col.text,'right');
+ label(p.start.toFixed(1)+'–'+p.end.toFixed(1)+' %',26,133);label(Math.min(p.density,8000/p.size).toFixed(1)+' G/S',26,149,col.text);
+ label(state.freeze?'HEAD HELD':'HEAD',578,133,col.dim,'right');label((cloud.head*100).toFixed(1)+' %',578,149,col.text,'right');
 }
 function draw(){ctx.clearRect(0,0,604,196);if(!source())return;({splice:drawSplice,field:drawField,lens:drawLens})[state.variant]();label(state.params.scatter===100?'FULL CLOUD':state.freeze?'ANCHOR HELD':'SCAN '+(state.params.speed<0?'REVERSE':'FORWARD'),26,11);label(state.params.scatter===100?'ALL REGIONS':(cloud.head*source().seconds).toFixed(2)+' s',578,11,col.dim,'right');if(state.bank===2){label('LP '+state.params.cutoff+' Hz',26,187);label('LEVEL '+state.params.level+' %',578,187,col.dim,'right');}}
 function frame(now){const elapsed=last?Math.min((now-last)/1000,.05):0;last=now;if(!document.hidden&&playing&&!state.static&&source()&&!modal){cloud.advance(elapsed);reveal=Math.min(1,reveal+elapsed/Math.max(.002,state.params.noteIn/1000));if(now-paintTime>=32){draw();paintTime=now;if(state.bank===1&&!gesture&&!pointerEdit){const el=$('[data-parameter="position"]');el.querySelector('.value').firstChild.nodeValue=value('position');el.setAttribute('aria-label',`POSITION, ${value('position')} %. Удерживайте Z и нажимайте стрелки`);}}}requestAnimationFrame(frame);}

@@ -1,0 +1,2 @@
+PASS granular import: cancel, naming, failed write preserves assignment, retry, automatic assignment, reference protection and save/reopen
+PASS granular integration: MS10/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture

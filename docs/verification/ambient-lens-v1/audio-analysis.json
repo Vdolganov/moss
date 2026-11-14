@@ -1,0 +1,20 @@
+{
+  "ambient-jump.wav": {
+    "peak_pcm": 8431,
+    "rms_dbfs": -26.75181365365876,
+    "seconds": 22.0,
+    "full_scale_count": 0
+  },
+  "ambient-scan.wav": {
+    "peak_pcm": 8456,
+    "rms_dbfs": -24.953091543962724,
+    "seconds": 22.0,
+    "full_scale_count": 0
+  },
+  "ambient-source.wav": {
+    "peak_pcm": 20391,
+    "rms_dbfs": -18.26316325069248,
+    "seconds": 6.4,
+    "full_scale_count": 0
+  }
+}

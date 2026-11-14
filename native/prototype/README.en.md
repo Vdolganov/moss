@@ -6,11 +6,13 @@ A native groovebox for the original **Anbernic RG35XX**: up to **32 sequences wi
 
 The build has been tested on **GarlicOS 1.4.9 over ADB**. GarlicOS 1.3.9 remains a compatibility target; this 0.5.2 binary has not been retested there. Current results are in the [0.5.2 verification report](../../docs/NATIVE-VERIFICATION-052.en.md); the previous version's longer tests are in the [0.5.1 performance report](../../docs/NATIVE-PERFORMANCE-051.en.md). MOSS LAB and browser prototype v0.6 are separate applications; their limits and controls do not replace this guide.
 
-## Experimental 0.6.3-dev · GRANULAR
+## Experimental 0.6.4-dev · GRANULAR
 
 The development build adds a fifth instrument, **GRANULAR**, with the selected **LENS** view, one prepared sample up to 1 MiB and eight grains per track. PLAY / SCAN / TEXTURE / ENVELOPE expose 16 parameters and their locks; A auditions or assigns the source, and short X toggles FREEZE. See the [GRANULAR guide](../../docs/GRANULAR-INSTRUMENT.en.md) for controls, import and limits.
 
-The experiment reads MOS5/MOS6/MOS7/MOS8 but saves **MOS9**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS, with a copied library and the LENS CLOUD demo. [Cloud 0.6.1 verification](../../docs/GRANULAR-CLOUD-v2.en.md) is recorded in the report. The rest of this guide remains the **0.5.2 / MOS6** contract.
+The experiment reads MOS5/MOS6/MOS7/MOS8/MOS9 but saves **MS10**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS. Version 0.6.4 adds the **LENS DRIFT** demo, preserving existing user projects and the library. The rest of this guide remains the **0.5.2 / MOS6** contract.
+
+In 0.6.4 SIZE reaches 8 seconds, with grain births staggered across the unchanged eight-voice pool. **TEXTURE → JUMP** controls random head jumps between normal SPEED movement. LENS shows the source waveform, excluded range, actual grain arcs and read positions. [Changes and hardware load verification](../../docs/AMBIENT-LENS-v1.en.md).
 
 New DRIVE and ORBIT expose CORE/CHARACTER, eight controls and locks. See [FX 0.6.2](../../docs/FX-CHARACTER-v1.en.md) for controls and verification. The DRIVE ORBIT demo needs no samples.
 

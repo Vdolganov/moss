@@ -28,6 +28,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 - Reduced-motion/static mode stops continuous animation but retains readable diagram state and parameter feedback. Hidden tabs pause the simulation; resuming never fast-forwards.
 - Native integration now uses the selected LENS view, native short X for FREEZE and the ranges in its own contract. Hardware performance is verified separately; this study and its visual SHIP verdict do not establish that result.
 
-## Cloud follow-up · 0.6.1
+## Ambient follow-up · 0.6.4 (current)
+
+LENS is the default view. SIZE reaches 8 seconds, effective birth rate is bounded by eight voices / grain duration, and TEXTURE / B JUMP controls random head displacement while SPEED continues between jumps. FREEZE holds both motions. The source waveform is independent of CUTOFF; START–END dims excluded regions. Stable grain lanes show source extent and a solid read square; the hollow outer square shows the scan head even at full SCATTER. Envelope brightness remains meaningful. Wrapped grains retain their own bounds. Old study IRREGULAR maps to JUMP 0; new settings survive reload with transport paused. The waveform and audio remain explicitly synthetic/silent here.
+
+## Cloud follow-up · 0.6.1 (history; visuals superseded above)
 
 The study now mirrors normalized SCATTER, per-grain pan, selected-range reading and four banks. At 100%, birth areas cover the selected source independently of the anchor. LENS displays birth marks and read markers; the anchor marker returns below 100%. Grain opacity follows the latched GRAIN IN/OUT envelope. LEVEL and NOTE IN/OUT remain silent visual controls; there is still no audio engine. Existing study data receives default SCATTER and maps former FADE to both note fades. Native controls remain documented separately.

@@ -151,7 +151,7 @@ static void writeReport(const ReportRequest &request) {
   // Snapshot only under the audio lock. Formatting and SD writes never hold it.
   lab::Timing snapshot;
   uint32_t histogram[200];
-  unsigned triggers[Tracks], mask, instruments, started, finished, hz,
+  unsigned triggers[Tracks], grainPeaks[Tracks], mask, instruments, started, finished, hz,
       trackCount, streamUnderruns;
   uint64_t frames;
   SDL_LockAudio();
@@ -161,8 +161,10 @@ static void writeReport(const ReportRequest &request) {
   hz = engine.rate;
   trackCount = engine.project.trackCount;
   streamUnderruns = engine.stream.underruns;
-  for (int t = 0; t < Tracks; t++)
+  for (int t = 0; t < Tracks; t++) {
     triggers[t] = engine.triggerCount[t];
+    grainPeaks[t] = engine.granular[t].stats.peak;
+  }
   mask = engine.seenFxMask;
   instruments = engine.seenInstrumentMask;
   started = engine.capture.startedCount;
@@ -185,7 +187,7 @@ static void writeReport(const ReportRequest &request) {
       f,
       "{\"build\":\"MOSS %s\",\"completed\":%s,\"rate\":%u,\"buffer\":%u,\"callbacks\":%"
       "u,\"callback_max_us\":%llu,\"over_budget\":%u,\"late_intervals\":%u,"
-      "\"frames\":%llu,\"triggers\":[%u,%u,%u,%u],\"track_count\":%"
+      "\"frames\":%llu,\"triggers\":[%u,%u,%u,%u],\"grain_peaks\":[%u,%u,%u,%u],\"track_count\":%"
       "u,\"stream_underruns\":%u,\"project_saved\":%s,\"pcm_"
       "bytes\":%u,\"assets\":%d,\"fx_seen_mask\":%u,\"capture_started\":%u,"
       "\"capture_finished\":%u,\"instruments_seen_mask\":%u,\"callback_mean_"
@@ -197,7 +199,7 @@ static void writeReport(const ReportRequest &request) {
       Version, completed ? "true" : "false", hz, audioFrames, snapshot.count,
       (unsigned long long)snapshot.maxUs, snapshot.overBudget,
       snapshot.lateIntervals, (unsigned long long)frames, triggers[0],
-      triggers[1], triggers[2], triggers[3], trackCount, streamUnderruns,
+      triggers[1], triggers[2], triggers[3],grainPeaks[0],grainPeaks[1],grainPeaks[2],grainPeaks[3], trackCount, streamUnderruns,
       request.dirty ? "false" : "true", request.bytes, request.assets, mask,
       started, finished, instruments,
       (unsigned long long)(snapshot.count ? snapshot.totalUs / snapshot.count
@@ -250,7 +252,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 10 || profileMask >= (1u << EffectTypes) ||
+    if (profileKind < -1 || profileKind > 12 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -305,7 +307,7 @@ int main(int argc, char **argv) {
       if (profileKind >= 5) sample.rate = 96000;
     }
     if (profileKind >= 5)
-      stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:profileKind==10?4:0);
+      stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:profileKind==10?4:profileKind==11?5:profileKind==12?6:0);
     else
       stressProject(app.project, Tracks, profileKind == 4 ? 2 : profileKind, profileMask);
     app.page = Pattern;
@@ -369,6 +371,7 @@ int main(int argc, char **argv) {
       unsigned seconds = unsigned((micros() - start) / 1000000);
       const Page pages[] = {Pattern, Sampler, Space, Mix, Grid, Tape};
       app.page = (profileKind == 4 || profileKind == 7) ? SongPage : pages[(seconds / 2) % 6];
+      if (profileKind==11) app.page=Sampler; // Keep the full live lens visible.
       if (profileKind == 4 || profileKind == 7)
         app.songRow = int(seconds % SongSlots);
       app.track = int((seconds / 3) % Tracks);
@@ -379,7 +382,7 @@ int main(int argc, char **argv) {
       // Repeated capture writeback and real UI command dispatch under dense DSP load.
       if (profileKind>=5 && !app.captureBusy() && seconds % 10 == 0)
         app.capturePending=app.send({Op::CaptureStart,0,0,0,4});
-      if (profileKind==9 && app.granularTrack())
+      if ((profileKind==9 || profileKind==12) && app.granularTrack())
         app.change({Op::GranularFreeze,app.track,0,0,int(seconds%2)});
       if (seconds >= profileSeconds)
         app.exit = true;

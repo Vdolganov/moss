@@ -42,7 +42,7 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 9) {
+  void fields(Project &p, bool writing, int version = 10) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -187,8 +187,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MOS9", 4);
-    word(4, 9);
+    memcpy(bytes, "MS10", 4);
+    word(4, 10);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -198,14 +198,24 @@ struct Codec {
     bool v6 = !memcmp(bytes, "MOS6", 4) && word(4) == 6;
     bool v7 = !memcmp(bytes, "MOS7", 4) && word(4) == 7;
     bool v8 = !memcmp(bytes, "MOS8", 4) && word(4) == 8;
+    bool v9 = !memcmp(bytes, "MOS9", 4) && word(4) == 9;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && (memcmp(bytes, "MOS9", 4) || word(4) != 9)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && (memcmp(bytes, "MS10", 4) || word(4) != 10)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : 9);
+    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : v9 ? 9 : 10);
+    // The old timing-irregularity control must not silently become head jumps.
+    if (legacy || v6 || v7 || v8 || v9) for (auto &t : temp.tracks) {
+      if (t.granular.values[9] < 0 || t.granular.values[9] > 100) ok = false;
+      t.granular.values[9] = 0;
+      for (auto &s : t.steps) {
+        if (s.grainLocks[9] != Inherit && (s.grainLocks[9] < 0 || s.grainLocks[9] > 100)) ok = false;
+        s.grainLocks[9] = Inherit;
+      }
+    }
     // Experimental MOS7 used milliseconds in slot 7. Never interpret them as
     // percentages. Upgrade that control to the new cloud default; old jitter
     // locks have no source-independent equivalent and are explicitly discarded.

@@ -2,15 +2,16 @@
 'use strict';
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v)),wrap=v=>(v%1+1)%1;
 const SOURCES=[{id:'air',name:'AIR CUT',seconds:6.4,mib:.78,seed:31},{id:'dust',name:'TAPE DUST',seconds:8,mib:.98,seed:73},{id:'glass',name:'GLASS CHOIR',seconds:2.8,mib:.34,seed:129}];
-const BANKS=[['speed','pitch','size','density'],['position','start','end','scatter'],['spread','irregularity','cutoff','level'],['grainIn','grainOut','noteIn','noteOut']];
-const SPEC={speed:[-3,3,.01,.1,'×'],pitch:[-24,24,1,12,'st'],size:[1,500,1,100,'ms'],density:[0,128,1,10,'/s'],position:[0,100,.1,1,'%'],start:[0,99.9,.1,1,'%'],end:[.1,100,.1,1,'%'],scatter:[0,100,1,10,'%'],spread:[0,100,1,10,'%'],irregularity:[0,100,1,10,'%'],cutoff:[20,14000,20,100,'Hz'],level:[0,200,1,10,'%'],grainIn:[0,100,1,10,'%'],grainOut:[0,100,1,10,'%'],noteIn:[0,9000,10,100,'ms'],noteOut:[0,9000,10,100,'ms']};
-const DEFAULTS={speed:.25,pitch:-7,size:320,density:24,position:36,start:0,end:100,scatter:100,spread:65,irregularity:25,cutoff:7600,level:100,grainIn:50,grainOut:50,noteIn:700,noteOut:700};
-function cleanParams(input={}){const p={...DEFAULTS};for(const key of Object.keys(SPEC)){const n=Number(input[key]);if(Number.isFinite(n))p[key]=clamp(n,SPEC[key][0],SPEC[key][1]);}if(Number.isFinite(input.fade)){if(input.noteIn==null)p.noteIn=clamp(input.fade,0,9000);if(input.noteOut==null)p.noteOut=clamp(input.fade,0,9000);}if(p.grainIn+p.grainOut>100)p.grainOut=100-p.grainIn;p.end=Math.max(p.start+.1,p.end);p.position=clamp(p.position,p.start,p.end);return p;}
+const BANKS=[['speed','pitch','size','density'],['position','start','end','scatter'],['spread','jump','cutoff','level'],['grainIn','grainOut','noteIn','noteOut']];
+const SPEC={speed:[-3,3,.01,.1,'×'],pitch:[-24,24,1,12,'st'],size:[1,8000,1,100,'ms'],density:[0,128,1,10,'/s'],position:[0,100,.1,1,'%'],start:[0,99.9,.1,1,'%'],end:[.1,100,.1,1,'%'],scatter:[0,100,1,10,'%'],spread:[0,100,1,10,'%'],jump:[0,100,1,10,'%'],cutoff:[20,14000,20,100,'Hz'],level:[0,200,1,10,'%'],grainIn:[0,100,1,10,'%'],grainOut:[0,100,1,10,'%'],noteIn:[0,9000,10,100,'ms'],noteOut:[0,9000,10,100,'ms']};
+const DEFAULTS={speed:.12,pitch:-12,size:2400,density:8,position:36,start:0,end:100,scatter:60,spread:65,jump:35,cutoff:7600,level:100,grainIn:50,grainOut:50,noteIn:700,noteOut:700};
+function cleanParams(input={}){const p={...DEFAULTS};for(const key of Object.keys(SPEC)){const n=Number(input[key]);if(Number.isFinite(n))p[key]=clamp(n,SPEC[key][0],SPEC[key][1]);}if(input.jump==null&&Number.isFinite(input.irregularity))p.jump=0;if(Number.isFinite(input.fade)){if(input.noteIn==null)p.noteIn=clamp(input.fade,0,9000);if(input.noteOut==null)p.noteOut=clamp(input.fade,0,9000);}if(p.grainIn+p.grainOut>100)p.grainOut=100-p.grainIn;p.end=Math.max(p.start+.1,p.end);p.position=clamp(p.position,p.start,p.end);return p;}
 function edit(p,key,direction,coarse=false,multiplier=1){const result={...p},s=SPEC[key];if(!s)return result;result[key]=Math.round(clamp(result[key]+direction*s[coarse?3:2]*multiplier,s[0],s[1])*100)/100;if(key==='grainIn'||key==='grainOut'){const other=key==='grainIn'?'grainOut':'grainIn';result[other]=Math.min(result[other],100-result[key]);}if(key==='start')result.start=Math.min(result.start,result.end-.1);if(key==='end')result.end=Math.max(result.end,result.start+.1);result.position=clamp(result.position,result.start,result.end);return cleanParams(result);}
-function restore(raw){return {params:cleanParams(raw?.params),source:raw?.source===null?null:SOURCES.some(s=>s.id===raw?.source)?raw.source:'air',variant:['splice','field','lens'].includes(raw?.variant)?raw.variant:'field',bank:Number.isInteger(raw?.bank)&&raw.bank>=0&&raw.bank<BANKS.length?raw.bank:0,freeze:raw?.freeze===true,static:raw?.static===true};}
+function restore(raw){return {params:cleanParams(raw?.params),source:raw?.source===null?null:SOURCES.some(s=>s.id===raw?.source)?raw.source:'air',variant:['splice','field','lens'].includes(raw?.variant)?raw.variant:'lens',bank:Number.isInteger(raw?.bank)&&raw.bank>=0&&raw.bank<BANKS.length?raw.bank:0,freeze:raw?.freeze===true,static:raw?.static===true};}
 class Cloud {
- constructor(p=DEFAULTS,source=SOURCES[0]){this.params=cleanParams(p);this.source=source;this.head=this.params.position/100;this.grains=[];this.phase=1;this.random=31;this.serial=0;this.freeze=false;this.skipped=0;}
+ constructor(p=DEFAULTS,source=SOURCES[0]){this.params=cleanParams(p);this.source=source;this.head=this.params.position/100;this.grains=[];this.phase=1;this.random=31;this.jumpRandom=619;this.jumpClock=1.25;this.serial=0;this.freeze=false;this.skipped=0;}
  noise(){this.random=(Math.imul(this.random,1664525)+1013904223)>>>0;return this.random/4294967296;}
+ jumpNoise(){this.jumpRandom=(Math.imul(this.jumpRandom,1664525)+1013904223)>>>0;return this.jumpRandom/4294967296;}
  configure(p,source=this.source,freeze=this.freeze){const next=cleanParams(p);if(source?.id!==this.source?.id){this.grains=[];this.head=next.position/100;this.phase=1;}if(next.position!==this.params.position)this.head=next.position/100;this.params=next;this.source=source;this.freeze=freeze;this.head=clamp(this.head,next.start/100,next.end/100);}
  readPosition(g){return g.first+wrap((g.birth-g.first+g.age*g.rate/this.source.seconds)/g.span)*g.span;}
  advance(seconds){
@@ -20,10 +21,13 @@ class Cloud {
    const dt=Math.min(remaining,1/240);remaining-=dt;const p=this.params;
    this.grains=this.grains.filter(g=>(g.age+=dt)<g.life);
    const first=p.start/100,span=(p.end-p.start)/100;
-   if(!this.freeze)this.head=first+wrap((this.head-first+p.speed*dt/this.source.seconds)/span)*span;
-   this.phase+=p.density*dt;
+   if(!this.freeze){
+    this.head=first+wrap((this.head-first+p.speed*dt/this.source.seconds)/span)*span;
+    if(p.jump>0&&(this.jumpClock-=dt)<=0){this.head=first+wrap((this.head-first)/span+(this.jumpNoise()-.5)*p.jump/100)*span;this.jumpClock=.75+this.jumpNoise();}
+   }
+   this.phase+=Math.min(p.density,8000/p.size)*dt;
    if(this.phase<1||!p.density)continue;
-   this.phase-=1;this.phase+=(this.noise()-.5)*p.irregularity/100;
+   this.phase-=1;
    if(this.grains.length>=8){this.skipped++;continue;}
    const counts=Array(8).fill(0);for(const g of this.grains)counts[g.zone]++;
    const least=Math.min(...counts),zones=counts.map((n,i)=>n===least?i:-1).filter(i=>i>=0);

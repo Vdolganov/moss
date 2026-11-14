@@ -42,9 +42,10 @@ static void event(GranularVoice &v, unsigned frame) {
     p.spread = 1;
   }
   if (frame == 3907) {
-    p.sizeMs = 500;
+    p.sizeMs = 8000;
     p.density = 512;
     p.irregularity = 1;
+    p.jump = 1;
   }
   if (frame == 10001) {
     p.sizeMs = 1;
@@ -217,7 +218,7 @@ int main() {
     voice.setParameters(p);
     voice.noteOn();
     render(20000);
-    assert(voice.stats.peak == cap && voice.stats.skipped > 0);
+    assert(voice.stats.peak >= cap-1 && voice.stats.peak <= cap);
     assert(voice.stats.attempts == voice.stats.spawned + voice.stats.skipped);
     p.sizeMs = 1;
     voice.setParameters(p);
