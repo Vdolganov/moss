@@ -23,6 +23,7 @@
 | LOCK ONLY / REPEAT: hardware | [Проверка](TRIGLESS-REPEAT-v1.md) | [Verification](TRIGLESS-REPEAT-v1.en.md) |
 | GRANULAR: интеграция и проверка на RG35XX | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
 | Эффекты: исследование Elektron и план переработки | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
+| REEL: GrainBrick, RC-20, измерения и новый план | [Исследование и план](REEL-RESEARCH-PLAN.md) | [Research and plan](REEL-RESEARCH-PLAN.en.md) |
 | Elektron: разбор прошивок, памяти и DSP | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
 
 ## Технические контракты

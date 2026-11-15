@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-15",
+  "kind": "host research measurement, not a device benchmark",
+  "source_commit": "59c7cd217fd43acc8c63de9b39ab39134913f38b",
+  "sample_rate": 32000,
+  "input_amplitudes_peak": [
+    0.1,
+    0.5
+  ],
+  "tone_rows": 3078,
+  "warmup_seconds": 1,
+  "measurement_seconds": 3,
+  "method": "3-second coherent sinusoidal projection; frequencies are integer multiples of 1/3 Hz; measure fundamental amplitude and total RMS separately",
+  "limitations": [
+    "WEAR > 0 also applies slow amplitude modulation: these are finite-window tone measurements, not an LTI transfer function.",
+    "No headphones, analog output or listening comparison measured.",
+    "No new REEL implementation or ARM test performed."
+  ],
+  "oscillators": [
+    {
+      "component": "wow",
+      "measured_hz": "0.309947900",
+      "wraps": "20",
+      "first_frame": "51621",
+      "last_frame": "2013241"
+    },
+    {
+      "component": "flutter",
+      "measured_hz": "6.199884633",
+      "wraps": "397",
+      "first_frame": "2580",
+      "last_frame": "2046489"
+    }
+  ],
+  "selected_tones": [
+    {
+      "wear": "0",
+      "mix": "0",
+      "amplitude": "0.100",
+      "frequency_hz": "250.000000000",
+      "fundamental_gain_db": "0.000000",
+      "total_gain_db": "0.000000"
+    },
+    {
+      "wear": "0",
+      "mix": "0",
+      "amplitude": "0.100",
+      "frequency_hz": "1000.000000000",
+      "fundamental_gain_db": "-0.000000",
+      "total_gain_db": "-0.000000"
+    },
+    {
+      "wear": "0",
+      "mix": "0",
+      "amplitude": "0.100",
+      "frequency_hz": "8000.000000000",
+      "fundamental_gain_db": "0.000000",
+      "total_gain_db": "0.000000"
+    },
+    {
+      "wear": "0",
+      "mix": "0",
+      "amplitude": "0.100",
+      "frequency_hz": "12000.000000000",
+      "fundamental_gain_db": "0.000000",
+      "total_gain_db": "0.000000"
+    },
+    {
+      "wear": "0",
+      "mix": "50",
+      "amplitude": "0.100",
+      "frequency_hz": "250.000000000",
+      "fundamental_gain_db": "-28.143687",
+      "total_gain_db": "-27.990081"
+    },
+    {
+      "wear": "0",
+      "mix": "50",
+      "amplitude": "0.100",
+      "frequency_hz": "1000.000000000",
+      "fundamental_gain_db": "-0.350153",
+      "total_gain_db": "-0.349894"
+    },
+    {
+      "wear": "0",
+      "mix": "50",
+      "amplitude": "0.100",
+      "frequency_hz": "8000.000000000",
+      "fundamental_gain_db": "-0.574449",
+      "total_gain_db": "-0.574449"
+    },
+    {
+      "wear": "0",
+      "mix": "50",
+      "amplitude": "0.100",
+      "frequency_hz": "12000.000000000",
+      "fundamental_gain_db": "-0.632396",
+      "total_gain_db": "-0.632249"
+    },
+    {
+      "wear": "0",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "250.000000000",
+      "fundamental_gain_db": "-0.708078",
+      "total_gain_db": "-0.706950"
+    },
+    {
+      "wear": "0",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "1000.000000000",
+      "fundamental_gain_db": "-0.714841",
+      "total_gain_db": "-0.713714"
+    },
+    {
+      "wear": "0",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "8000.000000000",
+      "fundamental_gain_db": "-1.184449",
+      "total_gain_db": "-1.184449"
+    },
+    {
+      "wear": "0",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "12000.000000000",
+      "fundamental_gain_db": "-1.312370",
+      "total_gain_db": "-1.311682"
+    },
+    {
+      "wear": "30",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "250.000000000",
+      "fundamental_gain_db": "1.756702",
+      "total_gain_db": "1.762329"
+    },
+    {
+      "wear": "30",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "1000.000000000",
+      "fundamental_gain_db": "1.739429",
+      "total_gain_db": "1.745040"
+    },
+    {
+      "wear": "30",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "8000.000000000",
+      "fundamental_gain_db": "0.717709",
+      "total_gain_db": "0.719611"
+    },
+    {
+      "wear": "30",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "12000.000000000",
+      "fundamental_gain_db": "0.372274",
+      "total_gain_db": "0.376126"
+    },
+    {
+      "wear": "100",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "250.000000000",
+      "fundamental_gain_db": "2.522256",
+      "total_gain_db": "2.559555"
+    },
+    {
+      "wear": "100",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "1000.000000000",
+      "fundamental_gain_db": "0.898571",
+      "total_gain_db": "0.931518"
+    },
+    {
+      "wear": "100",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "8000.000000000",
+      "fundamental_gain_db": "-10.893893",
+      "total_gain_db": "-10.869690"
+    },
+    {
+      "wear": "100",
+      "mix": "100",
+      "amplitude": "0.100",
+      "frequency_hz": "12000.000000000",
+      "fundamental_gain_db": "-13.128994",
+      "total_gain_db": "-13.104426"
+    }
+  ],
+  "sources": {
+    "effects.h": "7d31f348985bd7aee780da7012320888ef57ce8fe67cc3a7864e00ad54939bf5",
+    "probe.cpp": "902ac694fd9a39d056bbbe6f67b1ec5c471942f113963c042084f1151c6e7d2c",
+    "tones.csv": "3b2bc6f1ce4c78a29e3f92cb8d8657a5c452519c8fab8d8e95a1e64074f93cd6",
+    "rates.csv": "0ce6042f6fefd2b9f80874930fb1728f46ea766228a09928b2d898036d66de52"
+  },
+  "grainbrick": {
+    "release": "v1.0.1-beta.2",
+    "url": "https://github.com/ETRNLIAM/GrainBrick/releases/tag/v1.0.1-beta.2",
+    "archive_sha256": "e2d985f7a99b8f123b0d39369b47bc8ed7b72be4a2296cc5f7ed2c8682518d7a",
+    "tape_library_sha256": "174dfbf9d0cc8bcbb05c4a234c0c95e50ee719c03598a7f492eaa1edcceca9e7",
+    "main_module_sha256": "bcef28522efb789105ac5126612e97692374d1a5eff65b58a9a1876650b8f2a8",
+    "method": "static analysis of native tape library; main-module strings; official tutorial frames at 4:16 and 4:19",
+    "tutorial": "https://www.youtube.com/watch?v=Iy-IeH4_EvQ&t=252s",
+    "limits": "No original source, no execution or benchmark on RG35XX, no full UI decompilation. Third-party binaries/decompilations remain in ignored work/."
+  }
+}

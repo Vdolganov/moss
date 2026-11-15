@@ -23,6 +23,7 @@ The stable application version is **0.5.2**; experimental **0.6.6-dev / GRANULAR
 | LOCK ONLY / REPEAT: hardware | [Проверка](TRIGLESS-REPEAT-v1.md) | [Verification](TRIGLESS-REPEAT-v1.en.md) |
 | GRANULAR: integration and RG35XX verification | [Отчёт](GRANULAR-NATIVE-v1.md) | [Verification](GRANULAR-NATIVE-v1.en.md) |
 | Effects: Elektron research and redesign plan | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
+| REEL: GrainBrick, RC-20, measurements and redesign | [Исследование и план](REEL-RESEARCH-PLAN.md) | [Research and plan](REEL-RESEARCH-PLAN.en.md) |
 | Elektron: firmware, memory and DSP analysis | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
 
 ## Technical contracts
