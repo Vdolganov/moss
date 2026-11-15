@@ -20,7 +20,7 @@ struct ReelMotion {
     float increment = 0, targetIncrement = 0;
     float amplitude = 0, targetAmplitude = 0;
   } mod[2];
-  unsigned rate = 0, cursor = 0, written = 0, latency = 0;
+  unsigned rate = 0, cursor = 0, written = 0, latency = 0, precedingLatency = 0;
   float smoothing = 0, position = 0;
   bool moving = false;
 
@@ -28,9 +28,10 @@ struct ReelMotion {
     return !isfinite(v) ? lo : v < lo ? lo : v > hi ? hi : v;
   }
   void clearHistory() { cursor = written = 0; }
-  void reset(unsigned hz) {
+  void reset(unsigned hz, unsigned upstreamLatency = 0) {
     rate = hz < 8000 ? 8000 : hz > 96000 ? 96000 : hz;
-    latency = unsigned(rate * LatencySeconds + .5f);
+    precedingLatency = upstreamLatency;
+    latency = unsigned(rate * LatencySeconds + .5f) - precedingLatency;
     position = float(latency);
     smoothing = 1.f / (1.f + rate * .05f);
     mod[0] = Modulator{}; mod[1] = Modulator{};
@@ -39,7 +40,7 @@ struct ReelMotion {
   }
   void prepare(const ReelMotionParams &p, unsigned hz) {
     unsigned validRate = hz < 8000 ? 8000 : hz > 96000 ? 96000 : hz;
-    if (rate != validRate) reset(validRate);
+    if (rate != validRate) reset(validRate, precedingLatency);
     const float frequencies[] = {clamp(p.wowHz, .1f, 4.f),
                                  clamp(p.flutterHz, 2.f, 30.f)};
     const float depths[] = {clamp(p.wowCents, 0, 15),
@@ -102,15 +103,15 @@ struct ReelMotion {
         ".fpu neon\n\t"
         "veor q0, q0, q0\n\t"
         "veor q1, q1, q1\n\t"
-        "vld1.32 {d14[], d15[]}, [%[fraction]]\n\t"
+        "vld1.32 {d20[], d21[]}, [%[fraction]]\n\t"
         "1:\n\t"
         "vld2.32 {d4-d7}, [%[input]]!\n\t"
-        "vld1.32 {d8-d9}, [%[a]]!\n\t"
-        "vld1.32 {d10-d11}, [%[b]]!\n\t"
-        "vsub.f32 q5, q5, q4\n\t"
-        "vmla.f32 q4, q5, q7\n\t"
-        "vmla.f32 q0, q2, q4\n\t"
-        "vmla.f32 q1, q3, q4\n\t"
+        "vld1.32 {d16-d17}, [%[a]]!\n\t"
+        "vld1.32 {d18-d19}, [%[b]]!\n\t"
+        "vsub.f32 q9, q9, q8\n\t"
+        "vmla.f32 q8, q9, q10\n\t"
+        "vmla.f32 q0, q2, q8\n\t"
+        "vmla.f32 q1, q3, q8\n\t"
         "subs %[groups], %[groups], #1\n\t"
         "bne 1b\n\t"
         "vadd.f32 d0, d0, d1\n\t"
@@ -123,7 +124,7 @@ struct ReelMotion {
         : [input] "+&r"(input), [a] "+&r"(a), [b] "+&r"(b), [groups] "+&r"(groups)
         : [fraction] "r"(&fraction), [output] "r"(output)
         : "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7",
-          "d8", "d9", "d10", "d11", "d14", "d15", "cc", "memory");
+          "d16", "d17", "d18", "d19", "d20", "d21", "cc", "memory");
       left = output[0]; right = output[1];
       return;
     }
@@ -140,6 +141,15 @@ struct ReelMotion {
       }
     }
   }
+  // Keep the interpolation kernel and its NEON register saves out of the
+  // neutral FIFO hot path. Most racks have their tape transport in bypass.
+  __attribute__((noinline)) void processMoving(float &left, float &right) {
+    float delay = nextPosition();
+    if (delay == float(latency) && mod[0].amplitude == 0 && mod[1].amplitude == 0) {
+      moving = false;
+      left = sample(latency, 0); right = sample(latency, 1);
+    } else read(delay, left, right);
+  }
   void process(float &left, float &right) {
     history[cursor][0] = left; history[cursor][1] = right;
     if (written < Size) ++written;
@@ -148,13 +158,7 @@ struct ReelMotion {
       // per-sample floating-point smoothing in a clean/bypassed transport.
       for (auto &m : mod) {m.phase += m.idleIncrement; m.increment = m.targetIncrement;}
       left = sample(latency, 0); right = sample(latency, 1);
-    } else {
-      float delay = nextPosition();
-      if (delay == float(latency) && mod[0].amplitude == 0 && mod[1].amplitude == 0) {
-        moving = false;
-        left = sample(latency, 0); right = sample(latency, 1);
-      } else read(delay, left, right);
-    }
+    } else processMoving(left, right);
     cursor = (cursor + 1) & Mask;
   }
 };

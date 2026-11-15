@@ -1,0 +1,7 @@
+PASS 20000 independent stereo FIR/scalar comparisons: max error 0.000000358
+PASS neutral: exact float at five rates; full FX rack stays at 512 samples including colour latency
+PASS colour response: bump80 5.99998 dB, shelf12k -5.99838/5.99838 dB; saturation small-signal ripple <=12k 0.22815 dB
+PASS rapid locks, bypass, AMOUNT=0, SONG reuse, stereo symmetry: peak 1.00925, largest 110 Hz adjacent delta 0.14697
+Unified/split FIFO comparison: maximum 0.000076678
+PASS neutral FIFO merging: reference alignment, rapid reuse and low-rate read margin
+REEL COLOUR TESTS PASSED; colour state 1296 bytes

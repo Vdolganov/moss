@@ -4,6 +4,7 @@
 #include "fx_character.h"
 #ifdef MOSS_REEL_MOTION_LAB
 #include "reel_motion.h"
+#include "reel_color.h"
 #endif
 #include <math.h>
 #include <stdint.h>
@@ -13,7 +14,13 @@ struct FxState {
   static constexpr unsigned Delay = 384001;
   float delay[Delay][2] = {};
   unsigned cursor = 0;
-  float comb[2][4][8192] = {}, filter[2][4] = {}, allpass[2][2][1024] = {};
+#ifdef MOSS_REEL_MOTION_LAB
+  // Avoid placing all eight POND histories on identical L1 cache sets.
+  static constexpr unsigned CombStride=8192+16;
+#else
+  static constexpr unsigned CombStride=8192;
+#endif
+  float comb[2][4][CombStride] = {}, filter[2][4] = {}, allpass[2][2][1024] = {};
   unsigned combPos[4] = {}, apPos[2] = {}, heldAt = 0;
   // Independent channel cursors avoid runtime integer division in the sample
   // loop (Cortex-A9 implements integer division in software).
@@ -38,6 +45,53 @@ struct FxState {
   DriveDSP drive;
 #ifdef MOSS_REEL_MOTION_LAB
   ReelMotion reelMotion;
+  ReelColor reelColor;
+  bool reelSeparated=false;
+  void resetReel(unsigned rate) {
+    reelMotion.reset(rate);reelColor.reset(rate);reelSeparated=false;
+    // At unusually low rates also reserve the FIR latency plus the maximum
+    // +/-15 cent transport excursion. Production 32 kHz stays exactly 16 ms.
+    unsigned safe=unsigned(ceilf((exp2f(15.f/1200)-1)*rate*(10.5f/6.28318530718f)))+7+ReelColor::Latency;
+    if(reelMotion.latency<safe)reelMotion.latency=safe;
+    reelMotion.position=float(reelMotion.latency);
+  }
+  void prepareReel(const int *p,unsigned rate,bool enabled) {
+    if(reelMotion.rate!=rate) resetReel(rate);
+    float amount=enabled?p[3]*.01f:0;
+    reelMotion.prepare({p[0]*.1f,p[1]*.01f,p[2]*.1f,p[4]*.1f,amount},rate);
+    reelColor.prepare(float(p[5]),p[6]*.1f,p[7]*.1f,amount,rate);
+  }
+  __attribute__((noinline)) void splitReel(bool separate) {
+    const unsigned count=ReelColor::Latency;
+    if(separate) {
+      // Prime the small dry FIFO from the unified history, then rewind its
+      // write head. Read addresses stay identical: both head and delay move.
+      for(unsigned distance=1;distance<=count;++distance)for(unsigned ch=0;ch<2;++ch)
+        reelColor.dry[(reelColor.cursor-distance)&ReelColor::Mask][ch]=distance<=reelMotion.written?
+          reelMotion.history[(reelMotion.cursor-distance)&ReelMotion::Mask][ch]:0;
+      reelMotion.cursor=(reelMotion.cursor-count)&ReelMotion::Mask;
+      reelMotion.written=reelMotion.written>count?reelMotion.written-count:0;
+      reelMotion.latency-=count;reelMotion.position-=count;
+    } else {
+      // Once the saturation ramp reaches zero, catch up its FIFO in one bounded
+      // operation. No per-frame second delay is needed in neutral/motion-only.
+      for(unsigned distance=count;distance;--distance) {
+        for(unsigned ch=0;ch<2;++ch)reelMotion.history[reelMotion.cursor][ch]=
+          reelColor.dry[(reelColor.cursor-distance)&ReelColor::Mask][ch];
+        reelMotion.cursor=(reelMotion.cursor+1)&ReelMotion::Mask;
+        if(reelMotion.written<ReelMotion::Size)++reelMotion.written;
+      }
+      reelMotion.latency+=count;reelMotion.position+=count;
+    }
+    reelSeparated=separate;
+  }
+  __attribute__((noinline)) void processReel(float &l,float &r,bool enabled,const int *p,unsigned rate) {
+    if(enabled!=lastEnabled[Reel]) {prepareReel(p,rate,enabled);lastEnabled[Reel]=enabled;}
+    reelColor.advance();
+    if(reelSeparated!=reelColor.saturating)splitReel(reelColor.saturating);
+    if(reelSeparated)reelColor.processInput(l,r,false);
+    reelMotion.process(l,r);reelColor.processOutput(l,r);
+  }
 #endif
   int previousValues[EffectTypes][EffectParameters] = {};
   unsigned preparedRate[EffectTypes] = {};
@@ -63,8 +117,7 @@ struct FxState {
         c.inverseLevels = 1.f / c.levels;
       } else if (type == Reel) {
 #ifdef MOSS_REEL_MOTION_LAB
-        reelMotion.prepare({p[0] * .1f, p[1] * .01f, p[2] * .1f,
-                            p[4] * .1f, lastEnabled[Reel] ? p[3] * .01f : 0}, rate);
+        prepareReel(p,rate,lastEnabled[Reel]);
 #endif
         c.phase0 = .62f / rate;
         c.phase1 = 12.4f / rate;
@@ -82,7 +135,7 @@ struct FxState {
   unsigned delayWritten = 0;
   void invalidate() {
 #ifdef MOSS_REEL_MOTION_LAB
-    reelMotion.reset(reelMotion.rate ? reelMotion.rate : AudioRate);
+    resetReel(reelMotion.rate ? reelMotion.rate : AudioRate);
     preparedRate[Reel] = 0; // A removed/reused SONG track must rebind its controls.
 #endif
     // Each effect clears its logical history on the next enable edge.
@@ -137,13 +190,7 @@ struct FxState {
       if (type == Reel) {
         // Fixed transport latency even in bypass, on all four tracks + master.
         // Bypass ramps the motion depth; it never crossfades unaligned audio.
-        if (enabled != lastEnabled[Reel]) {
-          const int *p = values[Reel];
-          reelMotion.prepare({p[0] * .1f, p[1] * .01f, p[2] * .1f,
-                              p[4] * .1f, enabled ? p[3] * .01f : 0}, rate);
-          lastEnabled[Reel] = enabled;
-        }
-        reelMotion.process(l, r);
+        processReel(l,r,enabled,values[Reel],rate);
         continue;
       }
 #endif

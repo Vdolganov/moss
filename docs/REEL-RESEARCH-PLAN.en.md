@@ -2,7 +2,7 @@
 
 [Русский](REEL-RESEARCH-PLAN.md) · **English** · 15 November 2026
 
-Follow-up: [implemented clean-path and WOW/FLUTTER candidate](REEL-MOTION-v1.en.md), including hardware results. The user agreed to focused 2–3 minute checks for intermediate DSP edits; the 20-minute duration below is no longer the default requirement. The remaining document preserves the original rationale and full REEL plan.
+Follow-up: [implemented clean-path and WOW/FLUTTER candidate](REEL-MOTION-v1.en.md), including hardware results. The subsequent [saturation, colour and optimization stage](REEL-COLOR-v1.en.md) is also implemented. Following the user’s instruction, the default is a focused 2–3 minute series. The remaining document preserves the original rationale and full REEL plan.
 
 Status: research and proposed implementation. Production DSP, UI, application version and device were not changed. Baseline: 0.6.6-dev, commit `59c7cd217fd43acc8c63de9b39ab39134913f38b`. This supersedes the earlier eight-parameter REEL proposal in the [Elektron research](ELEKTRON-FX-RESEARCH.en.md), not the controls available in the current application.
 
@@ -210,7 +210,7 @@ The latest [SWING qualification](SWING-v1.en.md) reached 29.236 ms against a 32 
 
 Use four maximum-length tracks, eight grains each or all four sampler slots per instance, two active effects per track and two on master. Run **five REEL instances**, each possible companion effect and mixed orders, maximum character/motion controls, dense locks across all pages, SWING/SHIFT/REPEAT, SONG, SD resampling and the visible animated effect.
 
-Early target: ≤1.5 ms additional aggregate cost for five new REEL instances against matched old-REEL profiles; profile before UI integration if exceeded. Release gate: no over-budget callbacks, underruns or late audio intervals in stress qualification, and no regression against the verified build. Reserve target: p99≤24 ms and maximum≤28 ms. Missing that reserve remains an explicitly unresolved item, not a claim of stability under every load. Final heaviest soak: at least 20 minutes, plus the scenario matrix and a reboot repeat.
+Early target: ≤1.5 ms additional aggregate cost for five new REEL instances against matched old-REEL profiles; profile before UI integration if exceeded. Release gate: no over-budget callbacks, underruns or late audio intervals in stress qualification, and no regression against the verified build. Reserve target: p99≤24 ms and maximum≤28 ms. Missing that reserve remains an explicitly unresolved item, not a claim of stability under every load. Current stages use focused 2–3 minute series. A long release soak is not started automatically; its scope must be decided separately before release.
 
 No hidden voice/effect disabling or load-dependent quality changes. First optimize coefficient preparation and measured hot paths, then choose a single fixed-quality nonlinear implementation. Any reduction in product capabilities requires a separate decision.
 

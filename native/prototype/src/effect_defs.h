@@ -12,7 +12,8 @@ inline constexpr EffectSpec FxSpecs[EffectTypes][EffectParameters] = {
   // Laboratory carrier only, never decode production projects with this layout.
   {{"WOW",0,150,10,"0.1CT"},{"WOW RATE",10,400,10,"0.01HZ"},
    {"FLUTTER",0,150,10,"0.1CT"},{"AMOUNT",0,100,10,"%"},
-   {"FLT RATE",20,300,10,"0.1HZ"},{"---",0,0,1,""},{"---",0,0,1,""},{"---",0,0,1,""}},
+   {"FLT RATE",20,300,10,"0.1HZ"},{"DRIVE",0,100,10,"%"},
+   {"TONE",-60,60,10,"0.1DB"},{"BUMP",0,60,10,"0.1DB"}},
 #else
   {{"WOBBLE",0,100,10,"%"},{"WEAR",0,100,10,"%"},{"NOISE",0,100,10,"%"},{"MIX",0,100,10,"%"}},
 #endif

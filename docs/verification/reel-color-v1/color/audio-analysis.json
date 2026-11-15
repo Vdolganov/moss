@@ -1,0 +1,76 @@
+{
+  "rate": 32000,
+  "small_signal_test_amplitude": 1e-05,
+  "alias_input_peak": 0.3,
+  "anti_aliasing": "2x, 23-tap halfband, C2 quintic ADAA, 4-tap response correction",
+  "linear_response_ripple_db_20_to_12000_hz": 0.2365647868530953,
+  "alias": [
+    {
+      "input_hz": 997,
+      "oversampled_alias_dbc": -143.52862548828125,
+      "base_rate_alias_dbc": -145.57618713378906,
+      "reduction_db": -2.0475616455078125
+    },
+    {
+      "input_hz": 3991,
+      "oversampled_alias_dbc": -67.98161315917969,
+      "base_rate_alias_dbc": -24.402481079101562,
+      "reduction_db": 43.579132080078125
+    },
+    {
+      "input_hz": 7177,
+      "oversampled_alias_dbc": -52.97211456298828,
+      "base_rate_alias_dbc": -11.646566390991211,
+      "reduction_db": 41.32554817199707
+    },
+    {
+      "input_hz": 11003,
+      "oversampled_alias_dbc": -44.98088455200195,
+      "base_rate_alias_dbc": -7.839227199554443,
+      "reduction_db": 37.14165735244751
+    }
+  ],
+  "music": [
+    {
+      "drive": 0,
+      "tone_db": 0,
+      "bump_db": 0,
+      "name": "dry",
+      "rms": 0.165348619222641,
+      "peak": 0.7154541015625,
+      "rms_gain_db": 0.0
+    },
+    {
+      "drive": 35,
+      "tone_db": -1,
+      "bump_db": 2,
+      "name": "warm",
+      "rms": 0.20617909729480743,
+      "peak": 0.7288514971733093,
+      "rms_gain_db": 1.9168812247848364
+    },
+    {
+      "drive": 70,
+      "tone_db": -2,
+      "bump_db": 4,
+      "name": "dense",
+      "rms": 0.32139408588409424,
+      "peak": 0.7732264399528503,
+      "rms_gain_db": 5.77274616508339
+    },
+    {
+      "drive": 100,
+      "tone_db": 3,
+      "bump_db": 1,
+      "name": "bright",
+      "rms": 0.36207082867622375,
+      "peak": 0.6067540049552917,
+      "rms_gain_db": 6.807859267738446
+    }
+  ],
+  "listening_rms_matched": true,
+  "audition_segments_seconds": 6,
+  "common_listening_gain": 1.0,
+  "neutral_exact": true,
+  "note": "Objective analysis, not a claim of subjective listening."
+}

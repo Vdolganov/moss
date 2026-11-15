@@ -2,6 +2,8 @@
 
 [Русский](REEL-MOTION-v1.md) · **English**
 
+Next completed laboratory stage: [saturation, colour and optimization](REEL-COLOR-v1.en.md). Results below describe the original motion candidate.
+
 This implements the first practical step of the [research plan](REEL-RESEARCH-PLAN.en.md): a standalone DSP component and an isolated measurement build for the original RG35XX. Installed MOSS / MOSS-GRANULAR applications, user sequences, SONG arrangements and samples are not replaced. Normal builds still use the previous REEL.
 
 ## Implementation

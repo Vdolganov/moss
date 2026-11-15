@@ -25,6 +25,7 @@
 | Эффекты: исследование Elektron и план переработки | [Исследование](ELEKTRON-FX-RESEARCH.md) | [Research](ELEKTRON-FX-RESEARCH.en.md) |
 | REEL: GrainBrick, RC-20, измерения и новый план | [Исследование и план](REEL-RESEARCH-PLAN.md) | [Research and plan](REEL-RESEARCH-PLAN.en.md) |
 | REEL: чистый тракт и WOW/FLUTTER, аудиокандидат | [Реализация и проверка](REEL-MOTION-v1.md) | [Implementation and verification](REEL-MOTION-v1.en.md) |
+| REEL: насыщение, окраска и оптимизация | [Реализация и проверка](REEL-COLOR-v1.md) | [Implementation and verification](REEL-COLOR-v1.en.md) |
 | Elektron: разбор прошивок, памяти и DSP | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
 
 ## Технические контракты

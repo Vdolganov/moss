@@ -425,7 +425,12 @@ struct Engine {
     refreshFx();
     for(int t=0;t<Tracks;++t) repeats[t].prepare(rate,project.bpm);
     unsigned peaks[Tracks] = {};
-    for (unsigned n = 0; n < count; n++, frame++) {
+#ifdef MOSS_REEL_MOTION_LAB
+    static constexpr unsigned RenderSpan=32;
+#else
+    static constexpr unsigned RenderSpan=1;
+#endif
+    for (unsigned n = 0; n < count;) {
       if (playing) {
         if (first) {
           first = false;
@@ -441,60 +446,76 @@ struct Engine {
         }
       }
       if(playing && dispatchScheduled()) refreshFx();
-      int mix[2] = {};
+      // Work on one track's hot voices/FX for a short span. Always stop BEFORE
+      // the next tick, note, gate or lock so scheduling stays sample-exact.
+      unsigned span=minimum(RenderSpan,count-n);
+      if(playing) {
+        const uint64_t advance=unsigned(project.bpm)*16;
+        uint64_t distance=uint64_t(rate)*60-clock;
+        if(nextDue!=NoDeadline && nextDue-timeline<distance)distance=nextDue-timeline;
+        if(distance<advance*span)span=unsigned((distance+advance-1)/advance);
+        if(!span)span=1;
+      }
+      int mixed[RenderSpan][2] = {};
       for (int t = 0; t < project.trackCount; t++) {
-        int l = 0, r = 0;
-        for (int k = 0; k < Keys; k++) {
-          voice(t, k).render(l, r);
-          tail(t, k).render(l, r);
+        for(unsigned i=0;i<span;++i) {
+          int l = 0, r = 0;
+          for (int k = 0; k < Keys; k++) {
+            voice(t, k).render(l, r);
+            tail(t, k).render(l, r);
+          }
+          synth[t].render(l, r, tables);
+          synthTails[t].render(l, r, tables);
+          renderGranular(t, l, r);
+          auto &tr = project.tracks[t];
+          repeats[t].process(l,r);
+          fx[t].processChain(l, r, tr.fx, params[t], rate, project.bpm);
+          muteGain[t] += ((tr.mute ? 0.f : 1.f) - muteGain[t]) * .015625f;
+          int lg =
+                  int(tr.level * (100 - (tr.pan > 0 ? tr.pan : 0)) * muteGain[t]),
+              rg =
+                  int(tr.level * (100 + (tr.pan < 0 ? tr.pan : 0)) * muteGain[t]);
+          l = scaleTrack(l, lg);
+          r = scaleTrack(r, rg);
+          unsigned peak = unsigned(l < 0 ? -l : l);
+          if (unsigned(r < 0 ? -r : r) > peak)
+            peak = unsigned(r < 0 ? -r : r);
+          if (peak > peaks[t])
+            peaks[t] = peak;
+          if (capture.source == t)
+            capture.append(clamp(l, -32768, 32767), clamp(r, -32768, 32767));
+          mixed[i][0] += l;
+          mixed[i][1] += r;
         }
-        synth[t].render(l, r, tables);
-        synthTails[t].render(l, r, tables);
-        renderGranular(t, l, r);
-        auto &tr = project.tracks[t];
-        repeats[t].process(l,r);
-        fx[t].processChain(l, r, tr.fx, params[t], rate, project.bpm);
-        muteGain[t] += ((tr.mute ? 0.f : 1.f) - muteGain[t]) * .015625f;
-        int lg =
-                int(tr.level * (100 - (tr.pan > 0 ? tr.pan : 0)) * muteGain[t]),
-            rg =
-                int(tr.level * (100 + (tr.pan < 0 ? tr.pan : 0)) * muteGain[t]);
-        l = scaleTrack(l, lg);
-        r = scaleTrack(r, rg);
-        unsigned peak = unsigned(l < 0 ? -l : l);
-        if (unsigned(r < 0 ? -r : r) > peak)
-          peak = unsigned(r < 0 ? -r : r);
-        if (peak > peaks[t])
-          peaks[t] = peak;
-        if (capture.source == t)
-          capture.append(clamp(l, -32768, 32767), clamp(r, -32768, 32767));
-        mix[0] += l;
-        mix[1] += r;
       }
-      mix[0] = clamp(mix[0] * project.master / 300, -32768, 32767);
-      mix[1] = clamp(mix[1] * project.master / 300, -32768, 32767);
-      fx[Tracks].processChain(mix[0], mix[1], project.fx, params[Tracks], rate,
-                              project.bpm);
-      if (capture.source < 0)
-        capture.append(clamp(mix[0], -32768, 32767), clamp(mix[1], -32768, 32767));
-      int pl = 0, pr = 0;
-      preview.render(pl, pr);
-      stream.render(pl, pr);
-      int out[2] = {monitor(mix[0] + pl / 2), monitor(mix[1] + pr / 2)};
-      for (int ch = 0; ch < 2; ++ch) {
+      for(unsigned i=0;i<span;++i,++frame) {
+        int *mix=mixed[i];
+        mix[0] = clamp(mix[0] * project.master / 300, -32768, 32767);
+        mix[1] = clamp(mix[1] * project.master / 300, -32768, 32767);
+        fx[Tracks].processChain(mix[0], mix[1], project.fx, params[Tracks], rate,
+                                project.bpm);
+        if (capture.source < 0)
+          capture.append(clamp(mix[0], -32768, 32767), clamp(mix[1], -32768, 32767));
+        int pl = 0, pr = 0;
+        preview.render(pl, pr);
+        stream.render(pl, pr);
+        int out[2] = {monitor(mix[0] + pl / 2), monitor(mix[1] + pr / 2)};
+        for (int ch = 0; ch < 2; ++ch) {
+          if (transitionFrames)
+            out[ch] = (out[ch] * int(128 - transitionFrames) +
+                       transitionFrom[ch] * int(transitionFrames)) /
+                      128;
+          previousOutput[ch] = output[(n+i) * 2 + ch] = int16_t(out[ch]);
+        }
         if (transitionFrames)
-          out[ch] = (out[ch] * int(128 - transitionFrames) +
-                     transitionFrom[ch] * int(transitionFrames)) /
-                    128;
-        previousOutput[ch] = output[n * 2 + ch] = int16_t(out[ch]);
+          --transitionFrames;
+        if (playing) {
+          const unsigned advance=unsigned(project.bpm)*16;
+          clock+=advance;
+          timeline+=advance;
+        }
       }
-      if (transitionFrames)
-        --transitionFrames;
-      if (playing) {
-        const unsigned advance=unsigned(project.bpm)*16;
-        clock+=advance;
-        timeline+=advance;
-      }
+      n+=span;
     }
     __atomic_store_n(&capture.shownFrames, capture.frames, __ATOMIC_RELEASE);
     for (int t = 0; t < Tracks; t++) {

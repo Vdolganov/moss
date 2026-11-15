@@ -1,0 +1,10 @@
+const fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
+const {root,run,hostFlags,buildArm}=require('./toolchain.cjs');
+fs.mkdirSync(path.join(root,'build/reel-motion'),{recursive:true});
+run([...hostFlags(),'tests/reel_color_test.cpp','-o','build/reel-motion/color-test.exe']);
+execFileSync(path.join(root,'build/reel-motion/color-test.exe'),[],{stdio:'inherit',cwd:root});
+buildArm('tests/reel_color_test.cpp','build/reel-motion/color-test-arm',{includes:['src']});
+buildArm('tests/reel_motion_test.cpp','build/reel-motion/test-arm',{includes:['src']});
+buildArm('tests/reel_color_engine_test.cpp','build/reel-motion/test-engine',{includes:['src']});
+buildArm('tests/reel_motion_garlic.cpp','build/reel-motion/moss',{includes:['src']});
+console.log('Built isolated REEL colour candidate and ARM checks.');

@@ -1,0 +1,94 @@
+{
+  "completed_utc": "2026-11-15T15:57:13.895553+00:00",
+  "stage": "isolated REEL saturation/colour candidate",
+  "production_installed": false,
+  "release_qualified": false,
+  "short_hardware_series_passed": true,
+  "build": {
+    "remote": "/mnt/mmc/MOSS-Reel-Color-color-v6",
+    "mode": "color",
+    "sha256": {
+      "previous": "a91388b56267de5d23694d37a610d3de218b61de1763e67cd048d509293c9e53",
+      "candidate": "7bb26668267104632505ce74f6b56b7f2426ea319361fa731a8fab316d2fc4ff",
+      "test-arm": "4758a6d2b40ea1236af4330f739f52e1a8dd5faa373d066d52bab9c91e977428",
+      "test-motion": "79a4efa2c06a77932292f7dd51100dc85ef355afc46a7093c9d49acb815330f5",
+      "test-engine": "edb530102b74a2a2abf6889a348c1798ba8f792114739504b54677087ad57cb8"
+    },
+    "profiles": [
+      [
+        "previous-idle",
+        "previous",
+        17,
+        18,
+        20
+      ],
+      [
+        "color-idle",
+        "candidate",
+        17,
+        18,
+        20
+      ],
+      [
+        "previous-pond",
+        "previous",
+        17,
+        10,
+        20
+      ],
+      [
+        "color-pond",
+        "candidate",
+        17,
+        10,
+        50
+      ],
+      [
+        "color-drive",
+        "candidate",
+        19,
+        24,
+        20
+      ],
+      [
+        "color-orbit",
+        "candidate",
+        17,
+        9,
+        20
+      ],
+      [
+        "color-song",
+        "candidate",
+        20,
+        10,
+        30
+      ]
+    ]
+  },
+  "actual_profile_seconds": 180,
+  "callbacks": 5636,
+  "candidate_worst_us": 27191,
+  "candidate_worst_p99_us": 26250,
+  "max_28ms_target_met": true,
+  "p99_24ms_target_met": false,
+  "garlic_restored": true,
+  "governor_restored": "interactive",
+  "source_sha256": {
+    "native/prototype/src/reel_color.h": "25a619f48cce143e2d8b32d9419d86d30730ae71fc36ab94382cd4bfd9370f3b",
+    "native/prototype/src/reel_motion.h": "720b4390c594d923d623441315110883be40026221e5936292e5e0082a5bb186",
+    "native/prototype/src/effects.h": "e97e70a33024bac5de9cb992d42fa273ef07d257817d831b8a72e352ab9e8c46",
+    "native/prototype/src/effect_defs.h": "54218519dbfc61d68452cb4dc423fe8929e5292e49fc74ec63d0f6755455a869",
+    "native/prototype/src/engine.h": "76569441ed8ab180fd4fadf0a6f7c800c3435081e9c49d267489a812f57c9e98",
+    "native/prototype/src/diagnostics/stress_scenario.h": "99c22de5f7d31b7ca9473e7cf791314cfc2a779d0c0fcf0d590055a964866a54",
+    "native/prototype/tests/reel_color_test.cpp": "caaf8e524f15a0e42179c400b36c9f464a20aa0534915e5c1480f2b8fe419a7c",
+    "native/prototype/tests/reel_color_engine_test.cpp": "dce0715bdde5edd47c5c6b5e79dd9ff9a2db1c9d9460e49dd002624b2c39f49c",
+    "native/prototype/tests/reel_motion_test.cpp": "e010d68a7cd697c13bfab90d4dda982d856f64090a4f77aa4d1b9956de5c2db7"
+  },
+  "formatting_rebuild": {
+    "note": "Final engine indentation changes debug information only; complete ELF files are identical after stripping debug sections.",
+    "rebuilt_sha256": "c83c915116ef6d09d9e03e5c898faa55167766007daed33b5d70c672624ef2f4",
+    "both_stripped_sha256": "72295282f16afc59f576a3582972de01b5b4c855f1f12e21b9ae9f631a6332ff"
+  },
+  "installed_app_unchanged_sha256": "d4fbf9572fdf6af441637a5c1dc6b5ead2b5b621e3bfda0242ea882182152fb3"
+}

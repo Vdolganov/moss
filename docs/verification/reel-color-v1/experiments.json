@@ -1,0 +1,50 @@
+[
+  {
+    "remote": "/mnt/mmc/MOSS-Reel-Color-color-v2",
+    "variant": "2x plain saturation, scalar FIR",
+    "binary_sha256": "d7ddacd95008bfc7bfefbd2c6c4c6c67d4852430fbf8378b16c90e0fc0cd740e",
+    "accepted": false,
+    "reason": "over-budget callback(s) in REEL+POND profile",
+    "report": "rejected-v2-pond.json",
+    "mean_us": 28910,
+    "p99_upper_us": 31000,
+    "max_us": 32020,
+    "over_budget": 1
+  },
+  {
+    "remote": "/mnt/mmc/MOSS-Reel-Color-color-v3",
+    "variant": "4x saturation, long inner filter",
+    "binary_sha256": "b3c8b310de61810de81ef9768401319cca0cdabcf21d954cea52ac20b38bdd49",
+    "accepted": false,
+    "reason": "over-budget callback(s) in REEL+POND profile",
+    "report": "rejected-v3-pond.json",
+    "mean_us": 31447,
+    "p99_upper_us": 33750,
+    "max_us": 34951,
+    "over_budget": 988
+  },
+  {
+    "remote": "/mnt/mmc/MOSS-Reel-Color-color-v4",
+    "variant": "2x ADAA, sample-interleaved engine",
+    "binary_sha256": "9836337878e30ee8d1a4b0900a7c955e9ca7780cdfbcf838f3a67c6e7975254a",
+    "accepted": false,
+    "reason": "over-budget callback(s) in REEL+POND profile",
+    "report": "rejected-v4-pond.json",
+    "mean_us": 28717,
+    "p99_upper_us": 31250,
+    "max_us": 33169,
+    "over_budget": 2
+  },
+  {
+    "remote": "/mnt/mmc/MOSS-Reel-Color-color-v5",
+    "variant": "compact buffers and cached controls, sample-interleaved engine",
+    "binary_sha256": "1d74c1eb5a31d7c45c6b57902a1e55aa2d4c3c9b5d06064d24bad33536a9b5fc",
+    "accepted": false,
+    "reason": "over-budget callback(s) in REEL+POND profile",
+    "report": "rejected-v5-pond.json",
+    "mean_us": 28164,
+    "p99_upper_us": 30500,
+    "max_us": 34287,
+    "over_budget": 2
+  }
+]
