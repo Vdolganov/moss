@@ -151,6 +151,7 @@ static void writeReport(const ReportRequest &request) {
   // Snapshot only under the audio lock. Formatting and SD writes never hold it.
   lab::Timing snapshot;
   uint32_t histogram[200];
+  unsigned timingEvents[Tracks], scheduleOverflows;
   unsigned triggers[Tracks], grainPeaks[Tracks], locks[Tracks], repeats[Tracks], mask, instruments, started, finished, hz,
       trackCount, streamUnderruns;
   uint64_t frames;
@@ -166,6 +167,8 @@ static void writeReport(const ReportRequest &request) {
     locks[t]=engine.lockEventCount[t];repeats[t]=engine.repeatEventCount[t];
     grainPeaks[t] = engine.granular[t].stats.peak;
   }
+  scheduleOverflows=engine.scheduleOverflows;
+  for(int t=0;t<Tracks;++t) timingEvents[t]=engine.timingEventCount[t];
   mask = engine.seenFxMask;
   instruments = engine.seenInstrumentMask;
   started = engine.capture.startedCount;
@@ -196,7 +199,7 @@ static void writeReport(const ReportRequest &request) {
       "\"ui_frame_max_us\":%llu,\"ui_slow_frames\":%u,\"profile_kind\":%d,"
       "\"profile_effect_mask\":%u,\"profile_target_seconds\":%u,\"elapsed_"
       "seconds\":%u,\"audio_realtime_error\":%d,\"audio_priority\":%d,"
-      "\"profile_passed\":%s}\n",
+      "\"timing_events\":[%u,%u,%u,%u],\"schedule_overflows\":%u,\"profile_passed\":%s}\n",
       Version, completed ? "true" : "false", hz, audioFrames, snapshot.count,
       (unsigned long long)snapshot.maxUs, snapshot.overBudget,
       snapshot.lateIntervals, (unsigned long long)frames, triggers[0],
@@ -210,9 +213,10 @@ static void writeReport(const ReportRequest &request) {
       profiling ? profileKind : -2, profileMask, profileSeconds,
       request.elapsed, audioSchedulingError,
       audioSchedulingError ? 0 : AudioPriority,
+      timingEvents[0],timingEvents[1],timingEvents[2],timingEvents[3],scheduleOverflows,
       profiling && completed && request.elapsed >= profileSeconds &&
               !snapshot.overBudget && !snapshot.lateIntervals &&
-              !streamUnderruns
+              !streamUnderruns && !scheduleOverflows
           ? "true"
           : "false");
   bool ok = !ferror(f);
@@ -253,7 +257,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 16 || profileMask >= (1u << EffectTypes) ||
+    if (profileKind < -1 || profileKind > 20 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -307,7 +311,8 @@ int main(int argc, char **argv) {
       stressSample(sample);
       if (profileKind >= 5) sample.rate = 96000;
     }
-    if(profileKind>=13) stressEvents(app.project,profileMask,profileKind==14?1:profileKind==15?2:0);
+    if(profileKind>=17) stressSwing(app.project,profileMask,profileKind==18?1:profileKind==19?2:0);
+    else if(profileKind>=13) stressEvents(app.project,profileMask,profileKind==14?1:profileKind==15?2:0);
     else if (profileKind >= 5)
       stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:profileKind==10?4:profileKind==11?5:profileKind==12?6:0);
     else
@@ -319,7 +324,7 @@ int main(int argc, char **argv) {
   if (!profiling)
     app.seedProjects();
   else {
-    if (profileKind == 4 || profileKind == 7 || profileKind==16) {
+    if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) {
       void *memory = malloc(sizeof(SongBank));
       if (!memory)
         return 7;
@@ -333,7 +338,8 @@ int main(int argc, char **argv) {
       const unsigned masks[] = {3,5,9,17,6,10,18,12,20,24};
       for (int i = 0; i < Projects; ++i) {
         b.map[i] = i;
-        if(profileKind==16) stressEvents(b.sequences[i],masks[i%10],i%3);
+        if(profileKind==20) stressSwing(b.sequences[i],masks[i%10],i%3);
+        else if(profileKind==16) stressEvents(b.sequences[i],masks[i%10],i%3);
         else if(profileKind==7) {
           stressGranular(b.sequences[i],masks[i%10],i%2);
           if(i%3==0) b.sequences[i].tracks[3].instrument=SampleInstrument;
@@ -373,9 +379,9 @@ int main(int argc, char **argv) {
     if (profiling) {
       unsigned seconds = unsigned((micros() - start) / 1000000);
       const Page pages[] = {Pattern, Sampler, Space, Mix, Grid, Tape};
-      app.page = (profileKind == 4 || profileKind == 7 || profileKind==16) ? SongPage : pages[(seconds / 2) % 6];
-      if (profileKind==11 || profileKind==13) app.page=Sampler; // Keep the full live lens visible.
-      if (profileKind == 4 || profileKind == 7 || profileKind==16)
+      app.page = (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) ? SongPage : pages[(seconds / 2) % 6];
+      if (profileKind==11 || profileKind==13 || profileKind==17) app.page=Sampler; // Keep the full live lens visible.
+      if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20))
         app.songRow = int(seconds % SongSlots);
       app.track = int((seconds / 3) % Tracks);
       app.bank = int((seconds / 2) % 4);

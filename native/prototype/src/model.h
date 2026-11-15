@@ -22,6 +22,7 @@ struct Step {
   Step() { for(auto &row:fxLocks) for(auto &v:row) v=Inherit; }
   int on = 0, key = 0, velocity = 90, length = 4, probability = 100;
   int repeat = Inherit; // Track audio fragment: --, OFF, 1/8, 1/16, 1/32, 1/64.
+  int shift = Inherit; // Percent of the displayed step, added to track swing.
   int16_t locks[4] = {Inherit, Inherit, Inherit, Inherit};
 };
 struct Hit {
@@ -40,6 +41,7 @@ struct Track {
   Effect fx;
   int cycle = 64, division = 16, level = 75, pan = 0,
       mute = 0; // cycle in 1/64 notes
+  int swing = SwingStraight; // First half of a two-cell pair, in percent.
   Key keys[Keys];
   Step steps[Steps];
   Hit hits[Keys][Steps];
@@ -205,7 +207,8 @@ inline bool valid(const Project &p) {
     }
     if (!effectValid(t.fx))
       return false;
-    if (t.cycle < 1 || t.cycle > Steps || t.level < 0 || t.level > 100 ||
+    if (t.swing < SwingStraight || t.swing > SwingMaximum ||
+        t.cycle < 1 || t.cycle > Steps || t.level < 0 || t.level > 100 ||
         t.pan < -100 || t.pan > 100 || t.mute < 0 || t.mute > 1)
       return false;
     if (t.division != 8 && t.division != 16 && t.division != 32 &&
@@ -233,7 +236,8 @@ inline bool valid(const Project &p) {
         if (lockValue(s.grainLocks[i]) &&
             (s.grainLocks[i] < GranularSpecs[i].low || s.grainLocks[i] > GranularSpecs[i].high))
           return false;
-      if (!repeatValid(s.repeat) || s.note < 24 || s.note > 96)
+      if ((s.shift != Inherit && (s.shift < -ShiftLimit || s.shift > ShiftLimit)) ||
+          !repeatValid(s.repeat) || s.note < 24 || s.note > 96)
         return false;
       for (int type = 0; type < 3; type++)
         for (int i = 0; i < 8; i++)
@@ -394,8 +398,8 @@ inline void apply(Project &p, const Command &c) {
   if (c.op == Op::SynthLock)
     { t.steps[c.index].synthLocks[c.field / 8][c.field % 8] = c.value; normalizeStepEvent(t,c.index); }
   if (c.op == Op::Track) {
-    int *f[] = {&t.cycle, &t.level, &t.pan, &t.mute, &t.division};
-    if (c.field >= 0 && c.field < 5)
+    int *f[] = {&t.cycle, &t.level, &t.pan, &t.mute, &t.division, &t.swing};
+    if (c.field >= 0 && c.field < 6)
       *f[c.field] = c.value;
   }
   if (c.op == Op::Key && c.index >= 0 && c.index < Keys) {
@@ -406,6 +410,7 @@ inline void apply(Project &p, const Command &c) {
   }
   if (c.op == Op::Step && c.index >= 0 && c.index < Steps) {
     auto &s = t.steps[c.index];
+    if(c.field==StepShiftField) { s.shift=c.value; return; }
     if(c.field==StepRepeatField) { s.repeat=c.value; normalizeStepEvent(t,c.index); return; }
     if (c.field >= 5 && c.field <= 8)
       s.locks[c.field - 5] = int16_t(c.value);

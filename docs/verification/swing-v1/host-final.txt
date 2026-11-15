@@ -1,0 +1,7 @@
+PASS sample-exact SWING + SHIFT at 8/16/32/64, 30/70/137/240 BPM, 8/32/44.1 kHz, odd cycles, reordered/tied events, early wraps, bounded queue
+PASS all five instruments: shifted notes keep their full LENGTH measured from actual onset
+PASS shifted LOCK ONLY + REPEAT: no retrigger, unchanged gate deadline/head, block-size invariant audio
+PASS first early step clips only at START; subsequent cycles anticipate the wrap; STOP clears pending events
+PASS live timing edits affect only pending events; CYCLE does not orphan gates; BPM changes preserve musical deadlines
+PASS SONG slot boundary: no early next-slot note, no leaked pending events, exact slot duration
+PASS physical controls, fine/coarse, nested-page release guard, clear SHIFT, inactive empty-step metadata, MS12 roundtrip/MS11 migration and validation

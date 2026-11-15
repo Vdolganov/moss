@@ -9,6 +9,8 @@ void enterSongSlot(int index) {
   songSlot = index;
   songTicks = 0;
   tick = 0;
+  resetSchedule();
+  timeline=clock;
   project = songBank->at(index);
   project.bpm = songBpm;
   // Cut old notes, keep the existing rack's delay/reverb history. A short

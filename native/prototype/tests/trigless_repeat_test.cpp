@@ -101,14 +101,14 @@ int main() {
   assert(app.editLock(20,50,20,100,-1,1)==ResetLock);
   assert(app.editLock(ResetLock,50,20,100,-1,1)==Inherit);
   app.change({Op::GranularLock,0,8,10,ResetLock});assert(app.project.tracks[0].steps[8].on==LockEvent);
-  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS11",4));assert(codec.decode(restored,codec.cursor));
+  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS12",4));assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[8].grainLocks[10]==ResetLock && restored.tracks[0].steps[8].repeat==8);
   setup(GranularInstrument);project.tracks[0].steps[28].on=EmptyEvent;
   // Old off steps with locks must stay off, and repeat must default to --.
   for(auto &s:project.tracks[0].steps) { s.on=s.on==LockEvent?EmptyEvent:s.on; for(auto &v:s.grainLocks)if(v==ResetLock)v=Inherit;for(auto &row:s.fxLocks)for(auto &v:row)if(v==ResetLock)v=Inherit; }
   codec.cursor=16;codec.ok=true;codec.fields(project,true,10);memcpy(codec.bytes,"MS10",4);codec.word(4,10);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));assert(restored.tracks[0].steps[28].on==EmptyEvent && restored.tracks[0].steps[32].repeat==Inherit);
-  puts("PASS UI/model/MS11: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration");
+  puts("PASS UI/model/MS12: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration");
   setup(GranularInstrument);project.trackCount=2;project.tracks[1]=project.tracks[0];
   project.tracks[0].cycle=60;project.tracks[1].cycle=64;
   project.tracks[0].division=8;project.tracks[1].division=32;

@@ -182,7 +182,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             const int cx=x+58,cy=y+10;
             for(int dy=-4;dy<=4;++dy) { int dx=4-(dy<0?-dy:dy); c.rect(cx-dx,cy+dy,1,1,TEXT); c.rect(cx+dx,cy+dy,1,1,TEXT); }
           }
-          bool locked = st.repeat!=Inherit;
+          bool locked = st.repeat!=Inherit || st.shift!=Inherit;
           if (tr.instrument == GranularInstrument) {
             for (int n : st.grainLocks) locked |= n != Inherit;
           } else if (tr.instrument) {
@@ -245,7 +245,10 @@ inline void draw(lab::Canvas &c, const App &a) {
         if (a.bank == i)
           c.rect(x[i], 343, width[i], 1, TEXT);
       }
-      if(a.bank==2) {
+      if(a.bank==3) {
+        snprintf(b,sizeof(b),"%d/2",a.timingBank+1);
+        text(c,550,326,b,DIM);
+      } else if(a.bank==2) {
         snprintf(b,sizeof(b),"%s %d/%d",fxName(tr.fx.type),clamp(a.fxBank,0,fxBanks(tr.fx.type)-1)+1,fxBanks(tr.fx.type));
         text(c,510,326,b,DIM,2,10);
       } else text(c, 520, 326,
@@ -328,12 +331,18 @@ inline void draw(lab::Canvas &c, const App &a) {
           }
         } else if (a.page == Pattern && a.bank == 3) {
           const char *labels[]={"CYCLE","STEP","REPEAT","TYPE"}; label=labels[i];
-          if(i==0) snprintf(b,sizeof(b),"%d",t.cells());
+          if(a.timingBank && i==0) { label="SWING"; snprintf(b,sizeof(b),"%d%%",t.swing); }
+          else if(a.timingBank && i==1) {
+            label="SHIFT";
+            if(s.shift==Inherit) strcpy(b,"--"); else snprintf(b,sizeof(b),"%+d%%",s.shift);
+          }
+          else if(i==0) snprintf(b,sizeof(b),"%d",t.cells());
           else if(i==1) snprintf(b,sizeof(b),"1/%d",t.division);
           else if(i==2) {
             if(s.repeat==Inherit) strcpy(b,"--"); else if(!s.repeat) strcpy(b,"OFF"); else snprintf(b,sizeof(b),"1/%d",s.repeat);
           } else strcpy(b,selectedEvent(t,a.step,a.key)==LockEvent?"LOCK":eventName(selectedEvent(t,a.step,a.key)));
           unit=i==0?"TRACK CELLS":i==1?"RESOLUTION":i==2?"TRACK AUDIO":"STEP EVENT";
+          if(a.timingBank && i<2) unit=i==0?"WHOLE TRACK":"STEP LOCK";
         } else if (a.fxPage() || (a.page == Pattern && a.bank == 2)) {
           const auto &f = a.page == Mix ? a.project.fx : t.fx;
           int parameter=i+clamp(a.fxBank,0,fxBanks(f.type)-1)*4;
@@ -456,6 +465,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       : a.page == Mix            ? "L1/R1 BANK / A MUTE / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 2
           ? "L1+L-R FX / L1+U-D FX PAGE / L1-R1 BANK"
+      : a.page == Pattern && a.bank == 3 ? "L1+ARROWS TIME PAGE / L1-R1 BANK"
       : a.page == Pattern && !a.project.tracks[a.track].instrument
           ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"

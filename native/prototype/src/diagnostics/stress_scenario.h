@@ -123,4 +123,13 @@ inline void stressEvents(Project &p,unsigned mask,int mode=0) {
     }
   }
 }
+inline void stressSwing(Project &p,unsigned mask,int mode=0) {
+  stressEvents(p,mask,mode);
+  const int divisions[]={8,16,32,64}, swings[]={75,66,58,73};
+  const int shifts[]={-50,50,-17,31,0,Inherit};
+  for(int t=0;t<Tracks;++t) {
+    auto &tr=p.tracks[t];tr.division=divisions[t];tr.swing=swings[t];
+    for(int i=0;i<Steps;++i) tr.steps[i].shift=shifts[(i+t)%6];
+  }
+}
 } // namespace moss

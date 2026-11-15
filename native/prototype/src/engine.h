@@ -8,6 +8,7 @@
 #include "synth.h"
 #include "granular.h"
 #include "repeat.h"
+#include "sequencer_timing.h"
 namespace moss {
 struct Engine {
   static int scaleTrack(int value, int gain) {
@@ -64,6 +65,7 @@ struct Engine {
 #include "engine_granular.h"
 #include "engine_events.h"
 #include "song_engine.h"
+#include "engine_timing.h"
   void init(const Project &p, const moss::SampleBuffer *buffers, unsigned hz,
             int count = 3) {
     songBank = nullptr;
@@ -72,6 +74,9 @@ struct Engine {
     preview = Voice{};
     stream.reset();
     project = p;
+    resetSchedule();
+    scheduleOverflows=0;
+    for(auto &count:timingEventCount) count=0;
     samples = buffers;
     rate = hz;
     tables.init();
@@ -215,34 +220,22 @@ struct Engine {
         params);
     synth[t].setTarget(params, tr.synthMode[tr.instrument - 1]);
   }
-  void boundary() {
-    for (int t = 0; t < project.trackCount; t++) {
-      for (int k = 0; k < Keys; ++k) {
-        auto &v = voice(t, k);
-        if (v.active && v.remaining > 0 && !--v.remaining)
-          v.stop();
-      }
-      if (synth[t].active && synth[t].gate && !synth[t].previewFrames &&
-          --synth[t].remaining <= 0)
-        synth[t].off();
-      const auto &tr = project.tracks[t];
-      if (granular[t].gate && !grainPreview[t] && grainRemaining[t] > 0 && !--grainRemaining[t])
-        granular[t].noteOff();
-      int at = int(tick % tr.cycle);
+  void dispatchStep(int t,int at,uint64_t nominal) {
+    const auto &tr=project.tracks[t];
       const Step &s = tr.steps[at];
       if(!tr.mute) {
-        bool pass=probability(project.seed,t,tick)<unsigned(s.probability);
+        bool pass=probability(project.seed,t,nominal)<unsigned(s.probability);
         if(tr.instrument) {
           if(s.on!=EmptyEvent && pass) {
             bool note=s.on==NoteEvent;
             voiceEvent(t,s,at,note); trackEvent(t,s,at,note);
-            if(note) trigger(t,s); else ++lockEventCount[t];
+            if(note) { trigger(t,s); armGate(t,0,s.length); } else ++lockEventCount[t];
           }
         } else {
           bool note=false;
           for(int k=0;k<Keys;++k) {
             const auto &h=tr.hits[k][at];
-            if(h.on==EmptyEvent || probability(project.seed^uint32_t(k*173),t,tick)>=unsigned(h.probability)) continue;
+            if(h.on==EmptyEvent || probability(project.seed^uint32_t(k*173),t,nominal)>=unsigned(h.probability)) continue;
             if(h.on==LockEvent) { sampleEvent(t,k,h,at); ++lockEventCount[t]; continue; }
             note=true;
             Step hit; hit.on=NoteEvent; hit.key=k; hit.velocity=h.velocity; hit.length=h.length;
@@ -250,7 +243,7 @@ struct Engine {
               hit.locks[i]=h.locks[i];
               sampleEventSource[t][k][i]=h.locks[i]==Inherit?-1:int16_t(at);
             }
-            trigger(t,hit);
+            trigger(t,hit); armGate(t,k,hit.length);
             auto &v=voice(t,k);
             v.fadeInFrames=unsigned(uint64_t(h.fadeIn)*rate/1000);
             v.fadeOutSource=unsigned((uint64_t(h.fadeOut)*rate/1000*v.increment)>>32);
@@ -264,10 +257,19 @@ struct Engine {
           }
         }
       }
-      __atomic_store_n(&shownStep[t],unsigned(at),__ATOMIC_RELEASE);
-      refreshSynth(t);
+    refreshSynth(t);
+  }
+  void boundary() {
+    if(!scheduleReady) {
+      scheduleReady=true;
+      for(int t=0;t<project.trackCount;++t)
+        for(int i=0;i<StepSchedule::Lookahead;++i) queueStep(t,tick+unsigned(i));
     }
-    __atomic_store_n(&shownTick, uint32_t(tick), __ATOMIC_RELEASE);
+    updateRemaining();
+    for(int t=0;t<project.trackCount;++t) queueStep(t,tick+StepSchedule::Lookahead);
+    nextDeadline();
+    dispatchScheduled();
+    __atomic_store_n(&shownTick,uint32_t(tick),__ATOMIC_RELEASE);
   }
   void auditionBuffer(const SampleBuffer &s) {
     preview = Voice{};
@@ -312,8 +314,10 @@ struct Engine {
         clock = 0;
         tick = 0;
         first = true;
+        resetSchedule();
         for(int t=0;t<Tracks;++t) resetEvents(t);
       } else {
+        resetSchedule();
         capture.finish();
         preview.stop();
         __atomic_store_n(&stream.state, 0, __ATOMIC_RELEASE);
@@ -328,11 +332,16 @@ struct Engine {
       }
       __atomic_store_n(&shownPlaying, playing ? 1u : 0u, __ATOMIC_RELEASE);
     } else if (c.op == Op::Rewind) {
-      for(int t=0;t<Tracks;++t) resetEvents(t);
+      for(int t=0;t<Tracks;++t) {
+        resetEvents(t); stopSamples(t); synth[t].stop();
+        granular[t].noteOff(); grainPreview[t]=0;
+      }
       clock = tick = 0;
       first = true;
+      resetSchedule();
     } else if (c.op == Op::Audition) {
       resetEvents(c.track);
+      clearGates(c.track);
       Step s;
       s.on = 1;
       s.key = c.index;
@@ -347,6 +356,7 @@ struct Engine {
         synth[c.track].previewFrames = rate * 2;
     } else {
       if (c.op == Op::Instrument) {
+        clearGates(c.track);
         stopSamples(c.track);
         synthTails[c.track] = synth[c.track];
         synthTails[c.track].stop();
@@ -356,6 +366,9 @@ struct Engine {
       }
       apply(project, c);
       liveEventEdit(c);
+      if((c.op==Op::Track && (c.field==0 || c.field==4 || c.field==TrackSwingField)) ||
+         (c.op==Op::Step && c.field==StepShiftField) || c.op==Op::ClearEvent)
+        retimePending(c.track);
       if (c.op == Op::Instrument || c.op == Op::GranularSource) {
         bindGranular(c.track);
         transitionFrames = 128;
@@ -371,6 +384,7 @@ struct Engine {
         resetEvents(c.track);
       }
       if (c.op == Op::Track && c.field == 3 && c.value) {
+        clearGates(c.track);
         stopSamples(c.track);
         synth[c.track].stop();
         synthTails[c.track].stop();
@@ -426,6 +440,7 @@ struct Engine {
           refreshFx();
         }
       }
+      if(playing && dispatchScheduled()) refreshFx();
       int mix[2] = {};
       for (int t = 0; t < project.trackCount; t++) {
         int l = 0, r = 0;
@@ -475,8 +490,11 @@ struct Engine {
       }
       if (transitionFrames)
         --transitionFrames;
-      if (playing)
-        clock += unsigned(project.bpm) * 16;
+      if (playing) {
+        const unsigned advance=unsigned(project.bpm)*16;
+        clock+=advance;
+        timeline+=advance;
+      }
     }
     __atomic_store_n(&capture.shownFrames, capture.frames, __ATOMIC_RELEASE);
     for (int t = 0; t < Tracks; t++) {

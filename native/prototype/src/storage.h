@@ -42,7 +42,7 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 11) {
+  void fields(Project &p, bool writing, int version = 12) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -106,6 +106,7 @@ struct Codec {
       fx(t.fx);
       value(t.cycle);
       value(t.division);
+      if(version>=12) value(t.swing);
       for (int key = 0; key < (legacy ? LegacyKeys : Keys); ++key)
         for (int step = 0; step < Steps; ++step) {
           Hit &h = legacy ? legacyHits[key][step] : t.hits[key][step];
@@ -170,6 +171,7 @@ struct Codec {
         value(s.length);
         value(s.probability);
         if(version>=11) value(s.repeat);
+        if(version>=12) value(s.shift);
         for (auto &n : s.locks)
           value(n);
         if (legacy)
@@ -188,8 +190,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MS11", 4);
-    word(4, 11);
+    memcpy(bytes, "MS12", 4);
+    word(4, 12);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -201,14 +203,15 @@ struct Codec {
     bool v8 = !memcmp(bytes, "MOS8", 4) && word(4) == 8;
     bool v9 = !memcmp(bytes, "MOS9", 4) && word(4) == 9;
     bool v10 = !memcmp(bytes, "MS10", 4) && word(4) == 10;
+    bool v11 = !memcmp(bytes, "MS11", 4) && word(4) == 11;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && (memcmp(bytes, "MS11", 4) || word(4) != 11)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && (memcmp(bytes, "MS12", 4) || word(4) != 12)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : v9 ? 9 : v10 ? 10 : 11);
+    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : v9 ? 9 : v10 ? 10 : v11 ? 11 : 12);
     // The old timing-irregularity control must not silently become head jumps.
     if (legacy || v6 || v7 || v8 || v9) for (auto &t : temp.tracks) {
       if (t.granular.values[9] < 0 || t.granular.values[9] > 100) ok = false;

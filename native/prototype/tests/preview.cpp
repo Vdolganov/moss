@@ -376,6 +376,13 @@ int main(int argc, char **argv) {
       app.sequenceChoice = 1;
     }
   }
+  if(argc==4 && (!strcmp(argv[3],"swing") || !strcmp(argv[3],"swing-sampler"))) {
+    app.page=Pattern; app.bank=3; app.timingBank=1; app.step=4; app.key=0;
+    auto &t=app.project.tracks[0]; app.track=0; t.swing=66;
+    t.steps[4].shift=-15;
+    if(!strcmp(argv[3],"swing")) { t.instrument=GranularInstrument; t.steps[4].on=LockEvent; t.steps[4].repeat=32; }
+    else { t.instrument=SampleInstrument; t.hits[0][4].on=NoteEvent; }
+  }
   draw(canvas, app);
   FILE *f = fopen(argv[2], "wb");
   if (!f)

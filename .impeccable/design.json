@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-15",
-  "title": "MOSS · браузер v0.6 / native 0.5.2 / LOCK ONLY / REPEAT 0.6.5",
+  "title": "MOSS · браузер v0.6 / native 0.5.2 / SWING + SHIFT 0.6.6",
   "extensions": {
     "colorMeta": {
       "paper": {
@@ -416,6 +416,11 @@
       {
         "name": "The Note-less Event Rule",
         "body": "В native 0.6.5 LOCK ONLY — полый ромб и подпись LOCK, поля ноты показывают NO NOTE. TIMING сохраняет четыре поля: Y CYCLE, B STEP, A REPEAT, X TYPE. REPEAT повторяет аудиофрагмент дорожки до FX, не вызывает noteOn; OFF возвращает живой звук. RESET возвращает базу параметра, -- не добавляет события. Цвета и навигация прежние.",
+        "section": "components"
+      },
+      {
+        "name": "The Swing Timing Rule",
+        "body": "В native 0.6.6 TIMING 1/2 сохраняет CYCLE / STEP / REPEAT / TYPE; TIMING 2/2 показывает Y SWING всей дорожки и B SHIFT выбранного шага, REPEAT и TYPE остаются на A/X. L1+стрелки выбирает страницу. Единицы WHOLE TRACK / STEP LOCK и знак процента показывают область и направление. CLEAR STEP SHIFT очищает только лок времени; на пустом шаге SHIFT не создаёт звук.",
         "section": "components"
       }
     ],

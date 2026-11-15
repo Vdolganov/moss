@@ -1,4 +1,6 @@
-# GRANULAR / LENS · 0.6.5-dev
+# GRANULAR / LENS · 0.6.6-dev
+
+0.6.6 adds track SWING and per-step SHIFT on TIMING 2/2, reached with L1 + arrows. New saves use MS12. [Controls and verification](SWING-v1.en.md).
 
 [Русский](GRANULAR-INSTRUMENT.md) · **English**
 
@@ -43,7 +45,7 @@ The circle consists of actual sample peaks in absolute source coordinates. The w
 
 ## Files and verification
 
-New saves use **MS11** (version 11), with 16 parameters and locks. MOS5/MOS6/MOS7/MOS8/MOS9/MS10 remain readable. Older IRREGULAR values become JUMP 0% and their locks are cleared, so old timing variation never unexpectedly becomes head jumps. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 and experimental 0.6.4 cannot read MS11; use the separate experimental copy.
+New saves use **MS12** (version 12), with 16 parameters and locks. MOS5/MOS6/MOS7/MOS8/MOS9/MS10/MS11 remain readable. Older IRREGULAR values become JUMP 0% and their locks are cleared, so old timing variation never unexpectedly becomes head jumps. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 and experimental versions through 0.6.5 cannot read MS12; use the separate experimental copy.
 
 Cloud 0.6.1 verification history: [GRANULAR-CLOUD-v2.en.md](GRANULAR-CLOUD-v2.en.md). [GRANULAR-NATIVE-v1.en.md](GRANULAR-NATIVE-v1.en.md) covers only 0.6.0-dev. Linear interpolation can still alias at large upward transpositions. This is original DSP, not a Mangl source port.
 

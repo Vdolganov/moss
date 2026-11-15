@@ -1,0 +1,63 @@
+{
+  "build": "MOSS 0.6.6-dev",
+  "completed": true,
+  "rate": 32000,
+  "buffer": 1024,
+  "callbacks": 1763,
+  "callback_max_us": 5789,
+  "over_budget": 0,
+  "late_intervals": 1,
+  "frames": 1448960,
+  "triggers": [
+    5,
+    0,
+    0,
+    0
+  ],
+  "grain_peaks": [
+    8,
+    0,
+    0,
+    0
+  ],
+  "lock_events": [
+    24,
+    0,
+    0,
+    0
+  ],
+  "repeat_events": [
+    12,
+    0,
+    0,
+    0
+  ],
+  "track_count": 1,
+  "stream_underruns": 0,
+  "project_saved": true,
+  "pcm_bytes": 409600,
+  "assets": 1,
+  "fx_seen_mask": 3,
+  "capture_started": 0,
+  "capture_finished": 0,
+  "instruments_seen_mask": 16,
+  "callback_mean_us": 3356,
+  "reserved_objects_bytes": 71145488,
+  "callback_p99_upper_us": 5250,
+  "ui_frame_max_us": 302916,
+  "ui_slow_frames": 2,
+  "profile_kind": -2,
+  "profile_effect_mask": 0,
+  "profile_target_seconds": 0,
+  "elapsed_seconds": 56,
+  "audio_realtime_error": 0,
+  "audio_priority": 10,
+  "timing_events": [
+    532,
+    0,
+    0,
+    0
+  ],
+  "schedule_overflows": 0,
+  "profile_passed": false
+}

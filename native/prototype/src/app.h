@@ -24,6 +24,7 @@ struct App {
   bool selectUsed = false, tempoTail = false, parameterTail = false;
   Page page = Atlas;
   int slot = 0, track = 0, step = 0, key = 0, bank = 0, option = 0;
+  int timingBank = 0;
   int synthBank = 0, fxBank = 0;
   bool fxDetail = false, nestedUsed = false, nestedTail = false;
   lab::ParameterGesture nestedRepeat;
@@ -636,7 +637,8 @@ struct App {
     fxBank = clamp(fxBank, 0, fxBanks(f.type)-1);
   }
   void nested(int d) {
-    if ((page == Pattern && bank == 2) || (fxPage() && fxDetail)) {
+    if (page == Pattern && bank == 3) timingBank=clamp(timingBank+d,0,1);
+    else if ((page == Pattern && bank == 2) || (fxPage() && fxDetail)) {
       if(buttons.held & (lab::bit(lab::Up)|lab::bit(lab::Down))) {
         const auto &f=page==Mix?project.fx:project.tracks[track].fx;
         fxBank=clamp(fxBank+d,0,fxBanks(f.type)-1);
@@ -735,6 +737,13 @@ struct App {
         change({Op::FxLock,track,step,type*EffectParameters+i,
                 editLock(s.fxLocks[type][i],t.fx.values[type][i],fxLow(type,i),fxHigh(type,i),d,amount)});
       } else {
+        if(timingBank && i<2) {
+          if(i==0) change({Op::Track,track,0,TrackSwingField,
+            clamp(t.swing+d*amount,SwingStraight,SwingMaximum)});
+          else change({Op::Step,track,step,StepShiftField,
+            clamp((s.shift==Inherit?0:s.shift)+d*amount,-ShiftLimit,ShiftLimit)});
+          return;
+        }
         if (i == 0)
           change(
               {Op::Track, track, 0, 0,

@@ -51,6 +51,7 @@ uint32_t assetMask(const Project &p) const {
   return mask;
 }
 bool currentLocksPresent() const {
+  if(page==Pattern && bank==3 && timingBank) return project.tracks[track].steps[step].shift!=Inherit;
   if (bank != 1 && bank != 2)
     return false;
   const auto &t = project.tracks[track];
@@ -197,6 +198,7 @@ const char *optionName(int i) const {
     return n[i - 4];
   }
   if (page == Pattern) {
+      if(i==4 && bank==3 && timingBank) return "CLEAR STEP SHIFT";
     const char *n[] = {"LENGTH TO CYCLE END", "CLEAR CURRENT LOCK BANK",
                        "CYCLE 8 / 16 / 32 / 64", "CLEAR SELECTED STEP",
                        "", "RESET CURRENT LOCK BANK"};
@@ -456,7 +458,8 @@ void chooseOption() {
       change({Op::Hit, track, step, hitField(key, HitOn), 1});
       change({Op::Hit, track, step, hitField(key, HitLength), t.cycle - step});
     }
-    if (i == 4 || i==8)
+    if(i==4 && bank==3 && timingBank) change({Op::Step,track,step,StepShiftField,Inherit});
+    else if (i == 4 || i==8)
       for (int j = 0; j < 4; j++)
         change(
             bank == 2

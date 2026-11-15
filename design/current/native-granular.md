@@ -34,3 +34,7 @@ Parameter-only step events remain a documented proposal, not a shipping state. G
 ## Native 0.6.5 · LOCK ONLY / REPEAT
 
 PATTERN keeps four banks: STEP / VOICE LOCKS / FX LOCKS / TIMING. TIMING uses Y CYCLE, B STEP, A REPEAT, X TYPE. Repeat is a whole-track audio fragment (OFF / 1/8 / 1/16 / 1/32 / 1/64), before FX; it never calls noteOn. LOCK ONLY is an outlined diamond and LOCK label; note-only fields show NO NOTE. RESET is visually distinct from `--`; the latter adds no event. Existing button colors, graphite palette and navigation remain unchanged. [Current behavior](../../docs/TRIGLESS-LOCKS-PLAN.en.md).
+
+## Native 0.6.6 · SWING / SHIFT
+
+TIMING has two nested pages, selected by L1+arrows and shown as 1/2 or 2/2. Page 1 preserves Y CYCLE / B STEP / A REPEAT / X TYPE; page 2 uses Y SWING / B SHIFT / A REPEAT / X TYPE. WHOLE TRACK and STEP LOCK distinguish scope; signed percentages distinguish advance/delay. Y and B keep their established physical colors. CLEAR STEP SHIFT only removes local timing, and a timing-only empty step remains silent. Shared sampler SHIFT covers all slots at one timestamp. The footer names TIME PAGE; sampler-slot navigation remains in other banks. No new modal, visual theme or diagnostic value. Current behavior: docs/SWING-v1.en.md.
