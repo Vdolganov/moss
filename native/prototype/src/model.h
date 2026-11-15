@@ -18,8 +18,7 @@ struct Step {
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit}};
-  int16_t fxLocks[EffectTypes][EffectParameters];
-  Step() { for(auto &row:fxLocks) for(auto &v:row) v=Inherit; }
+  FxLocks fxLocks;
   int on = 0, key = 0, velocity = 90, length = 4, probability = 100;
   int repeat = Inherit; // Track audio fragment: --, OFF, 1/8, 1/16, 1/32, 1/64.
   int shift = Inherit; // Percent of the displayed step, added to track swing.
@@ -54,7 +53,7 @@ inline bool hitLocksPresent(const Hit &h) {
 }
 inline bool stepLocksPresent(const Track &t, const Step &s) {
   if(s.repeat!=Inherit) return true;
-  for(const auto &row:s.fxLocks) for(int v:row) if(v!=Inherit) return true;
+  for(int v:s.fxLocks.data) if(v!=Inherit) return true;
   if(t.instrument==GranularInstrument) { for(int v:s.grainLocks) if(v!=Inherit) return true; }
   else if(t.instrument) { for(int v:s.synthLocks[t.instrument-1]) if(v!=Inherit) return true; }
   return false;
@@ -174,7 +173,7 @@ inline bool valid(const Project &p) {
       seen |= 1u << f.order[i];
     }
     for (int type = 0; type < EffectTypes; type++)
-      for (int i = 0; i < EffectParameters; i++)
+      for (int i = 0; i < fxParameters(type); i++)
         if (f.values[type][i] < fxLow(type, i) ||
             f.values[type][i] > fxHigh(type, i))
           return false;
@@ -246,7 +245,7 @@ inline bool valid(const Project &p) {
                s.synthLocks[type][i] > synthMax(type + 1, i)))
             return false;
       for (int type = 0; type < EffectTypes; type++)
-        for (int i = 0; i < EffectParameters; i++)
+        for (int i = 0; i < fxParameters(type); i++)
           if (lockValue(s.fxLocks[type][i]) &&
               (s.fxLocks[type][i] < fxLow(type, i) ||
                s.fxLocks[type][i] > fxHigh(type, i)))
@@ -289,7 +288,8 @@ enum class Op {
   GranularSource,
   GranularFreeze,
   SetEventType,
-  ClearEvent
+  ClearEvent,
+  ReelPreset
 };
 struct Command {
   Op op;
@@ -320,6 +320,12 @@ struct Queue {
   }
 };
 inline void apply(Project &p, const Command &c) {
+  if(c.op==Op::ReelPreset) {
+    if(c.track<0||c.track>Tracks||c.value<0||c.value>=ReelPresetCount)return;
+    auto &f=c.track==Tracks?p.fx:p.tracks[c.track].fx;
+    for(int i=0;i<16;++i)f.values[Reel][i]=ReelPresets[c.value][i];
+    return;
+  }
   if (c.op == Op::Fx) {
     Effect &f = c.track == Tracks ? p.fx : p.tracks[c.track].fx;
     if (c.field == 0)

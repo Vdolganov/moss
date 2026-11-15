@@ -383,6 +383,25 @@ int main(int argc, char **argv) {
     if(!strcmp(argv[3],"swing")) { t.instrument=GranularInstrument; t.steps[4].on=LockEvent; t.steps[4].repeat=32; }
     else { t.instrument=SampleInstrument; t.hits[0][4].on=NoteEvent; }
   }
+  if(argc==4 && !strncmp(argv[3],"reel-",5)) {
+    app.project=makeSynthDemo();app.page=Space;app.track=1;app.fxDetail=true;
+    auto &f=app.project.tracks[1].fx;f.select(Reel);f.enable(true);
+    apply(app.project,{Op::ReelPreset,1,0,0,2});
+    app.fxBank=atoi(argv[3]+5);
+    engine.init(app.project,samples,32000,3);
+    if(!strstr(argv[3],"stop")) {
+      engine.handle({Op::Transport});int16_t block[2048];
+      for(int i=0;i<76;++i)engine.render(block,1024);
+    }
+    if(strstr(argv[3],"bypass")){f.enable(false);engine.project.tracks[1].fx.enable(false);int16_t block[2048];for(int i=0;i<200;++i)engine.render(block,1024);}
+    if(strstr(argv[3],"locks")){
+      app.page=Pattern;app.bank=2;app.step=0;
+      for(int i=0;i<4;++i)app.project.tracks[1].steps[0].fxLocks[Reel][app.fxBank*4+i]=f.values[Reel][app.fxBank*4+i];
+      if(app.fxBank==3)app.project.tracks[1].steps[0].fxLocks[Reel][ReelOutput]=ResetLock;
+      normalizeStepEvent(app.project.tracks[1],0);
+    }
+    if(strstr(argv[3],"preset")){app.voicePicker=4;app.voiceChoice=2;}
+  }
   draw(canvas, app);
   FILE *f = fopen(argv[2], "wb");
   if (!f)

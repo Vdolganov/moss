@@ -162,8 +162,10 @@ static void fxTests() {
     // A type switch/re-enable must not resurrect an older effect tail.
     e.enabled = 0;
     int l = 0, r = 0;
-    for (int i = 0; i < 2048; i++)
+    for (int i = 0; i < 2048; i++) {
+      l=r=0; // Silence input, not a feedback connection through the bypass FIFO.
       effect.process(l, r, e, nullptr, 44100, 120);
+    }
     e.enabled = 1;
     for (int i = 0; i < 44100; i++) {
       l = r = 0;
@@ -208,13 +210,14 @@ static void captureTests() {
   engine.handle({Op::Transport});
   engine.handle({Op::CaptureStart, 0, 0, 0, 1});
   unsigned offset = 0;
-  while (offset < 16000) {
-    unsigned n = 16000 - offset;
+  unsigned captureDelay=engine.capture.latency;
+  while (offset < 16000+captureDelay) {
+    unsigned n = 16000+captureDelay - offset;
     if (n > 1024)
       n = 1024;
     engine.render(out, n);
-    for (unsigned i = 0; i < n * 2; i++)
-      assert(out[i] == Engine::monitor(engine.capture.pcm[offset * 2 + i]));
+    for (unsigned i = 0; i < n * 2; i++)if(offset*2+i>=captureDelay*2)
+      assert(out[i] == Engine::monitor(engine.capture.pcm[offset*2+i-captureDelay*2]));
     offset += n;
   }
   assert(engine.capture.state == 2 && engine.capture.frames == 16000 &&
@@ -231,6 +234,7 @@ static void captureTests() {
   engine.handle({Op::CaptureStart, 1, 0, 0, 1});
   advance(engine, 1000);
   engine.handle({Op::CaptureStop});
+  advance(engine,engine.capture.latency);
   assert(engine.capture.state == 2 && engine.capture.frames == 1000);
   bool audible = false;
   for (unsigned i = 0; i < 2000; i++)
@@ -241,6 +245,7 @@ static void captureTests() {
   engine.handle({Op::CaptureStart, 0, 0, 0, 1});
   advance(engine, 100);
   engine.handle({Op::CaptureStop});
+  advance(engine,engine.capture.latency);
   app.page = Tape;
   app.tapeTab = 0;
   app.option = app.optionIndex(5);
@@ -255,7 +260,7 @@ static void captureTests() {
   engine.init(p, library.pcm, 44100, Assets);
   engine.handle({Op::Transport});
   engine.handle({Op::CaptureStart, 0, 0, 0, 1});
-  advance(engine, 151200);
+  advance(engine, 151200+engine.capture.latency);
   app.flushCapture();
   assert(
       app.source.frames == 151200 &&
@@ -264,6 +269,7 @@ static void captureTests() {
   engine.handle({Op::CaptureStart, 0, 0, 0, 1});
   advance(engine, 100);
   engine.handle({Op::CaptureStop});
+  advance(engine,engine.capture.latency);
   assert(rename("captures", "captures-off") == 0);
   app.flushCapture();
   assert(app.captureFailed && engine.capture.state == 2 &&
@@ -302,9 +308,10 @@ static void stress() {
         peak = v;
     }
   }
-  assert(engine.capture.state == 1 && engine.capture.frames == 44100 * 60 &&
+  assert(engine.capture.state == 1 && engine.capture.frames == 44100 * 60-engine.capture.latency &&
          energy > 0 && peak < 32767);
   engine.handle({Op::Stop});
+  advance(engine,engine.capture.latency);
   assert(engine.capture.state == 2);
   engine.handle({Op::CaptureDiscard});
   puts("PASS stress: 60 seconds at 44.1 kHz, three POND track effects + master "
@@ -398,6 +405,7 @@ int main() {
   app.service();
   assert(engine.stream.state == 1 &&
          engine.stream.total == app.sliceFrames(app.slices[app.sliceIndex]));
+  advance(engine,unsigned(engine.rate*.032f)+2); // monitor latency matches track + master
   engine.render(out, 100);
   bool audible = false;
   for (int n : out)

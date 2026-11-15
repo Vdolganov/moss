@@ -1,0 +1,15 @@
+PASS clean path: exact delayed float input including >0 dBFS; no stale history, silence at five rates
+PASS fractional read: worst 100..12000 Hz error 0.108745 dB over 1024 phases
+PASS 30000 fractional/ring/stereo comparisons to scalar oracle: max error 0.000000715
+PASS wow 0.10 Hz: measured peak 10.0093 cents
+PASS wow 0.30 Hz: measured peak 10.0618 cents
+PASS wow 2.00 Hz: measured peak 10.0618 cents
+PASS wow 4.00 Hz: measured peak 10.0618 cents
+PASS flutter 2.00 Hz: measured peak 10.0618 cents
+PASS flutter 4.00 Hz: measured peak 10.0618 cents
+PASS flutter 6.00 Hz: measured peak 10.0618 cents
+PASS flutter 30.00 Hz: measured peak 10.0618 cents
+PASS motion: rate/depth extrema, rapid locks, DC/headroom, stereo, block invariance, bounded head velocity
+PASS full rack: bypass/parameter changes retain aligned DC; reset silence; state 32868 bytes
+PASS AMOUNT=0 settles to exact delayed audio; reused bypassed SONG rack clears motion targets
+REEL MOTION TESTS PASSED

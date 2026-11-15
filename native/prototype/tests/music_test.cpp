@@ -97,7 +97,7 @@ int main() {
   a.handle({Op::Transport});
   advance(a, 10000);
   a.handle({Op::Transport});
-  advance(a, 129);
+  advance(a, 129+unsigned(44100*.032f)+2); // voice release + fixed track/master transport
   a.render(out, 1024);
   for (int i = 0; i < 2048; i++)
     assert(out[i] == 0);

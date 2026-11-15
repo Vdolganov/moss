@@ -26,9 +26,10 @@ struct App {
   int slot = 0, track = 0, step = 0, key = 0, bank = 0, option = 0;
   int timingBank = 0;
   int synthBank = 0, fxBank = 0;
+  int effectPageMemory[EffectTypes]={};
   bool fxDetail = false, nestedUsed = false, nestedTail = false;
   lab::ParameterGesture nestedRepeat;
-  int voicePicker = 0, voiceChoice = 0; // 1 instrument, 2 preset
+  int voicePicker = 0, voiceChoice = 0; // 1 instrument, 2 synth preset, 3 add track, 4 REEL preset
   bool dirty = false, haveUndo = false, options = false, chord = false,
        exit = false, reload = false;
   bool gestures[4] = {}, editing = false;
@@ -574,9 +575,9 @@ struct App {
   bool open(int index) {
     char p[128];
     path(p, sizeof(p), index);
-    Project temp;
+    Project temp;bool adaptedReel=false;
     if (exists(p)) {
-      if (!loadProject(p, temp)) {
+      if (!loadProject(p, temp,&adaptedReel)) {
         say("SEQUENCE DAMAGED / ORIGINAL FILE KEPT");
         return false;
       }
@@ -595,7 +596,7 @@ struct App {
     options = false;
     voicePicker = 0;
     engine->init(project, engine->samples, engine->rate, engine->sampleCount);
-    say("START PLAY / A OPEN TRACK / L1+R1 OPTIONS");
+    say(adaptedReel?"LEGACY REEL ADAPTED / CHECK SOUND":"START PLAY / A OPEN TRACK / L1+R1 OPTIONS");
     return true;
   }
   bool send(Command c) {
@@ -627,6 +628,7 @@ struct App {
 #include "app_management.h"
   void nextEffect(int direction) {
     auto &f = page == Mix ? project.fx : project.tracks[track].fx;
+    effectPageMemory[f.type]=clamp(fxBank,0,fxBanks(f.type)-1);
     int at = 0;
     while (at < EffectTypes-1 && f.order[at] != f.type)
       at++;
@@ -634,7 +636,7 @@ struct App {
               f.order[clamp(at + direction, 0, EffectTypes-1)]};
     if (send(c))
       apply(project, c); // browsing a chain must not replace undo
-    fxBank = clamp(fxBank, 0, fxBanks(f.type)-1);
+    fxBank = effectPageMemory[f.type];
   }
   void nested(int d) {
     if (page == Pattern && bank == 3) timingBank=clamp(timingBank+d,0,1);
@@ -890,6 +892,10 @@ struct App {
       synthBank = 0;
       if (b == lab::A) {
         editing = false;
+        if(voicePicker==4) {
+          change({Op::ReelPreset,page==Mix?Tracks:track,0,0,voiceChoice});
+          voicePicker=0;editing=false;fxDetail=true;fxBank=0;say("REEL PRESET APPLIED / UNDO IN MENU");return;
+        }
         if (voicePicker == 3) {
           voicePicker = 0;
           addTrack(voiceChoice);
@@ -1204,7 +1210,7 @@ struct App {
       return;
     }
     if (voicePicker) {
-      voiceChoice = clamp(voiceChoice + d, 0, voicePicker == 2 ? 3 : InstrumentCount - 1);
+      voiceChoice = clamp(voiceChoice + d, 0, voicePicker==4?ReelPresetCount-1:voicePicker == 2 ? 3 : InstrumentCount - 1);
       return;
     }
     if (naming) {

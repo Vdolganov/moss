@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 20 || profileMask >= (1u << EffectTypes) ||
+    if (profileKind < -1 || profileKind > 21 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -324,6 +324,10 @@ int main(int argc, char **argv) {
   if (!profiling)
     app.seedProjects();
   else {
+    if(profileKind==21) {
+      for(auto &track:app.project.tracks)for(auto &step:track.steps)
+        for(int i=0;i<16;++i)step.fxLocks[Reel][i]=track.fx.values[Reel][i];
+    }
     if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) {
       void *memory = malloc(sizeof(SongBank));
       if (!memory)
@@ -387,6 +391,11 @@ int main(int argc, char **argv) {
       app.bank = int((seconds / 2) % 4);
       app.synthBank = int((seconds / 2) % app.voiceBanks());
       app.fxDetail = (seconds / 3) % 2;
+      if(profileKind==21) {
+        app.page=Space;app.fxDetail=true;app.fxBank=int(seconds%4);
+        // UI selection only: playback keeps the exact stress chain/order.
+        app.project.tracks[app.track].fx.select(Reel);
+      }
       app.step = int(seconds * 7 % Steps);
       // Repeated capture writeback and real UI command dispatch under dense DSP load.
       if (profileKind>=5 && !app.captureBusy() && seconds % 10 == 0)

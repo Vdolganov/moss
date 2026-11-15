@@ -23,6 +23,7 @@ struct ReelMotion {
   unsigned rate = 0, cursor = 0, written = 0, latency = 0, precedingLatency = 0;
   float smoothing = 0, position = 0;
   bool moving = false;
+  float driftOffset=0,stereoOffset=0,rightOffset=0,minimumSpeed=0,maximumSpeed=0;
 
   static float clamp(float v, float lo, float hi) {
     return !isfinite(v) ? lo : v < lo ? lo : v > hi ? hi : v;
@@ -35,6 +36,7 @@ struct ReelMotion {
     position = float(latency);
     smoothing = 1.f / (1.f + rate * .05f);
     mod[0] = Modulator{}; mod[1] = Modulator{};
+    driftOffset=stereoOffset=rightOffset=minimumSpeed=maximumSpeed=0;
     moving = false;
     clearHistory(); // Logical clear: no large memset on an audio event.
   }
@@ -57,7 +59,8 @@ struct ReelMotion {
                           rate / (6.28318530718f * frequencies[k]);
     }
     moving = mod[0].targetAmplitude != 0 || mod[1].targetAmplitude != 0 ||
-             mod[0].amplitude != 0 || mod[1].amplitude != 0 || position != float(latency);
+             mod[0].amplitude != 0 || mod[1].amplitude != 0 || position != float(latency) ||
+             rightOffset!=0 || driftOffset!=0;
   }
   static float sine(uint32_t phase) {
     unsigned cell = phase >> 24;
@@ -65,7 +68,7 @@ struct ReelMotion {
     return ReelSine[cell] + fraction * (ReelSine[cell + 1] - ReelSine[cell]);
   }
   float nextPosition() {
-    float target = float(latency);
+    float target = float(latency)+driftOffset;
     for (auto &m : mod) {
       m.increment += smoothing * (m.targetIncrement - m.increment);
       m.phase += uint32_t(m.increment);
@@ -144,11 +147,59 @@ struct ReelMotion {
   // Keep the interpolation kernel and its NEON register saves out of the
   // neutral FIFO hot path. Most racks have their tape transport in bypass.
   __attribute__((noinline)) void processMoving(float &left, float &right) {
-    float delay = nextPosition();
-    if (delay == float(latency) && mod[0].amplitude == 0 && mod[1].amplitude == 0) {
-      moving = false;
+    float old=position,delay=nextPosition(),speed=old-delay;
+    if(speed<minimumSpeed)minimumSpeed=speed;if(speed>maximumSpeed)maximumSpeed=speed;
+    float delta=clamp(stereoOffset-rightOffset,-MaxDelaySlew,MaxDelaySlew);
+    rightOffset+=delta;
+    float rightSpeed=speed-delta;
+    if(rightSpeed<minimumSpeed)minimumSpeed=rightSpeed;if(rightSpeed>maximumSpeed)maximumSpeed=rightSpeed;
+    if (delay == float(latency) && mod[0].amplitude == 0 && mod[1].amplitude == 0 && rightOffset==0 && driftOffset==0) {
+      driftOffset=stereoOffset=rightOffset=minimumSpeed=maximumSpeed=0;
+    moving = false;
       left = sample(latency, 0); right = sample(latency, 1);
-    } else read(delay, left, right);
+    } else {
+      delay=clamp(delay,7,float(Size-8));
+      if(rightOffset!=0)readStereo(delay,clamp(delay+rightOffset,7,float(Size-8)),left,right);
+      else read(delay,left,right);
+    }
+  }
+  void readStereo(float dl,float dr,float &left,float &right) const {
+#if defined(__arm__) && defined(__ARM_NEON)
+    unsigned wl=unsigned(dl),wr=unsigned(dr);
+    unsigned sl=(cursor-wl-6)&Mask,sr=(cursor-wr-6)&Mask;
+    if(written==Size && sl<=Size-12 && sr<=Size-12) {
+      float pl=(dl-wl)*256,pr=(dr-wr)*256;
+      unsigned cl=unsigned(pl),cr=unsigned(pr);
+      float fractions[]={pl-cl,pr-cr},out[2];unsigned groups=3;
+      const float *il=history[sl],*ir=history[sr],*al=ReelSinc[cl],*bl=ReelSinc[cl+1],
+                  *ar=ReelSinc[cr],*br=ReelSinc[cr+1];
+      // Two independent read heads, one stereo FIR. Never compute the discarded
+      // channels of two complete stereo interpolators.
+      asm volatile(
+        ".fpu neon\n\t"
+        "veor q0,q0,q0\n\t" "veor q1,q1,q1\n\t"
+        "vld1.32 {d28},[%[fraction]]\n\t"
+        "vdup.32 q15,d28[1]\n\t" "vdup.32 q14,d28[0]\n\t"
+        "1:\n\t"
+        "vld2.32 {d4-d7},[%[il]]!\n\t" "vld2.32 {d16-d19},[%[ir]]!\n\t"
+        "vld1.32 {d20-d21},[%[al]]!\n\t" "vld1.32 {d22-d23},[%[bl]]!\n\t"
+        "vsub.f32 q11,q11,q10\n\t" "vmla.f32 q10,q11,q14\n\t"
+        "vld1.32 {d24-d25},[%[ar]]!\n\t" "vld1.32 {d26-d27},[%[br]]!\n\t"
+        "vsub.f32 q13,q13,q12\n\t" "vmla.f32 q12,q13,q15\n\t"
+        "vmla.f32 q0,q2,q10\n\t" "vmla.f32 q1,q9,q12\n\t"
+        "subs %[groups],%[groups],#1\n\t" "bne 1b\n\t"
+        "vadd.f32 d0,d0,d1\n\t" "vadd.f32 d2,d2,d3\n\t"
+        "vpadd.f32 d0,d0,d0\n\t" "vpadd.f32 d2,d2,d2\n\t"
+        "vzip.32 d0,d2\n\t" "vst1.32 {d0},[%[out]]\n\t"
+        ".fpu vfpv3-fp16\n\t"
+        :[il]"+&r"(il),[ir]"+&r"(ir),[al]"+&r"(al),[bl]"+&r"(bl),[ar]"+&r"(ar),[br]"+&r"(br),[groups]"+&r"(groups)
+        :[fraction]"r"(fractions),[out]"r"(out)
+        :"d0","d1","d2","d3","d4","d5","d6","d7","d16","d17","d18","d19",
+         "d20","d21","d22","d23","d24","d25","d26","d27","d28","d29","d30","d31","cc","memory");
+      left=out[0];right=out[1];return;
+    }
+#endif
+    float unused;read(dl,left,unused);read(dr,unused,right);
   }
   void process(float &left, float &right) {
     history[cursor][0] = left; history[cursor][1] = right;

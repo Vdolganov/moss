@@ -143,7 +143,7 @@ int main() {
   assert(app.project.tracks[0].steps[8].on==EmptyEvent); // Timing metadata creates no voice or phantom lock.
   app.option=app.optionIndex(4);assert(app.option>=0);app.chooseOption();assert(app.project.tracks[0].steps[8].shift==Inherit);
   app.project.tracks[0].steps[8].shift=37;
-  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS12",4) && codec.decode(restored,codec.cursor));
+  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS13",4) && codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].swing==61 && restored.tracks[0].steps[8].shift==37);
   codec.cursor=16;codec.ok=true;codec.fields(project,true,11);memcpy(codec.bytes,"MS11",4);codec.word(4,11);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor) && restored.tracks[0].swing==50 && restored.tracks[0].steps[0].shift==Inherit);

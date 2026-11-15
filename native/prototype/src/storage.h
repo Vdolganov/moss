@@ -1,5 +1,6 @@
 #pragma once
 #include "model.h"
+#include "reel_legacy.h"
 #include <stdio.h>
 #ifdef _WIN32
 #include <io.h>
@@ -42,7 +43,8 @@ struct Codec {
       bytes[at + i] = (n >> (i * 8)) & 255;
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
-  void fields(Project &p, bool writing, int version = 12) {
+  bool upgradedReel=false;
+  void fields(Project &p, bool writing, int version = 13) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -54,10 +56,20 @@ struct Codec {
     auto fx = [&](Effect &e) {
       value(e.type);
       value(e.enabled);
-      const int types=version>=9?EffectTypes:4, parameters=version>=9?EffectParameters:4;
+      const int types=version>=9?EffectTypes:4;
       for(int i=0;i<types;++i) value(e.enabledTypes[i]);
       for(int i=0;i<types;++i) value(e.order[i]);
-      for(int t=0;t<types;++t) for(int i=0;i<parameters;++i) value(e.values[t][i]);
+      for(int t=0;t<types;++t) {
+        int old[16]={};
+        for(int i=0;i<(version>=13?fxParameters(t):version>=9?8:4);++i) {
+          int v=i<fxParameters(t)?e.values[t][i]:0;value(v);old[i]=v;
+          if(version>=13 || t!=Reel) {if(i<fxParameters(t))e.values[t][i]=v;}
+        }
+        if(!writing && version<13 && t==Reel) {
+          for(int i=0;i<4;++i)if(old[i]<0 || old[i]>100)ok=false;
+          migrateReel(e.values[Reel],old);
+        }
+      }
       if(!writing && version<9) {
         int mix=e.values[Orbit][2];e.values[Orbit][2]=e.values[Orbit][3];e.values[Orbit][3]=mix;
       }
@@ -160,8 +172,17 @@ struct Codec {
         for (auto &row : s.synthLocks)
           for (auto &n : row)
             value(n);
-        for(int type=0;type<(version>=9?EffectTypes:4);++type)
-          for(int i=0;i<(version>=9?EffectParameters:4);++i) value(s.fxLocks[type][i]);
+        for(int type=0;type<(version>=9?EffectTypes:4);++type) {
+          int old[16];for(auto &v:old)v=Inherit;
+          for(int i=0;i<(version>=13?fxParameters(type):version>=9?8:4);++i) {
+            int v=i<fxParameters(type)?s.fxLocks[type][i]:Inherit;value(v);old[i]=v;
+            if(version>=13 || type!=Reel) {if(i<fxParameters(type))s.fxLocks[type][i]=int16_t(v);}
+          }
+          if(!writing && version<13 && type==Reel) {
+            for(int i=0;i<4;++i)if(lockValue(old[i]) && (old[i]<0 || old[i]>100))ok=false;
+            migrateReelLocks(s.fxLocks[Reel],old);
+          }
+        }
         if(!writing && version<9) {
           int16_t mix=s.fxLocks[Orbit][2];s.fxLocks[Orbit][2]=s.fxLocks[Orbit][3];s.fxLocks[Orbit][3]=mix;
         }
@@ -190,8 +211,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MS12", 4);
-    word(4, 12);
+    memcpy(bytes, "MS13", 4);
+    word(4, 13);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -204,14 +225,16 @@ struct Codec {
     bool v9 = !memcmp(bytes, "MOS9", 4) && word(4) == 9;
     bool v10 = !memcmp(bytes, "MS10", 4) && word(4) == 10;
     bool v11 = !memcmp(bytes, "MS11", 4) && word(4) == 11;
+    bool v12 = !memcmp(bytes, "MS12", 4) && word(4) == 12;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && (memcmp(bytes, "MS12", 4) || word(4) != 12)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && (memcmp(bytes, "MS13", 4) || word(4) != 13)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    fields(temp, false, legacy ? 5 : v6 ? 6 : v7 ? 7 : v8 ? 8 : v9 ? 9 : v10 ? 10 : v11 ? 11 : 12);
+    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:13;
+    fields(temp,false,version);
     // The old timing-irregularity control must not silently become head jumps.
     if (legacy || v6 || v7 || v8 || v9) for (auto &t : temp.tracks) {
       if (t.granular.values[9] < 0 || t.granular.values[9] > 100) ok = false;
@@ -241,10 +264,12 @@ struct Codec {
     if (!ok || cursor != size || !valid(temp))
       return false;
     p = temp;
+    upgradedReel=version<13;
     return true;
   }
 };
-inline bool loadProject(const char *path, Project &p) {
+inline bool loadProject(const char *path, Project &p,bool *adaptedReel=nullptr) {
+  if(adaptedReel)*adaptedReel=false;
   static Codec c;
   FILE *f = fopen(path, "rb");
   if (!f)
@@ -253,7 +278,12 @@ inline bool loadProject(const char *path, Project &p) {
   bool extra = fgetc(f) != EOF;
   bool error = ferror(f);
   fclose(f);
-  return !extra && !error && c.decode(p, size);
+  bool loaded=!extra && !error && c.decode(p,size);
+  if(loaded && adaptedReel && c.upgradedReel) {
+    *adaptedReel=p.fx.active(Reel);
+    for(int t=0;t<p.trackCount;++t)*adaptedReel|=p.tracks[t].fx.active(Reel);
+  }
+  return loaded;
 }
 inline bool exists(const char *path) {
   FILE *f = fopen(path, "rb");

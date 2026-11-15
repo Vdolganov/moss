@@ -36,6 +36,9 @@ struct Engine {
   const moss::SampleBuffer *samples = nullptr;
   Voice voices[Tracks], tails[Tracks], preview;
   Voice extraVoices[Tracks][Keys - 1], extraTails[Tracks][Keys - 1];
+  int previewDelay[8192][2]={};
+  unsigned previewHead=0,previewWritten=0;
+  unsigned trackLatency=0,monitorLatency=0;
   Voice &voice(int t, int k) { return k ? extraVoices[t][k - 1] : voices[t]; }
   Voice &tail(int t, int k) { return k ? extraTails[t][k - 1] : tails[t]; }
   void stopSamples(int t) {
@@ -53,6 +56,7 @@ struct Engine {
   unsigned seenInstrumentMask = 0;
   int sampleCount = 3;
   FxState fx[Tracks + 1];
+  ReelMailbox reelView[Tracks+1];
   Capture capture;
   StreamPreview stream;
   int activeFxStep[Tracks] = {-1, -1, -1};
@@ -72,6 +76,7 @@ struct Engine {
     transitionFrames = 0;
     previousOutput[0] = previousOutput[1] = 0;
     preview = Voice{};
+    previewHead=previewWritten=0;
     stream.reset();
     project = p;
     resetSchedule();
@@ -82,8 +87,9 @@ struct Engine {
     tables.init();
     grainTables.init();
     sampleCount = count;
-    for (auto &f : fx)
-      f.reset();
+    for (int i=0;i<=Tracks;++i) {fx[i].reset();fx[i].tape.resetReel(hz,p.seed^uint32_t(i+1)*73537u);reelView[i]=ReelMailbox{};}
+    trackLatency=fx[0].tape.motion.latency;
+    monitorLatency=trackLatency+fx[Tracks].tape.motion.latency;
     capture.state = 0;
     for (int t = 0; t < Tracks; t++) {
       resetEvents(t);
@@ -297,11 +303,11 @@ struct Engine {
         return;
       capture.begin(rate,
                     unsigned(uint64_t(rate) * 60 * 4 * c.value / project.bpm),
-                    c.track - 1);
+                    c.track - 1,c.track?trackLatency:monitorLatency);
       return;
     }
     if (c.op == Op::CaptureStop) {
-      capture.finish();
+      capture.requestFinish();
       return;
     }
     if (c.op == Op::Transport || c.op == Op::Stop) {
@@ -318,7 +324,7 @@ struct Engine {
         for(int t=0;t<Tracks;++t) resetEvents(t);
       } else {
         resetSchedule();
-        capture.finish();
+        capture.requestFinish();
         preview.stop();
         __atomic_store_n(&stream.state, 0, __ATOMIC_RELEASE);
         for (int t = 0; t < Tracks; t++) {
@@ -406,12 +412,12 @@ struct Engine {
         if (e.active(type) && (t == Tracks || t < project.trackCount))
           seenFxMask |= 1u << type;
     }
-    int params[Tracks + 1][EffectTypes][EffectParameters];
+    int params[Tracks + 1][EffectTypes][EffectParameters] = {};
     auto refreshFx = [&]() {
       for (int t = 0; t <= Tracks; t++) {
         const Effect &e = t == Tracks ? project.fx : project.tracks[t].fx;
         for (int type = 0; type < EffectTypes; type++)
-          for (int i = 0; i < EffectParameters; i++) {
+          for (int i = 0; i < fxParameters(type); i++) {
             params[t][type][i] = e.values[type][i];
             if (t < Tracks && activeFxStep[t] >= 0) {
               int v = eventValues[t].fxLocks[type][i];
@@ -425,11 +431,7 @@ struct Engine {
     refreshFx();
     for(int t=0;t<Tracks;++t) repeats[t].prepare(rate,project.bpm);
     unsigned peaks[Tracks] = {};
-#ifdef MOSS_REEL_MOTION_LAB
-    static constexpr unsigned RenderSpan=32;
-#else
-    static constexpr unsigned RenderSpan=1;
-#endif
+    static constexpr unsigned RenderSpan=128;
     for (unsigned n = 0; n < count;) {
       if (playing) {
         if (first) {
@@ -456,6 +458,7 @@ struct Engine {
         if(distance<advance*span)span=unsigned((distance+advance-1)/advance);
         if(!span)span=1;
       }
+      for(auto &f:fx)f.tape.life.running=playing;
       int mixed[RenderSpan][2] = {};
       for (int t = 0; t < project.trackCount; t++) {
         for(unsigned i=0;i<span;++i) {
@@ -499,6 +502,13 @@ struct Engine {
         int pl = 0, pr = 0;
         preview.render(pl, pr);
         stream.render(pl, pr);
+        previewDelay[previewHead][0]=pl;previewDelay[previewHead][1]=pr;
+        unsigned distance=minimum(8191u,monitorLatency);
+        unsigned delayed=(previewHead-distance)&8191;
+        pl=previewWritten>=distance?previewDelay[delayed][0]:0;
+        pr=previewWritten>=distance?previewDelay[delayed][1]:0;
+        if(previewWritten<8192)++previewWritten;
+        previewHead=(previewHead+1)&8191;
         int out[2] = {monitor(mix[0] + pl / 2), monitor(mix[1] + pr / 2)};
         for (int ch = 0; ch < 2; ++ch) {
           if (transitionFrames)
@@ -517,6 +527,7 @@ struct Engine {
       }
       n+=span;
     }
+    for(int t=0;t<=Tracks;++t)reelView[t].publish(fx[t].tape);
     __atomic_store_n(&capture.shownFrames, capture.frames, __ATOMIC_RELEASE);
     for (int t = 0; t < Tracks; t++) {
       __atomic_store_n(&shownPeak[t], peaks[t], __ATOMIC_RELEASE);

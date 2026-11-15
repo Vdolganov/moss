@@ -2,10 +2,7 @@
 #include "dsp_math.h"
 #include "effect_defs.h"
 #include "fx_character.h"
-#ifdef MOSS_REEL_MOTION_LAB
-#include "reel_motion.h"
-#include "reel_color.h"
-#endif
+#include "reel_dsp.h"
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -14,12 +11,9 @@ struct FxState {
   static constexpr unsigned Delay = 384001;
   float delay[Delay][2] = {};
   unsigned cursor = 0;
-#ifdef MOSS_REEL_MOTION_LAB
   // Avoid placing all eight POND histories on identical L1 cache sets.
   static constexpr unsigned CombStride=8192+16;
-#else
-  static constexpr unsigned CombStride=8192;
-#endif
+
   float comb[2][4][CombStride] = {}, filter[2][4] = {}, allpass[2][2][1024] = {};
   unsigned combPos[4] = {}, apPos[2] = {}, heldAt = 0;
   // Independent channel cursors avoid runtime integer division in the sample
@@ -28,14 +22,7 @@ struct FxState {
   unsigned pondRate = 0;
   int pondSize = -1;
   float held[2] = {}, wetness[EffectTypes] = {}, delayTime = 1;
-  int16_t reel[4096][2] = {};
-  unsigned reelPos = 0, reelWritten = 0;
-  float reelPhase[2] = {}, reelTone[2] = {}, reelEnv = 0;
-  uint32_t reelRandom = 357;
   bool lastEnabled[EffectTypes] = {};
-  float reelToneCoefficient = .5f;
-  int reelWear = -1;
-  unsigned reelRate = 0;
   struct Coefficients {
     float mix = 0, time = 0, cross = 0, feedback = 0, damp = 0;
     float drive = 0, levels = 0, inverseLevels = 0;
@@ -43,56 +30,7 @@ struct FxState {
   } prepared[EffectTypes];
   OrbitDSP orbit;
   DriveDSP drive;
-#ifdef MOSS_REEL_MOTION_LAB
-  ReelMotion reelMotion;
-  ReelColor reelColor;
-  bool reelSeparated=false;
-  void resetReel(unsigned rate) {
-    reelMotion.reset(rate);reelColor.reset(rate);reelSeparated=false;
-    // At unusually low rates also reserve the FIR latency plus the maximum
-    // +/-15 cent transport excursion. Production 32 kHz stays exactly 16 ms.
-    unsigned safe=unsigned(ceilf((exp2f(15.f/1200)-1)*rate*(10.5f/6.28318530718f)))+7+ReelColor::Latency;
-    if(reelMotion.latency<safe)reelMotion.latency=safe;
-    reelMotion.position=float(reelMotion.latency);
-  }
-  void prepareReel(const int *p,unsigned rate,bool enabled) {
-    if(reelMotion.rate!=rate) resetReel(rate);
-    float amount=enabled?p[3]*.01f:0;
-    reelMotion.prepare({p[0]*.1f,p[1]*.01f,p[2]*.1f,p[4]*.1f,amount},rate);
-    reelColor.prepare(float(p[5]),p[6]*.1f,p[7]*.1f,amount,rate);
-  }
-  __attribute__((noinline)) void splitReel(bool separate) {
-    const unsigned count=ReelColor::Latency;
-    if(separate) {
-      // Prime the small dry FIFO from the unified history, then rewind its
-      // write head. Read addresses stay identical: both head and delay move.
-      for(unsigned distance=1;distance<=count;++distance)for(unsigned ch=0;ch<2;++ch)
-        reelColor.dry[(reelColor.cursor-distance)&ReelColor::Mask][ch]=distance<=reelMotion.written?
-          reelMotion.history[(reelMotion.cursor-distance)&ReelMotion::Mask][ch]:0;
-      reelMotion.cursor=(reelMotion.cursor-count)&ReelMotion::Mask;
-      reelMotion.written=reelMotion.written>count?reelMotion.written-count:0;
-      reelMotion.latency-=count;reelMotion.position-=count;
-    } else {
-      // Once the saturation ramp reaches zero, catch up its FIFO in one bounded
-      // operation. No per-frame second delay is needed in neutral/motion-only.
-      for(unsigned distance=count;distance;--distance) {
-        for(unsigned ch=0;ch<2;++ch)reelMotion.history[reelMotion.cursor][ch]=
-          reelColor.dry[(reelColor.cursor-distance)&ReelColor::Mask][ch];
-        reelMotion.cursor=(reelMotion.cursor+1)&ReelMotion::Mask;
-        if(reelMotion.written<ReelMotion::Size)++reelMotion.written;
-      }
-      reelMotion.latency+=count;reelMotion.position+=count;
-    }
-    reelSeparated=separate;
-  }
-  __attribute__((noinline)) void processReel(float &l,float &r,bool enabled,const int *p,unsigned rate) {
-    if(enabled!=lastEnabled[Reel]) {prepareReel(p,rate,enabled);lastEnabled[Reel]=enabled;}
-    reelColor.advance();
-    if(reelSeparated!=reelColor.saturating)splitReel(reelColor.saturating);
-    if(reelSeparated)reelColor.processInput(l,r,false);
-    reelMotion.process(l,r);reelColor.processOutput(l,r);
-  }
-#endif
+  ReelDSP tape;
   int previousValues[EffectTypes][EffectParameters] = {};
   unsigned preparedRate[EffectTypes] = {};
   int preparedBpm = 0;
@@ -116,9 +54,7 @@ struct FxState {
         c.levels = float(1 << (p[1] - 1));
         c.inverseLevels = 1.f / c.levels;
       } else if (type == Reel) {
-#ifdef MOSS_REEL_MOTION_LAB
-        prepareReel(p,rate,lastEnabled[Reel]);
-#endif
+        tape.prepareReel(p,rate,tape.lastEnabled);
         c.phase0 = .62f / rate;
         c.phase1 = 12.4f / rate;
         c.envelope = 1.f / (rate * .03f);
@@ -134,10 +70,9 @@ struct FxState {
   }
   unsigned delayWritten = 0;
   void invalidate() {
-#ifdef MOSS_REEL_MOTION_LAB
-    resetReel(reelMotion.rate ? reelMotion.rate : AudioRate);
+    tape.resetReel(tape.motion.rate ? tape.motion.rate : AudioRate,tape.life.random);
+    tape.lastEnabled=false;
     preparedRate[Reel] = 0; // A removed/reused SONG track must rebind its controls.
-#endif
     // Each effect clears its logical history on the next enable edge.
     for (int i = 0; i < EffectTypes; ++i) {
       lastEnabled[i] = false;
@@ -147,8 +82,7 @@ struct FxState {
   void reset() {
     memset(this, 0, sizeof(*this));
     delayTime = 1;
-    reelRandom = 357;
-    reelWear = -1;
+    tape.resetReel(AudioRate);
     pondSize = -1;
   }
   void preparePond(int sizeValue, unsigned rate) {
@@ -186,14 +120,12 @@ struct FxState {
     float l=left/32768.f, r=right/32768.f;
     for (int type : e.order) {
       bool enabled=e.active(type);
-#ifdef MOSS_REEL_MOTION_LAB
       if (type == Reel) {
         // Fixed transport latency even in bypass, on all four tracks + master.
         // Bypass ramps the motion depth; it never crossfades unaligned audio.
-        processReel(l,r,enabled,values[Reel],rate);
+        tape.processReel(l,r,enabled,values[Reel],rate);
         continue;
       }
-#endif
       if(!enabled && wetness[type]==0) { lastEnabled[type]=false;continue; }
       processFloat(l, r, type, enabled, values[type], rate, bpm);
     }
@@ -201,7 +133,7 @@ struct FxState {
     left=int(fxClamp(l,-8,8)*32768);right=int(fxClamp(r,-8,8)*32768);
   }
   void processFloat(float &left, float &right, int type, bool enabled, const int *p,
-                   unsigned rate, int /*bpm*/) {
+                   unsigned /*rate*/, int /*bpm*/) {
     const auto &coeff = prepared[type];
     if (enabled && !lastEnabled[type]) {
       if (type == 0) {
@@ -219,10 +151,6 @@ struct FxState {
       if (type == 2) {
         heldAt = 0;
         held[0] = held[1] = 0;
-      }
-      if (type == 3) {
-        reelPos = reelWritten = 0;
-        reelTone[0] = reelTone[1] = reelEnv = 0;
       }
     }
     lastEnabled[type] = enabled;
@@ -283,48 +211,6 @@ struct FxState {
       signal[1] = held[1];
     } else if (type == Drive) {
       drive.process(dry, signal);
-    } else {
-      reelPhase[0] += coeff.phase0;
-      reelPhase[1] += coeff.phase1;
-      for (float &phase : reelPhase)
-        if (phase >= 1)
-          phase -= 2;
-      float wobble =
-          (sine(reelPhase[0]) * .004f + sine(reelPhase[1]) * .00035f) * p[0] /
-          100;
-      float offset = rate * (.006f + wobble);
-      unsigned whole = unsigned(offset);
-      float frac = offset - whole;
-      unsigned at = (reelPos + 4096 - whole) % 4096, prev = (at + 4095) % 4096;
-      reelEnv +=
-          (maximum(fabsf(dry[0]), fabsf(dry[1])) - reelEnv) * coeff.envelope;
-      reelEnv = clean(reelEnv);
-      if (reelWear != p[1] || reelRate != rate) {
-        reelWear = p[1];
-        reelRate = rate;
-        reelToneCoefficient =
-            1.f - expf(-6.2831853f * (16000 - p[1] * 148.f) / rate);
-      }
-      float wear = p[1] / 100.f, tone = reelToneCoefficient;
-      for (int ch = 0; ch < 2; ch++) {
-        reel[reelPos][ch] = int16_t(bound(dry[ch]) * 32767);
-        float v =
-            reelWritten > whole + 1
-                ? (reel[at][ch] * (1 - frac) + reel[prev][ch] * frac) / 32768.f
-                : 0;
-        reelTone[ch] = clean(reelTone[ch] + tone * (v - reelTone[ch]));
-        v = reelTone[ch] * (1 + wear * 3);
-        v = v / (1 + fabsf(v)) / (1 + wear);
-        reelRandom ^= reelRandom << 13;
-        reelRandom ^= reelRandom >> 17;
-        reelRandom ^= reelRandom << 5;
-        float noise = (float(reelRandom & 65535) / 32767.5f - 1) * p[2] *
-                      .0006f * minimum(1, reelEnv * 12);
-        signal[ch] = v * (1 - wear * .1f * (1 + sine(reelPhase[0]))) + noise;
-      }
-      reelPos = (reelPos + 1) % 4096;
-      if (reelWritten < 4096)
-        reelWritten++;
     }
     left = dry[0] + wet * (signal[0] - dry[0]);
     right = dry[1] + wet * (signal[1] - dry[1]);

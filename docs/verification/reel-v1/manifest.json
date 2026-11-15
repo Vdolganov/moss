@@ -1,0 +1,19 @@
+{
+  "version": "0.7.0",
+  "arm_sha256": "4f0d3c6eb9f780819add7b0a8198f45140d3f15932fa07d26e77eda43103d60b",
+  "windows_sha256": "da5ac3feb4ea63205ec84bdeaaae3571bbfa3cbf8f191b8580cf30217f4c98ae",
+  "device": "original RG35XX / GarlicOS 1.4.9 / stock 1.008 GHz",
+  "load_series": [
+    "v6/manifest.json",
+    "v7/manifest.json"
+  ],
+  "scope": "v6 qualifies the full DSP/UI matrix; v7 qualifies the final binary after capture-latency compensation",
+  "host": "host-tests.json",
+  "undefined_behavior_checks": "ubsan.txt",
+  "ui": "ui-report.json",
+  "ui_note": "One late callback interval in the interactive session; intentional loading pauses are included by this counter. No event timestamp to conclusively attribute it. No processing overrun or stream underrun. Not counted as a clean load run.",
+  "installed": true,
+  "verified_user_projects_and_library_unchanged_after_startup": true,
+  "backup_binary_sha256": "d4fbf9572fdf6af441637a5c1dc6b5ead2b5b621e3bfda0242ea882182152fb3",
+  "on_device_rollback": "/mnt/mmc/Roms/APPS/MOSS-GRANULAR/moss.before-reel-070"
+}

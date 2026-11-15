@@ -10,6 +10,9 @@ A standalone groovebox for the **original Anbernic RG35XX**: a sequencer, synthe
 
 RG35XX Plus/H/2024/SP and other models have not been tested for this release. GarlicOS 1.3.9 remains a compatibility target, but this particular 0.5.2 build has not been retested on it.
 
+
+The current **0.7.0** development branch includes GRANULAR, SWING/SHIFT and complete [REEL](docs/REEL-v1.en.md): 16 controls, locks, presets and measured animation. Saves use MS13; the published stable 0.5.2 snapshot above remains a separate release.
+
 ## Features
 
 - Up to four tracks per sequence: **MONO, ORGANISM, FM and SAMPLER**.

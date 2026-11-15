@@ -123,25 +123,25 @@ static void movement() {
   puts("PASS motion: rate/depth extrema, rapid locks, DC/headroom, stereo, block invariance, bounded head velocity");
 }
 static void bypass() {
-  Effect e; e.select(Reel); e.values[Reel][0]=150; e.values[Reel][1]=10;
-  e.values[Reel][2]=150; e.values[Reel][3]=100; e.values[Reel][4]=300;
+  Effect e; e.select(Reel); e.values[Reel][ReelWow]=150; e.values[Reel][ReelWowRate]=10;
+  e.values[Reel][ReelFlutter]=150; e.values[Reel][ReelAmount]=100; e.values[Reel][ReelFlutterRate]=300;
   rack.reset();
   for (unsigned i=0;i<32000*4;++i) {
     if (!(i%257)) {
-      e.enable((i/257)&1); e.values[Reel][1]=(i/257)%2 ? 10:400;
+      e.enable((i/257)&1); e.values[Reel][ReelWowRate]=(i/257)%2 ? 10:400;
       rack.prepare(e.values,32000,120);
     }
     int l=16384,r=-16384; rack.processChain(l,r,e,e.values,32000,120);
     if(i>4096) assert(abs(l-16384)<=1 && r == -l);
-    if(!e.enabled) assert(rack.reelMotion.mod[0].targetAmplitude == 0);
+    if(!e.enabled) assert(rack.tape.motion.mod[0].targetAmplitude == 0);
   }
   // Reusing a formerly enabled SONG track with identical controls but bypassed
   // REEL must not retain a cached nonzero motion target after invalidation.
   e.enable(true);rack.prepare(e.values,32000,120);
   {int l=10000,r=5000;rack.processChain(l,r,e,e.values,32000,120);}
-  assert(rack.reelMotion.mod[0].targetAmplitude>0);
+  assert(rack.tape.motion.mod[0].targetAmplitude>0);
   rack.invalidate();e.enable(false);rack.prepare(e.values,32000,120);
-  assert(rack.reelMotion.mod[0].targetAmplitude==0);
+  assert(rack.tape.motion.mod[0].targetAmplitude==0);
   for(unsigned i=0;i<32000;++i) {
     int l=0,r=0;rack.processChain(l,r,e,e.values,32000,120);assert(l==0 && r==0);
   }

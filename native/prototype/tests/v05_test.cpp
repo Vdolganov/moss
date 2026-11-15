@@ -87,10 +87,10 @@ static void timelineAndGestures() {
   }
   for (int i = 0; i < 4; i++)
     assert(t.fx.active(i) == (i < ActiveEffects));
-  t.steps[8].fxLocks[3][1] = 67;
+  t.steps[8].fxLocks[Reel][ReelLoss] = 67;
   gesture(lab::Y, lab::Up, 5000000);
   assert(t.fx.order[2] == 3 && t.fx.order[3] == 2 &&
-         t.steps[8].fxLocks[3][1] == 67);
+         t.steps[8].fxLocks[Reel][ReelLoss] == 67);
   app.action(lab::A);
   assert(app.fxDetail);
   app.action(lab::B);
@@ -100,7 +100,7 @@ static void timelineAndGestures() {
   app.nested(-1);
   assert(t.fx.type == 1);
   app.edit(1, 1, 2);
-  assert(t.steps[8].fxLocks[1][1] != Inherit && t.steps[8].fxLocks[3][1] == 67);
+  assert(t.steps[8].fxLocks[1][1] != Inherit && t.steps[8].fxLocks[Reel][ReelLoss] == 67);
   t.division = 8;
   t.cycle = 15;
   app.bank = 3;

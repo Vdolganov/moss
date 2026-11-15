@@ -104,14 +104,14 @@ static void topology() {
   for(unsigned n=0;n<32000*4;++n) {
     if(!(n%4001)) {
       unsigned mode=(n/4001)%5;
-      p[0]=mode==4?60:0;p[1]=30;p[2]=mode==4?30:0;p[3]=mode==3?0:100;
-      p[4]=60;p[5]=(mode==1||mode==2||mode==4)?80:0;p[6]=mode==2?30:0;p[7]=mode==2?40:0;
+      p[ReelWow]=mode==4?60:0;p[ReelWowRate]=30;p[ReelFlutter]=mode==4?30:0;p[ReelAmount]=mode==3?0:100;
+      p[ReelFlutterRate]=60;p[ReelDrive]=(mode==1||mode==2||mode==4)?80:0;p[ReelTone]=mode==2?30:0;p[ReelBump]=mode==2?40:0;
       rack.prepare(e.values,32000,120);
-      referenceMotion.prepare({p[0]*.1f,p[1]*.01f,p[2]*.1f,p[4]*.1f,p[3]*.01f},32000);
-      referenceColor.prepare(float(p[5]),p[6]*.1f,p[7]*.1f,p[3]*.01f,32000);
+      referenceMotion.prepare({p[ReelWow]*.1f,p[ReelWowRate]*.01f,p[ReelFlutter]*.1f,p[ReelFlutterRate]*.1f,p[ReelAmount]*.01f},32000);
+      referenceColor.prepare(float(p[ReelDrive]),p[ReelTone]*.1f,p[ReelBump]*.1f,p[ReelAmount]*.01f,32000);
     }
     float x=noise()*.25f,y=noise()*.25f,l=x,r=y,rl=x,rr=y;
-    rack.processReel(l,r,true,p,32000);
+    rack.tape.processReel(l,r,true,p,32000);
     referenceColor.processInput(rl,rr);referenceMotion.process(rl,rr);referenceColor.processOutput(rl,rr);
     worst=fmaxf(worst,fmaxf(fabsf(l-rl),fabsf(r-rr)));
   }
@@ -119,11 +119,11 @@ static void topology() {
   assert(worst<.0004f);
   // At 8 kHz the same maximal motion excursion needs a slightly larger fixed
   // latency to leave room for the colour FIR; no negative read positions.
-  rack.reset();p[0]=p[2]=150;p[1]=10;p[4]=20;p[3]=p[5]=100;
+  rack.reset();p[ReelWow]=p[ReelFlutter]=150;p[ReelWowRate]=10;p[ReelFlutterRate]=20;p[ReelAmount]=p[ReelDrive]=100;
   rack.prepare(e.values,8000,120);
   for(unsigned n=0;n<80000;++n) {
-    float l=.1f,r=-l;rack.processReel(l,r,true,p,8000);
-    assert(isfinite(l)&&rack.reelMotion.position>=7);
+    float l=.1f,r=-l;rack.tape.processReel(l,r,true,p,8000);
+    assert(isfinite(l)&&rack.tape.motion.position>=7);
   }
   puts("PASS neutral FIFO merging: reference alignment, rapid reuse and low-rate read margin");
 }

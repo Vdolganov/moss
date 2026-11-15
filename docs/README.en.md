@@ -1,5 +1,7 @@
 # MOSS documentation
 
+[REEL 0.7.0 — controls and verification](REEL-v1.en.md)
+
 [Русский](README.md) · **English**
 
 The stable application version is **0.5.2**; experimental **0.6.6-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.

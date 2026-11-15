@@ -33,6 +33,7 @@ inline void drawSampleSlots(lab::Canvas &c, const App &a, int y) {
 #include "app_song_ui.h"
 #include "app_synth_ui.h"
 #include "app_granular_ui.h"
+#include "app_reel_ui.h"
 #include "app_tools_ui.h"
 inline void draw(lab::Canvas &c, const App &a) {
   using namespace lab;
@@ -192,9 +193,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             for (int n : hit.locks)
               locked |= n != Inherit;
           }
-          for (const auto &row : st.fxLocks)
-            for (int n : row)
-              locked |= n != Inherit;
+          for (int n : st.fxLocks.data) locked |= n != Inherit;
           if (between)
             c.rect(x + 7, y + cellHeight - 2, 52, 1, ink);
           if (locked)
@@ -237,6 +236,7 @@ inline void draw(lab::Canvas &c, const App &a) {
                tr.instrument ? midiNote(selected.note) : note(a.key),
                tr.instrument ? instrumentName(tr.instrument)
                              : a.assetName(asset));
+      if(a.bank==2)snprintf(b,sizeof(b),"%s / %s",fxName(tr.fx.type),fxBankName(clamp(a.fxBank,0,fxBanks(tr.fx.type)-1),tr.fx.type));
       text(c, 350, 305, b, DIM, 2, 22);
       const char *banks[] = {"STEP", "VOICE LOCKS", "FX LOCKS", "TIMING"};
       const int x[] = {18, 100, 280, 430}, width[] = {56, 140, 100, 80};
@@ -249,8 +249,8 @@ inline void draw(lab::Canvas &c, const App &a) {
         snprintf(b,sizeof(b),"%d/2",a.timingBank+1);
         text(c,550,326,b,DIM);
       } else if(a.bank==2) {
-        snprintf(b,sizeof(b),"%s %d/%d",fxName(tr.fx.type),clamp(a.fxBank,0,fxBanks(tr.fx.type)-1)+1,fxBanks(tr.fx.type));
-        text(c,510,326,b,DIM,2,10);
+        snprintf(b,sizeof(b),"%d/%d",clamp(a.fxBank,0,fxBanks(tr.fx.type)-1)+1,fxBanks(tr.fx.type));
+        text(c,550,326,b,DIM);
       } else text(c, 520, 326,
            a.bank == 2                    ? fxName(tr.fx.type)
            : a.bank == 1 && a.granularTrack() ? GranularBanks[a.synthBank]
@@ -351,7 +351,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           int value = f.values[f.type][parameter];
           if (a.page == Pattern) {
             value = s.fxLocks[f.type][parameter];
-            unit = "STEP LOCK";
+            unit = f.type==Reel && lockValue(value)?FxSpecs[f.type][parameter].unit:"STEP LOCK";
           }
           if (value == Inherit)
             strcpy(b, "--");
@@ -364,6 +364,14 @@ inline void draw(lab::Canvas &c, const App &a) {
             snprintf(b,sizeof(b),"%s",driveCurveName(value));
           } else if(f.type==Orbit && parameter==4 && value==0) {
             strcpy(b,"OFF");
+          } else if(f.type==Reel) {
+            if(parameter==ReelHiss) {
+              if(!value)strcpy(b,"OFF");else snprintf(b,sizeof(b),"%d",value-73);
+            } else if(parameter==ReelWowRate)snprintf(b,sizeof(b),"%.2f",value*.01);
+            else if(parameter==ReelTone||parameter==ReelBump||parameter==ReelOutput||
+                    parameter==ReelWow||parameter==ReelFlutter||parameter==ReelFlutterRate)
+              snprintf(b,sizeof(b),"%.1f",value*.1);
+            else snprintf(b,sizeof(b),"%d",value);
           } else
             snprintf(b, sizeof(b), "%d", value);
         } else if (a.page == Tape) {
@@ -525,12 +533,12 @@ inline void draw(lab::Canvas &c, const App &a) {
          : a.voicePicker == 1 ? "INSTRUMENT / B CANCEL"
                               : "PRESET / B CANCEL",
          DIM);
-    for (int i = 0; i < (a.voicePicker == 2 ? 4 : InstrumentCount); i++) {
+    for (int i = 0; i < (a.voicePicker==4?ReelPresetCount:a.voicePicker == 2 ? 4 : InstrumentCount); i++) {
       int y = 162 + i * 40;
       if (i == a.voiceChoice)
         c.box(68, y - 8, 504, 33, TEXT);
       text(c, 80, y,
-           a.voicePicker == 1 || a.voicePicker == 3
+           a.voicePicker==4?ReelPresetNames[i]:a.voicePicker == 1 || a.voicePicker == 3
                ? instrumentName(i)
                : presetName(a.project.tracks[a.track].instrument, i),
            i == a.voiceChoice ? TEXT : DIM);

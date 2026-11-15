@@ -1,0 +1,3 @@
+HISS white RMS -24.017 dBFS / channel correlation -0.00243
+PASS REEL: exact neutral float / dual-head FIR / independent calibrated hiss / STOP / defects / AMOUNT recovery
+PASS REEL: four pages / physical fine-coarse / all lock pages / MS13 roundtrip / atomic master preset

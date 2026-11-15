@@ -1,0 +1,23 @@
+{
+  "remote": "/mnt/mmc/MOSS-Reel-Release-v7",
+  "sha256": "4f0d3c6eb9f780819add7b0a8198f45140d3f15932fa07d26e77eda43103d60b",
+  "profiles": [
+    [
+      "full-pond",
+      "21",
+      "10",
+      "30"
+    ],
+    [
+      "song",
+      "20",
+      "10",
+      "20"
+    ]
+  ],
+  "checks": true,
+  "qualified": true,
+  "callbacks": 1566,
+  "max_us": 29587,
+  "seconds": 50
+}

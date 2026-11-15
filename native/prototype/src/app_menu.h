@@ -98,7 +98,7 @@ bool optionVisible(int id) const {
   if (page == Grid)
     return (id == 4 && track < project.trackCount) || id == 5;
   if (fxPage())
-    return false; // toggle and order have direct controls
+    return id==3 && (page==Mix?project.fx:project.tracks[track].fx).type==Reel;
   if (page == Tape) {
     if (tapeTab == 0)
       return id == 5 && captureState() == 2 && !captureWritePending;
@@ -177,7 +177,7 @@ const char *optionName(int i) const {
     return page == Tape && tapeTab == 1 ? "AUDITION FULL SOURCE"
                                         : "RESTART TRANSPORT";
   if (fxPage())
-    return "ENABLE / BYPASS SELECTED";
+    return "REEL PRESET";
   if (page == Tape) {
     const char *n[3][6] = {
         {"IMPORT WAV", "FROM LIBRARY", "DISCARD CAPTURE"},
@@ -337,8 +337,7 @@ void chooseOption() {
     return;
   }
   if (fxPage()) {
-    auto &f = page == Mix ? project.fx : project.tracks[track].fx;
-    change({Op::Fx, page == Mix ? Tracks : track, 0, 1, !f.enabled});
+    voicePicker=4;voiceChoice=0;
   } else if (page == Tape) {
     if (captureBusy()) {
       if (tapeTab == 0 && i == 5) {

@@ -37,11 +37,11 @@ void voiceEvent(int t,const Step &s,int at,bool note) {
 void trackEvent(int t,const Step &s,int at,bool note) {
   auto &v=eventValues[t];
   if(note) {
-    for(auto &row:v.fxLocks) for(auto &n:row) n=Inherit;
+    for(auto &n:v.fxLocks.data) n=Inherit;
     memset(fxEventSource[t],255,sizeof(fxEventSource[t]));
     repeats[t].set(0,rate,project.bpm);
   }
-  for(int type=0;type<EffectTypes;++type) for(int i=0;i<EffectParameters;++i) {
+  for(int type=0;type<EffectTypes;++type) for(int i=0;i<fxParameters(type);++i) {
     int value=s.fxLocks[type][i]; if(value==Inherit) continue;
     v.fxLocks[type][i]=int16_t(value==ResetLock?Inherit:value);
     fxEventSource[t][type][i]=int16_t(at);

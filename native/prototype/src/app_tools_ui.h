@@ -45,11 +45,11 @@ inline void drawTools(lab::Canvas &c, const App &a) {
          DIM);
     for(int bank=0;bank<fxBanks(f.type);++bank) {
       int x=18+bank*155;
-      text(c,x,198,fxBankName(bank),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
+      text(c,x,198,fxBankName(bank,f.type),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
       if(bank==clamp(a.fxBank,0,fxBanks(f.type)-1)) c.rect(x,214,130,1,TEXT);
     }
     c.rect(18, 220, 604, 98, PANEL);
-    c.rect(34, 299, 572, 1, LINE);
+    if(f.type!=Reel)c.rect(34, 299, 572, 1, LINE);
     if (f.type == 0) {
       float level = 1;
       for (int i = 0; i < 9; i++) {
@@ -88,13 +88,9 @@ inline void drawTools(lab::Canvas &c, const App &a) {
       }
       snprintf(b,sizeof(b),"%s / TRANSFER CURVE / OUTPUT %d%%",driveCurveName(p[4]),p[2]);
     } else {
-      for (int i = 0; i < 280; i++) {
-        float phase = float(i) / 140 - 1;
-        c.rect(38 + i * 2, 266 + int(FxState::sine(phase) * p[0] * .25f), 2, 2,
-               TEXT);
-      }
-      snprintf(b, sizeof(b), "SPEED MODEL / WEAR %d%% / NOISE %d%%", p[1],
-               p[2]);
+      drawReel(c,a,f);
+      auto view=a.engine->reelView[a.page==Mix?Tracks:a.track].read();
+      snprintf(b,sizeof(b),"DROP %d%% / L1+R1 PRESETS + UNDO",100-view.drop/10);
     }
     text(c, 18, 328, b, DIM, 2, 50);
   }
