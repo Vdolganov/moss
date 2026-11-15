@@ -101,4 +101,26 @@ inline void stressGranular(Project &p, unsigned mask, int mode = 0) {
     }
   }
 }
+// Long held notes plus dense parameter events. Repeats get enough time to
+// capture and loop; this is different from retriggering on every tick.
+inline void stressEvents(Project &p,unsigned mask,int mode=0) {
+  stressGranular(p,mask,5);
+  for(int t=0;t<Tracks;++t) {
+    auto &tr=p.tracks[t];
+    if(mode==1) tr.instrument=SampleInstrument;
+    else if(mode==2 && t) tr.instrument=t;
+    for(int i=0;i<Steps;++i) {
+      auto &s=tr.steps[i];s.on=i==0?NoteEvent:LockEvent;
+      s.length=Steps;
+      // Keep eight long grains alive; new grain targets still vary per tick.
+      s.grainLocks[2]=8000;s.grainLocks[9]=100;
+      s.repeat=i%64==0?8:i%64==16?16:i%64==32?32:i%64==48?64:Inherit;
+      if(i%64==63) s.repeat=0;
+      for(int k=0;k<Keys;++k) {
+        auto &h=tr.hits[k][i];h.on=i%32==0?NoteEvent:LockEvent;h.length=Steps;
+        h.locks[0]=int16_t((i+k)%49-24);h.locks[3]=int16_t(50+i%51);
+      }
+    }
+  }
+}
 } // namespace moss

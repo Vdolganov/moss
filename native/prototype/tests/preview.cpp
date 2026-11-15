@@ -33,6 +33,23 @@ int main(int argc, char **argv) {
   app.projectTracks[0] = 3;
   app.projectTempos[0] = 70;
   if (argc == 4) {
+    if(!strncmp(argv[3],"event-",6)) {
+      app.project=makeSynthDemo();app.page=Pattern;app.track=0;app.step=28;app.bank=0;
+      auto &tr=app.project.tracks[0];tr.instrument=GranularInstrument;tr.cycle=64;
+      for(auto &s:tr.steps) s=Step{};
+      tr.steps[0].on=NoteEvent;tr.steps[0].length=64;
+      tr.steps[28].on=LockEvent;tr.steps[28].grainLocks[10]=ResetLock;tr.steps[28].repeat=32;
+      tr.steps[40].on=LockEvent;tr.steps[40].repeat=0;
+      if(!strcmp(argv[3],"event-timing"))app.bank=3;
+      if(!strcmp(argv[3],"event-reset")){app.bank=1;app.synthBank=2;}
+      if(!strcmp(argv[3],"event-menu")){app.bank=1;app.synthBank=2;app.options=true;}
+      if(!strcmp(argv[3],"event-sampler")) {
+        tr.instrument=SampleInstrument;app.key=0;tr.keys[0].asset=0;app.bank=0;
+        for(auto &lane:tr.hits)for(auto &h:lane)h=Hit{};
+        tr.hits[0][0].on=NoteEvent;tr.hits[0][0].length=64;
+        tr.hits[0][28].on=LockEvent;tr.hits[0][28].locks[3]=50;
+      }
+    }
     if (!strncmp(argv[3],"newfx",5)) {
       app.project=makeSynthDemo();app.track=1;app.page=Space;app.fxDetail=true;
       auto &f=app.project.tracks[1].fx;f.select(Drive);f.enable(true);

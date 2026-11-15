@@ -163,3 +163,8 @@ ATLAS показывает SEQUENCES / SONGS и пять строк на стр�
 ## Native experiment · Ambient LENS 0.6.4
 
 [native-granular.md](design/current/native-granular.md) задаёт круг из пиков реального источника, приглушённую область вне START–END и устойчивую дугу каждого зерна с квадратом реального чтения. Контурный внешний квадрат показывает головку, включая случайные скачки JUMP. Яркость дуги следует огибающей; возраст не раздвигает кольца. Четыре банка и Y/B/A/X сохранены, JUMP заменяет IRREGULAR в TEXTURE / B. Палитра, типографика и общие компоненты не меняются. Браузерный этюд повторяет взаимодействие, оставаясь явно обозначенной симуляцией без звука.
+
+
+## Native 0.6.5 · LOCK ONLY / REPEAT
+
+PATTERN keeps four banks: STEP / VOICE LOCKS / FX LOCKS / TIMING. TIMING uses Y CYCLE, B STEP, A REPEAT, X TYPE. Repeat is a whole-track audio fragment (OFF / 1/8 / 1/16 / 1/32 / 1/64), before FX; it never calls noteOn. LOCK ONLY is an outlined diamond and LOCK label; note-only fields show NO NOTE. RESET is visually distinct from `--`; the latter adds no event. Existing button colors, graphite palette and navigation remain unchanged. [Current behavior](docs/TRIGLESS-LOCKS-PLAN.en.md).

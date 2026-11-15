@@ -1,0 +1,62 @@
+PASS music: codec and checksum, atomic queue limits, block-invariant audio, 7/15 cycles, one-shot completion, latched hit locks, deleted keys, probability, stop fade, shoulder chord, parameter gestures
+PASS interaction: global tempo, acceleration, both release orders, no navigation or step edits, undo grouping, bounds, focus loss, short SELECT, 8-column grid, one-shot length and mixer mute
+PASS stress: 60 seconds at 44.1 kHz, three POND track effects + master POND + master capture; audible, no full-scale clipping
+PASS features: PCM16/24/32/float, bounded slices, fades, 1 MiB reload, library persistence, key assignment, protected delete, capture master/track + FX, 15/16 playheads through 240 steps, effect tails/bounds/block invariance, FX locks/codec, parameter release order, manual cuts and preview
+PASS synth project: MOS6 538004 bytes, all banks round trip
+PASS synth input: note edits, release order, picker cancel, presets, separate locks and preserved sampler maps
+PASS synth audio: sample-free playback, 16-step gates, latched note locks, audition timeout, instrument switch, probability, block invariance
+PASS synth limits: both modes, parameter extrema at 8/44.1/48/96 kHz, no NaN, bounded output, A4 pitch and DC
+PASS 60-second synth + three FX + master POND + resample: peak 6260; desktop CPU 1.132s (not ARM timing)
+PASS projects/tracks: named empty creation, picker cancellation, add/rename/duplicate/delete/undo, four tracks, >4 projects, save/reopen, project restore, empty playback
+PASS TAPE: sliding 1 MiB trim in both directions, randomized bounds, selected/full 20-second WAV streaming, fades, playhead, toggle stop, mono/stereo 8-96 kHz, no underruns with regular producer
+PASS four-track 60-second stress: synths, per-track FX + master POND, capture, independent cycles; peak 4147 (desktop only)
+PASS v05 interaction: resolution roundtrip/off-grid preservation, independent drum lanes, nested release orders, synth banks/locks, chain toggles/order/identity locks
+PASS v05 audio: four simultaneous keys, forced one-shots, delay lock tails over rests, 180% monitor gain/soft peak protection, resolution leaves audio duration unchanged
+PASS v05 import: picker entry, cancel at browser/trim/name, named persistence, automatic assignment/return, failed disk save keeps destination/name and retries
+PASS v05 character: each of 24 synth controls measurably changes rendered attack, held tone or release
+PASS v05 10-second stress: 4 synth tracks, transient full-chain load, capture; peak 32204; desktop CPU 0.515s (ARM pending)
+SIZES Project=567708 Engine=33081128 App=1143336 FxState=3367876 Codec=2097160
+PASS v051: MOS5 sample-map migration, MOS6 LENGTH persistence, cap/one-shot, Y B A X gestures, shoulders/release order, 2-FX limit, contextual menus, exact mixer scaling and sampler <=1 LSB gain error
+PASS background capture: immutable buffer, playback while writing, failure keeps PCM, successful retry
+PASS names: character panel, replacement, insertion, deletion, cursor, limit, cancel, failed rename/create retry; saved sample protection updates
+PASS 052 controls: fine/coarse, notes/octaves, locks, FX, tape, page jumps, partial page, release orders, menu priority
+PASS SONG workflow: empty creation, slots, repeat/bars, reorder, independent copy, return focus, protection, codec, save retry, missing sequence
+PASS SONG audio: sample-exact bars, continuous 15/16 cycles inside repeats, local restart on slot change, global BPM, stop/loop, block invariance across transitions
+PASS granular import: cancel, naming, failed write preserves assignment, retry, automatic assignment, reference protection and save/reopen
+PASS granular integration: MS11/MOS7/MOS6, references, block invariance, gate, freeze, source replacement, physical controls, 16 locks, lens render, SONG and capture
+PASS granular cloud: eight simultaneous source regions, anchor-independent full scatter, zero-scatter scan, per-grain stereo and latched bounds
+PASS granular envelopes: independent in/out shapes, zero endpoints, latched windows, sparse/dense level compensation
+PASS granular: windows, density lookup, invalid sources, block-invariant edits/seek/retrigger
+PASS granular: reverse scan, freeze/unfreeze, independent pitch, 8/16/32 hard caps, release and idle
+PASS granular: stereo isolation, mono coherence and measured octave pitch
+PASS granular: per-grain parameter latching, independent random streams and sample-rate-scaled release
+PASS granular: 1-frame sources, full 1 MiB, 8..96 kHz, extreme transpose/scatter, invalid controls and density zero
+MEMORY voice=2640 tables=5128 (shared PCM excluded)
+PASS ambient: 8-second sustained pad, staggered replacements, bounded random jumps, continuous scan and FREEZE, stable lanes and truthful snapshots
+PASS independent head RNG: full SCATTER births unchanged by JUMP and FREEZE
+PASS MS11 long SIZE/JUMP roundtrip and MOS9 timing-irregularity migration
+PASS held GRANULAR: locks/repeat preserve gate deadline, read head, grain ages and envelope; per-parameter persistence/RESET/probability; block invariant
+PASS MONO/ORGANISM/FM: no note restart or LENGTH extension on locks/repeat
+PASS SAMPLER: selected lane only, phase/age preserved; track repeat; stop clears event state
+PASS REPEAT: exact 1/8..1/64 periods, 30..240 BPM, stereo fragment, bounded storage and return to live sound
+PASS UI/model/MS11: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration
+PASS independent 15/16 cycles and 1/8 vs 1/32 resolution; new NOTE resets previous parameter events
+PASS silent LOCK ONLY does not create voices; START/STOP reset overrides; FX events process an existing tail
+PASS SONG transition/end: repeat and parameter events cannot leak into the next sequence
+PASS FX controls: two banks, physical gestures, master navigation, lock identity/reorder, MS11 and MOS8 migration
+PASS DRIVE: polynomial primitives, monotonic curves, equal-input ADAA and parameter extrema at four sample rates
+PASS ORBIT: stereo feedback decay, no stale history, bounded rapid TIME locks and modulation
+BASS dry sampler 20 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 30 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 40 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 60 Hz: 0.0002 dB vs 1 kHz
+BASS dry sampler 80 Hz: 0.0003 dB vs 1 kHz
+BASS dry sampler 100 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 200 Hz: 0.0001 dB vs 1 kHz
+BASS dry sampler 500 Hz: -0.0002 dB vs 1 kHz
+BASS dry sampler 1000 Hz: 0.0000 dB vs 1 kHz
+PASS bass: dry sample -> track -> master -> monitor is flat within 0.1 dB from 20 Hz to 1 kHz
+PASS DRIVE neutrality: zero drive preserves 20 Hz within 0.5 dB; biased curves settle to silence
+PASS engine block invariance: DRIVE curve and ORBIT time/filter locks, hash 61c69909
+PASS all 16 DRIVE/ORBIT controls measurably change stereo output
+Built ARM, Windows, tests and seven previews

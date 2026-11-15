@@ -33,7 +33,7 @@ static void controls() {
   tap(lab::R1);assert(app.mixTab==1&&app.fxDetail&&app.fxBank==1);
   gesture(lab::B,lab::Up);assert(app.project.fx.values[Orbit][5]==10000);
   assert(valid(app.project));
-  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS10",4));
+  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS11",4));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[0].fxLocks[Drive][7]==1);
   assert(restored.fx.values[Orbit][5]==10000);
@@ -46,7 +46,7 @@ static void controls() {
   assert(restored.tracks[0].fx.values[0][3]==73&&restored.tracks[0].fx.values[0][2]==22);
   assert(restored.tracks[0].steps[0].fxLocks[0][3]==68);
   assert(restored.tracks[0].steps[0].fxLocks[Drive][7]==Inherit);
-  puts("PASS FX controls: two banks, physical gestures, master navigation, lock identity/reorder, MS10 and MOS8 migration");
+  puts("PASS FX controls: two banks, physical gestures, master navigation, lock identity/reorder, MS11 and MOS8 migration");
 }
 static void curves() {
   for(int curve=0;curve<3;++curve) {

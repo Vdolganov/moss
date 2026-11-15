@@ -20,7 +20,7 @@ void enterSongSlot(int index) {
     }
     synth[t] = SynthVoice{};
     synthTails[t] = SynthVoice{};
-    activeVoiceStep[t] = activeFxStep[t] = -1;
+    resetEvents(t);
     bindGranular(t);
     muteGain[t] = project.tracks[t].mute ? 0 : 1;
     __atomic_store_n(&shownStep[t], 0, __ATOMIC_RELEASE);

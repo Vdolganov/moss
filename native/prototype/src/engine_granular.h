@@ -87,7 +87,7 @@ void refreshGranular(int t, const Step *step) {
   const auto &patch = project.tracks[t].granular;
   int v[GranularParameterCount];
   for (int i = 0; i < GranularParameterCount; ++i)
-    v[i] = step && step->grainLocks[i] != Inherit ? step->grainLocks[i] : patch.values[i];
+    v[i] = step && lockValue(step->grainLocks[i]) ? step->grainLocks[i] : patch.values[i];
   // Locks may cross independently: preserve a non-empty scan range at playback.
   v[5] = clamp(v[5], 0, 999); v[6] = clamp(v[6], v[5] + 1, 1000);
   v[4] = clamp(v[4], v[5], v[6]);

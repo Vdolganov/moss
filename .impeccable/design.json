@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-14T07:49:39.838050+00:00",
-  "title": "MOSS · браузер v0.6 / native 0.5.2 / Ambient LENS 0.6.4",
+  "generatedAt": "2026-11-15",
+  "title": "MOSS · браузер v0.6 / native 0.5.2 / LOCK ONLY / REPEAT 0.6.5",
   "extensions": {
     "colorMeta": {
       "paper": {
@@ -411,6 +411,11 @@
       {
         "name": "The Granular Source Position Rule",
         "body": "В Ambient LENS 0.6.4 круг строится из пиков исходника. Вне START–END волна приглушена. Каждое зерно сохраняет свою полосу и дугу прочитываемого участка; заполненный квадрат показывает реальную позицию, яркость — огибающую. Контурный внешний квадрат показывает головку, в том числе скачки JUMP. Возраст не раздвигает кольца. SIZE до 8 секунд, TEXTURE / B JUMP, четыре прежних банка и Y/B/A/X. Браузерная волна остаётся явно обозначенной симуляцией.",
+        "section": "components"
+      },
+      {
+        "name": "The Note-less Event Rule",
+        "body": "В native 0.6.5 LOCK ONLY — полый ромб и подпись LOCK, поля ноты показывают NO NOTE. TIMING сохраняет четыре поля: Y CYCLE, B STEP, A REPEAT, X TYPE. REPEAT повторяет аудиофрагмент дорожки до FX, не вызывает noteOn; OFF возвращает живой звук. RESET возвращает базу параметра, -- не добавляет события. Цвета и навигация прежние.",
         "section": "components"
       }
     ],

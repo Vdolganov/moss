@@ -1,4 +1,4 @@
-# GRANULAR / LENS · 0.6.4-dev
+# GRANULAR / LENS · 0.6.5-dev
 
 [Русский](GRANULAR-INSTRUMENT.md) · **English**
 
@@ -35,15 +35,15 @@ START/END constrain both births and reading of new grains. Existing grains finis
 
 ## PATTERN and LENS
 
-C3 with PITCH 0 reads at original pitch. VOICE LOCKS exposes all 16 parameters. L1+arrows chooses its nested bank; L1/R1 still navigates STEP / VOICE LOCKS / FX LOCKS / CYCLE. `--` inherits the base value. A POSITION lock seeks the anchor on a note trigger.
+C3 with PITCH 0 reads at original pitch. VOICE LOCKS exposes all 16 parameters. L1+arrows chooses its nested bank; L1/R1 still navigates STEP / VOICE LOCKS / FX LOCKS / TIMING. `--` adds no parameter event; RESET returns to the base. A POSITION event explicitly seeks the anchor.
 
 The circle consists of actual sample peaks in absolute source coordinates. The waveform outside START–END is dimmed, with boundary ticks. Each grain arc represents its source extent, accounting for length, pitch and END-to-START wrapping; a solid square follows its actual read position. Arc brightness follows the grain envelope. Each arc retains its lane throughout the grain lifetime. Grains spanning a complete region show its full arc and LOOP GRAINS; their read squares make repeated passes. The outlined square outside the waveform is the scan head. Existing grains retain their old bounds until they finish. Snapshots come from the audio engine, with no independent animation clock. Missing sources show NO SAMPLE / A ASSIGN SAMPLE.
 
-Locks without a new note are **not implemented yet**. The proposed interaction is recorded separately in [TRIGLESS-LOCKS-PLAN.en.md](TRIGLESS-LOCKS-PLAN.en.md).
+**LOCK ONLY and audio REPEAT are implemented in 0.6.5.** Existing notes keep their gate/envelope. Controls and lifetime rules are in [TRIGLESS-LOCKS-PLAN.en.md](TRIGLESS-LOCKS-PLAN.en.md).
 
 ## Files and verification
 
-New saves use **MS10** (version 10), with 16 parameters and locks. MOS5/MOS6/MOS7/MOS8/MOS9 remain readable. Older IRREGULAR values become JUMP 0% and their locks are cleared, so old timing variation never unexpectedly becomes head jumps. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 and experimental 0.6.3 cannot read MS10; use the separate experimental copy.
+New saves use **MS11** (version 11), with 16 parameters and locks. MOS5/MOS6/MOS7/MOS8/MOS9/MS10 remain readable. Older IRREGULAR values become JUMP 0% and their locks are cleared, so old timing variation never unexpectedly becomes head jumps. MOS7 nonzero JITTER becomes SCATTER 100%, zero becomes 0%; old JITTER locks are cleared because milliseconds have no source-independent percentage equivalent. Old FADE and its locks become both NOTE IN and NOTE OUT; LEVEL defaults to 100%. Other notes, sources and parameters survive. Loading alone does not overwrite files. Stable 0.5.2 and experimental 0.6.4 cannot read MS11; use the separate experimental copy.
 
 Cloud 0.6.1 verification history: [GRANULAR-CLOUD-v2.en.md](GRANULAR-CLOUD-v2.en.md). [GRANULAR-NATIVE-v1.en.md](GRANULAR-NATIVE-v1.en.md) covers only 0.6.0-dev. Linear interpolation can still alias at large upward transpositions. This is original DSP, not a Mangl source port.
 

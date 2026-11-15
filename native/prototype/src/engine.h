@@ -7,6 +7,7 @@
 #include "stream_preview.h"
 #include "synth.h"
 #include "granular.h"
+#include "repeat.h"
 namespace moss {
 struct Engine {
   static int scaleTrack(int value, int gain) {
@@ -61,6 +62,7 @@ struct Engine {
   uint32_t shownTick = 0, shownPlaying = 0, shownPeak[Tracks] = {},
            triggerCount[Tracks] = {}, lastTrigger[Tracks] = {};
 #include "engine_granular.h"
+#include "engine_events.h"
 #include "song_engine.h"
   void init(const Project &p, const moss::SampleBuffer *buffers, unsigned hz,
             int count = 3) {
@@ -79,8 +81,8 @@ struct Engine {
       f.reset();
     capture.state = 0;
     for (int t = 0; t < Tracks; t++) {
-      activeFxStep[t] = -1;
-      activeVoiceStep[t] = -1;
+      resetEvents(t);
+      lockEventCount[t]=repeatEventCount[t]=0;
       __atomic_store_n(&shownStep[t], 0, __ATOMIC_RELEASE);
     }
     clock = frame = tick = 0;
@@ -118,7 +120,7 @@ struct Engine {
     x ^= x >> 16;
     return x % 100;
   }
-  void settings(int t, const Step *locks, int keyId = 0) {
+  void settings(int t, const Step *locks, int keyId = 0, bool preservePosition = false) {
     auto &v = voice(t, keyId);
     const auto &k = project.tracks[t].keys[v.key];
     if (!v.active)
@@ -131,7 +133,7 @@ struct Engine {
     int params[] = {k.pitch, k.start, k.end, k.level};
     if (locks)
       for (int i = 0; i < 4; i++)
-        v.locks[i] = locks->locks[i];
+        v.locks[i] = locks->locks[i]==ResetLock?Inherit:locks->locks[i];
     for (int i = 0; i < 4; i++)
       if (v.locks[i] != Inherit)
         params[i] = v.locks[i];
@@ -144,8 +146,9 @@ struct Engine {
     v.end = unsigned(uint64_t(v.sample->frames) * params[2] / 100);
     if (v.end <= v.start)
       v.end = v.start + 1;
-    if ((v.phase >> 32) < v.start || (v.phase >> 32) >= v.end)
-      v.phase = uint64_t(v.start) << 32;
+    if ((v.phase >> 32) < v.start || (v.phase >> 32) >= v.end) {
+      if(preservePosition) v.stop(); else v.phase=uint64_t(v.start)<<32;
+    }
   }
   void trigger(int t, const Step &step) {
     const auto &tr = project.tracks[t];
@@ -194,21 +197,21 @@ struct Engine {
     const auto &tr = project.tracks[t];
     int type = tr.instrument - 1;
     for (int i = 0; i < 8; i++)
-      params[i] = step && step->synthLocks[type][i] != Inherit
+      params[i] = step && lockValue(step->synthLocks[type][i])
                       ? step->synthLocks[type][i]
                       : tr.synthParams[type][i];
   }
   void refreshSynth(int t) {
     const auto &tr = project.tracks[t];
     if (tr.instrument == GranularInstrument) {
-      refreshGranular(t, activeVoiceStep[t] >= 0 ? &tr.steps[activeVoiceStep[t]] : nullptr);
+      refreshGranular(t, &eventValues[t]);
       return;
     }
     if (!tr.instrument)
       return;
     int params[8];
     synthSettings(
-        t, activeVoiceStep[t] >= 0 ? &tr.steps[activeVoiceStep[t]] : nullptr,
+        t, &eventValues[t],
         params);
     synth[t].setTarget(params, tr.synthMode[tr.instrument - 1]);
   }
@@ -227,37 +230,41 @@ struct Engine {
         granular[t].noteOff();
       int at = int(tick % tr.cycle);
       const Step &s = tr.steps[at];
-      bool fired = false;
-      if (tr.instrument) {
-        fired = s.on && !tr.mute &&
-                probability(project.seed, t, tick) < unsigned(s.probability);
-        if (fired)
-          trigger(t, s);
-      } else
-        for (int k = 0; k < Keys; k++) {
-          const auto &h = tr.hits[k][at];
-          bool fire = h.on && !tr.mute &&
-                      probability(project.seed ^ uint32_t(k * 173), t, tick) <
-                          unsigned(h.probability);
-          if (!fire)
-            continue;
-          Step hit;
-          hit.on = 1;
-          hit.key = k;
-          hit.velocity = h.velocity;
-          hit.length = h.length;
-          for (int i = 0; i < 4; i++)
-            hit.locks[i] = h.locks[i];
-          trigger(t, hit);
-          auto &v = voice(t, k);
-          v.fadeInFrames = unsigned(uint64_t(h.fadeIn) * rate / 1000);
-          v.fadeOutSource =
-              unsigned((uint64_t(h.fadeOut) * rate / 1000 * v.increment) >> 32);
-          fired = true;
+      if(!tr.mute) {
+        bool pass=probability(project.seed,t,tick)<unsigned(s.probability);
+        if(tr.instrument) {
+          if(s.on!=EmptyEvent && pass) {
+            bool note=s.on==NoteEvent;
+            voiceEvent(t,s,at,note); trackEvent(t,s,at,note);
+            if(note) trigger(t,s); else ++lockEventCount[t];
+          }
+        } else {
+          bool note=false;
+          for(int k=0;k<Keys;++k) {
+            const auto &h=tr.hits[k][at];
+            if(h.on==EmptyEvent || probability(project.seed^uint32_t(k*173),t,tick)>=unsigned(h.probability)) continue;
+            if(h.on==LockEvent) { sampleEvent(t,k,h,at); ++lockEventCount[t]; continue; }
+            note=true;
+            Step hit; hit.on=NoteEvent; hit.key=k; hit.velocity=h.velocity; hit.length=h.length;
+            for(int i=0;i<4;++i) {
+              hit.locks[i]=h.locks[i];
+              sampleEventSource[t][k][i]=h.locks[i]==Inherit?-1:int16_t(at);
+            }
+            trigger(t,hit);
+            auto &v=voice(t,k);
+            v.fadeInFrames=unsigned(uint64_t(h.fadeIn)*rate/1000);
+            v.fadeOutSource=unsigned((uint64_t(h.fadeOut)*rate/1000*v.increment)>>32);
+          }
+          // A sampler lane owns voice locks; FX/repeat address the track once.
+          if(note) {
+            Step none;
+            trackEvent(t,s.on==LockEvent && !pass?none:s,at,true);
+          } else if(s.on==LockEvent && pass) {
+            trackEvent(t,s,at,false); ++lockEventCount[t];
+          }
         }
-      if (fired)
-        activeFxStep[t] = activeVoiceStep[t] = at;
-      __atomic_store_n(&shownStep[t], unsigned(at), __ATOMIC_RELEASE);
+      }
+      __atomic_store_n(&shownStep[t],unsigned(at),__ATOMIC_RELEASE);
       refreshSynth(t);
     }
     __atomic_store_n(&shownTick, uint32_t(tick), __ATOMIC_RELEASE);
@@ -305,6 +312,7 @@ struct Engine {
         clock = 0;
         tick = 0;
         first = true;
+        for(int t=0;t<Tracks;++t) resetEvents(t);
       } else {
         capture.finish();
         preview.stop();
@@ -315,14 +323,16 @@ struct Engine {
           synthTails[t].stop();
           granular[t].noteOff();
           grainPreview[t] = 0;
+          resetEvents(t);
         }
       }
       __atomic_store_n(&shownPlaying, playing ? 1u : 0u, __ATOMIC_RELEASE);
     } else if (c.op == Op::Rewind) {
+      for(int t=0;t<Tracks;++t) resetEvents(t);
       clock = tick = 0;
       first = true;
     } else if (c.op == Op::Audition) {
-      activeVoiceStep[c.track] = -1;
+      resetEvents(c.track);
       Step s;
       s.on = 1;
       s.key = c.index;
@@ -341,11 +351,11 @@ struct Engine {
         synthTails[c.track] = synth[c.track];
         synthTails[c.track].stop();
         synth[c.track] = SynthVoice{};
-        activeFxStep[c.track] = -1;
-        activeVoiceStep[c.track] = -1;
+        resetEvents(c.track);
         granular[c.track].stop();
       }
       apply(project, c);
+      liveEventEdit(c);
       if (c.op == Op::Instrument || c.op == Op::GranularSource) {
         bindGranular(c.track);
         transitionFrames = 128;
@@ -358,7 +368,7 @@ struct Engine {
         __atomic_store_n(&shownStep[c.track],
                          unsigned(tick % project.tracks[c.track].cycle),
                          __ATOMIC_RELEASE);
-        activeFxStep[c.track] = -1;
+        resetEvents(c.track);
       }
       if (c.op == Op::Track && c.field == 3 && c.value) {
         stopSamples(c.track);
@@ -366,6 +376,7 @@ struct Engine {
         synthTails[c.track].stop();
         granular[c.track].noteOff();
         grainPreview[c.track] = 0;
+        resetEvents(c.track);
       }
     }
   }
@@ -389,7 +400,7 @@ struct Engine {
           for (int i = 0; i < EffectParameters; i++) {
             params[t][type][i] = e.values[type][i];
             if (t < Tracks && activeFxStep[t] >= 0) {
-              int v = project.tracks[t].steps[activeFxStep[t]].fxLocks[type][i];
+              int v = eventValues[t].fxLocks[type][i];
               if (v != Inherit)
                 params[t][type][i] = v;
             }
@@ -398,6 +409,7 @@ struct Engine {
       }
     };
     refreshFx();
+    for(int t=0;t<Tracks;++t) repeats[t].prepare(rate,project.bpm);
     unsigned peaks[Tracks] = {};
     for (unsigned n = 0; n < count; n++, frame++) {
       if (playing) {
@@ -425,6 +437,7 @@ struct Engine {
         synthTails[t].render(l, r, tables);
         renderGranular(t, l, r);
         auto &tr = project.tracks[t];
+        repeats[t].process(l,r);
         fx[t].processChain(l, r, tr.fx, params[t], rate, project.bpm);
         muteGain[t] += ((tr.mute ? 0.f : 1.f) - muteGain[t]) * .015625f;
         int lg =

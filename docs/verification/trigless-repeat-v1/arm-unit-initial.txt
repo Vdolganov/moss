@@ -1,0 +1,8 @@
+PASS held GRANULAR: locks/repeat preserve gate deadline, read head, grain ages and envelope; per-parameter persistence/RESET/probability; block invariant
+PASS MONO/ORGANISM/FM: no note restart or LENGTH extension on locks/repeat
+PASS SAMPLER: selected lane only, phase/age preserved; track repeat; stop clears event state
+PASS REPEAT: exact 1/8..1/64 periods, 30..240 BPM, stereo fragment, bounded storage and return to live sound
+PASS UI/model/MS11: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration
+PASS independent 15/16 cycles and 1/8 vs 1/32 resolution; new NOTE resets previous parameter events
+PASS silent LOCK ONLY does not create voices; START/STOP reset overrides; FX events process an existing tail
+PASS SONG transition/end: repeat and parameter events cannot leak into the next sequence

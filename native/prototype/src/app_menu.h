@@ -18,7 +18,7 @@ int rawOptionCount() const {
     return 4;
   if (page == Tape)
     return tapeTab == 0 ? 6 : tapeTab == 1 ? 8 : 6;
-  return page == Sampler ? 7 : page == Pattern ? 7 : 5;
+  return page == Sampler ? 7 : page == Pattern ? 9 : 5;
 }
 bool projectUses(const Project &p, int id) const {
   for (int t = 0; t < p.trackCount; ++t) {
@@ -115,7 +115,10 @@ bool optionVisible(int id) const {
     return (id == 3 && bank == 0 &&
             (project.tracks[track].instrument ||
              project.tracks[track].keys[key].asset >= 0)) ||
-           (id == 4 && currentLocksPresent());
+           (id == 4 && currentLocksPresent()) ||
+           (id == 6 && (selectedEvent(project.tracks[track],step,key)!=EmptyEvent || currentLocksPresent())) ||
+           (id == 7 && selectedEvent(project.tracks[track],step,key)!=EmptyEvent) ||
+           (id == 8 && (bank==1 || bank==2));
   return false;
 }
 int optionCount() const {
@@ -195,7 +198,9 @@ const char *optionName(int i) const {
   }
   if (page == Pattern) {
     const char *n[] = {"LENGTH TO CYCLE END", "CLEAR CURRENT LOCK BANK",
-                       "CYCLE 8 / 16 / 32 / 64", "CLEAR SELECTED STEP"};
+                       "CYCLE 8 / 16 / 32 / 64", "CLEAR SELECTED STEP",
+                       "", "RESET CURRENT LOCK BANK"};
+    if(i==7) return selectedEvent(project.tracks[track],step,key)==NoteEvent?"REMOVE NOTE / KEEP LOCKS":"ADD NOTE / KEEP LOCKS";
     return n[i - 3];
   }
   return i == 3 ? "BACK TO SEQUENCES" : "EXIT MOSS";
@@ -451,18 +456,18 @@ void chooseOption() {
       change({Op::Hit, track, step, hitField(key, HitOn), 1});
       change({Op::Hit, track, step, hitField(key, HitLength), t.cycle - step});
     }
-    if (i == 4)
+    if (i == 4 || i==8)
       for (int j = 0; j < 4; j++)
         change(
             bank == 2
-                ? Command{Op::FxLock, track, step, t.fx.type * EffectParameters + clamp(fxBank,0,fxBanks(t.fx.type)-1)*4 + j, Inherit}
+                ? Command{Op::FxLock, track, step, t.fx.type * EffectParameters + clamp(fxBank,0,fxBanks(t.fx.type)-1)*4 + j, i==8?ResetLock:Inherit}
             : granularTrack()
-                ? Command{Op::GranularLock, track, step, synthBank * 4 + j, Inherit}
+                ? Command{Op::GranularLock, track, step, synthBank * 4 + j, i==8?ResetLock:Inherit}
             : t.instrument
                 ? Command{Op::SynthLock, track, step,
-                          (t.instrument - 1) * 8 + synthBank * 4 + j, Inherit}
+                          (t.instrument - 1) * 8 + synthBank * 4 + j, i==8?ResetLock:Inherit}
                 : Command{Op::Hit, track, step, hitField(key, HitLock0 + j),
-                          Inherit});
+                          i==8?ResetLock:Inherit});
     if (i == 5) {
       int cells = t.cells();
       int count = cells < 8    ? 8
@@ -474,9 +479,8 @@ void chooseOption() {
       step = clamp(step, 0, t.cycle - 1);
     }
     if (i == 6)
-      change(t.instrument
-                 ? Command{Op::Step, track, step, 0, 0}
-                 : Command{Op::Hit, track, step, hitField(key, HitOn), 0});
+      change({Op::ClearEvent,track,step,key,0});
+    if(i==7) change({Op::SetEventType,track,step,key,selectedEvent(t,step,key)==NoteEvent?LockEvent:NoteEvent});
   } else if (i == 4)
     requestExit();
   else

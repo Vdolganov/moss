@@ -162,11 +162,12 @@ inline void draw(lab::Canvas &c, const App &a) {
         bool enabled = s < tr.cycle;
         const auto &st = tr.steps[s < Steps ? s : 0];
         const auto &hit = tr.hits[a.key][s < Steps ? s : 0];
-        bool on = enabled && (tr.instrument ? st.on : hit.on);
+        bool on = enabled && (tr.instrument ? st.on : hit.on)==NoteEvent;
+        bool only=enabled && !on && (tr.instrument?st.on==LockEvent:hit.on==LockEvent || st.on==LockEvent);
         bool between = false;
         for (int off = 1; off < stride && s + off < tr.cycle; off++)
           between |= tr.instrument ? tr.steps[s + off].on != 0
-                                   : tr.hits[a.key][s + off].on != 0;
+                                   : tr.hits[a.key][s + off].on != 0 || tr.steps[s+off].on==LockEvent;
         uint32_t ink = on ? BG : DIM;
         c.rect(x, y, 69, cellHeight, on ? 0xd5d6d3 : BG);
         c.box(x, y, 69, cellHeight,
@@ -175,9 +176,13 @@ inline void draw(lab::Canvas &c, const App &a) {
         text(c, x + 7, y + 7, b, enabled ? ink : LINE);
         if (enabled) {
           text(c, x + 7, y + (tr.instrument ? 29 : 23),
-               on ? (tr.instrument ? midiNote(st.note) : note(a.key)) : "--",
+               on ? (tr.instrument ? midiNote(st.note) : note(a.key)) : only?"LOCK":"--",
                ink);
-          bool locked = false;
+          if(only) {
+            const int cx=x+58,cy=y+10;
+            for(int dy=-4;dy<=4;++dy) { int dx=4-(dy<0?-dy:dy); c.rect(cx-dx,cy+dy,1,1,TEXT); c.rect(cx+dx,cy+dy,1,1,TEXT); }
+          }
+          bool locked = st.repeat!=Inherit;
           if (tr.instrument == GranularInstrument) {
             for (int n : st.grainLocks) locked |= n != Inherit;
           } else if (tr.instrument) {
@@ -196,7 +201,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             c.rect(x + 59, y + 31, 4, 4, ink);
           const auto &selectedHit = tr.hits[a.key][a.step];
           int length = tr.instrument ? selected.length : selectedHit.length;
-          bool sustained = (tr.instrument ? selected.on : selectedHit.on) &&
+          bool sustained = (tr.instrument ? selected.on : selectedHit.on)==NoteEvent &&
                            length &&
                            ((s - a.step + tr.cycle) % tr.cycle) < length;
           if (sustained)
@@ -225,9 +230,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       text(c, 454, 269, "R1+L/R PAGE", DIM);
       c.rect(18, 293, 604, 1, LINE);
       snprintf(b, sizeof(b), "STEP %03d / %s", selectedCell + 1,
-               (tr.instrument ? selected.on : tr.hits[a.key][a.step].on)
-                   ? "ON"
-                   : "OFF");
+               eventName(selectedEvent(tr,a.step,a.key)));
       text(c, 18, 305, b, TEXT);
       int asset = tr.keys[a.key].asset;
       snprintf(b, sizeof(b), "%s / %s",
@@ -235,8 +238,8 @@ inline void draw(lab::Canvas &c, const App &a) {
                tr.instrument ? instrumentName(tr.instrument)
                              : a.assetName(asset));
       text(c, 350, 305, b, DIM, 2, 22);
-      const char *banks[] = {"STEP", "VOICE LOCKS", "FX LOCKS", "CYCLE"};
-      const int x[] = {18, 100, 280, 430}, width[] = {56, 140, 100, 68};
+      const char *banks[] = {"STEP", "VOICE LOCKS", "FX LOCKS", "TIMING"};
+      const int x[] = {18, 100, 280, 430}, width[] = {56, 140, 100, 80};
       for (int i = 0; i < 4; i++) {
         text(c, x[i], 326, banks[i], a.bank == i ? TEXT : DIM);
         if (a.bank == i)
@@ -286,21 +289,8 @@ inline void draw(lab::Canvas &c, const App &a) {
       auto &t = a.project.tracks[a.track];
       auto &s = t.steps[a.step];
       auto &k = t.keys[a.key];
-      bool cycleOnly = a.page == Pattern && a.bank == 3;
-      if (cycleOnly) {
-        text(c, 330, 365, "RESOLUTION KEEPS TIME", DIM);
-        text(c, 330, 394, "OFF-GRID EVENTS KEPT", DIM);
-        if (t.cycle % t.stride()) {
-          snprintf(b, sizeof(b), "LAST CELL %d/%d", t.cycle % t.stride(),
-                   t.stride());
-          text(c, 330, 423, b, DIM);
-        } else
-          text(c, 330, 423, "MAX 64 EIGHTH NOTES", DIM);
-      }
-      int fieldCount = cycleOnly                          ? 2
-                       : a.fxPage() && !a.fxDetail        ? 0
-                       : a.page == Tape && a.tapeTab == 0 ? 2
-                                                          : 4;
+      int fieldCount = a.fxPage() && !a.fxDetail ? 0
+                       : a.page==Tape && a.tapeTab==0 ? 2 : 4;
       for (int i = 0; i < fieldCount; i++) {
         const char *label = "";
         const char *unit = "";
@@ -310,7 +300,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           const char *l[] = {"VELOCITY", "FADE IN", "LENGTH", "PROB"};
           int vals[] = {h.velocity, h.fadeIn,
                         (h.length + t.stride() - 1) / t.stride(),
-                        h.probability};
+                        h.on==EmptyEvent && s.on==LockEvent?s.probability:h.probability};
           label = l[i];
           snprintf(b, sizeof(b), "%d", vals[i]);
           if (i == 2 && !h.length)
@@ -337,12 +327,13 @@ inline void draw(lab::Canvas &c, const App &a) {
             unit = "ONE SHOT";
           }
         } else if (a.page == Pattern && a.bank == 3) {
-          label = i == 0 ? "CYCLE" : "STEP";
-          if (i == 0)
-            snprintf(b, sizeof(b), "%d", t.cells());
-          else
-            snprintf(b, sizeof(b), "1/%d", t.division);
-          unit = i == 0 ? "CELLS" : "RESOLUTION";
+          const char *labels[]={"CYCLE","STEP","REPEAT","TYPE"}; label=labels[i];
+          if(i==0) snprintf(b,sizeof(b),"%d",t.cells());
+          else if(i==1) snprintf(b,sizeof(b),"1/%d",t.division);
+          else if(i==2) {
+            if(s.repeat==Inherit) strcpy(b,"--"); else if(!s.repeat) strcpy(b,"OFF"); else snprintf(b,sizeof(b),"1/%d",s.repeat);
+          } else strcpy(b,selectedEvent(t,a.step,a.key)==LockEvent?"LOCK":eventName(selectedEvent(t,a.step,a.key)));
+          unit=i==0?"TRACK CELLS":i==1?"RESOLUTION":i==2?"TRACK AUDIO":"STEP EVENT";
         } else if (a.fxPage() || (a.page == Pattern && a.bank == 2)) {
           const auto &f = a.page == Mix ? a.project.fx : t.fx;
           int parameter=i+clamp(a.fxBank,0,fxBanks(f.type)-1)*4;
@@ -355,6 +346,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           }
           if (value == Inherit)
             strcpy(b, "--");
+          else if(value==ResetLock) strcpy(b,"RESET");
           else if (f.type == Orbit && parameter == 0) {
             const char *n[] = {"1/16", "1/8", "3/16", "1/4",
                                "3/8",  "1/2", "3/4",  "1 BAR"};
@@ -408,6 +400,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           unit=a.page==Pattern?"STEP LOCK":spec.unit;
           if(a.page==Sampler && (parameter==0 || parameter==4) && t.granular.values[7]==100) unit="SCAN ANCHOR";
           if(value==Inherit) strcpy(b,"--");
+          else if(value==ResetLock) strcpy(b,"RESET");
           else if(parameter==0) snprintf(b,sizeof(b),"%.2f",value*.01);
           else if(parameter>=4 && parameter<=6) snprintf(b,sizeof(b),"%.1f",value*.1);
           else snprintf(b,sizeof(b),"%d",value);
@@ -421,6 +414,7 @@ inline void draw(lab::Canvas &c, const App &a) {
                                    : synthUnit(t.instrument, parameter);
           if (value == Inherit)
             strcpy(b, "--");
+          else if(value==ResetLock) strcpy(b,"RESET");
           else if (t.instrument == FmInstrument && parameter == 1)
             snprintf(b, sizeof(b), "%s", ratioName(value));
           else
@@ -431,8 +425,8 @@ inline void draw(lab::Canvas &c, const App &a) {
           int val[] = {k.pitch, k.start, k.end, k.level};
           if (a.page == Pattern) {
             const auto &hit = t.hits[a.key][a.step];
-            if (hit.locks[i] == Inherit) {
-              strcpy(b, "--");
+            if (!lockValue(hit.locks[i])) {
+              strcpy(b,hit.locks[i]==ResetLock?"RESET":"--");
               disabled = true;
             } else
               val[i] = hit.locks[i];
@@ -444,6 +438,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           if (a.page == Sampler && k.asset < 0)
             strcpy(b, "--");
         }
+        if(a.page==Pattern && a.bank==0 && selectedEvent(t,a.step,a.key)==LockEvent && i<3) { strcpy(b,"--"); unit="NO NOTE"; }
         parameterField(c, v, i, label, b, unit);
       }
     }

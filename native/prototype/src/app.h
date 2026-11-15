@@ -655,6 +655,11 @@ struct App {
            ((buttons.held & (lab::bit(lab::Up) | lab::bit(lab::Down))) ? coarse
                                                                        : 1);
   }
+  int editLock(int value,int base,int low,int high,int direction,int delta) const {
+    if(value==ResetLock) return direction<0?Inherit:low;
+    if(value!=Inherit && value<=low && direction<0) return ResetLock;
+    return clamp((value==Inherit?base:value)+direction*delta,low,high);
+  }
   void edit(int i, int d, int amount) {
     if (page == SongPage) {
       editSong(i, d, amount);
@@ -669,9 +674,12 @@ struct App {
     auto &k = t.keys[key];
     if (page == Pattern) {
       auto &h = t.hits[key][step];
+      if(bank==0 && selectedEvent(t,step,key)==LockEvent && i<3) return;
       if (bank == 0 && !t.instrument) {
         const int fields[] = {HitVelocity, HitFadeIn, HitLength,
                               HitProbability};
+        bool trackOnly=h.on==EmptyEvent && s.on==LockEvent;
+        if(i==3 && trackOnly) { change({Op::Step,track,step,4,clamp(s.probability+d*amount,0,100)}); return; }
         int vals[] = {h.velocity, h.fadeIn, h.length, h.probability};
         int hi[] = {127, 5000, Steps, 100};
         int increment = i == 2 ? t.stride() : 1;
@@ -698,40 +706,34 @@ struct App {
       } else if (bank == 1) {
         if (granularTrack()) {
           i += synthBank * 4;
-          int v = s.grainLocks[i] == Inherit ? t.granular.values[i] : s.grainLocks[i];
-          change({Op::GranularLock, track, step, i, granularEdit(i, v, d, repetitions)});
+          const auto &spec=GranularSpecs[i];
+          change({Op::GranularLock,track,step,i,editLock(s.grainLocks[i],t.granular.values[i],spec.low,spec.high,d,parameterDelta(repetitions,spec.coarse))});
           return;
         }
         if (t.instrument) {
           int type = t.instrument - 1;
           i += synthBank * 4;
-          int v = s.synthLocks[type][i];
-          if (v == Inherit)
-            v = t.synthParams[type][i];
-          change({Op::SynthLock, track, step, type * 8 + i,
-                  synthEdit(t.instrument, i, v, d, repetitions)});
+          const auto &spec=SynthParameters[type][i];
+          change({Op::SynthLock,track,step,type*8+i,editLock(s.synthLocks[type][i],t.synthParams[type][i],synthMin(t.instrument,i),synthMax(t.instrument,i),d,parameterDelta(repetitions,spec.coarse))});
           return;
         }
         const auto &sk = t.keys[key];
         amount = parameterDelta(repetitions, i == 0 ? 12 : 10);
         int base[] = {sk.pitch, sk.start, sk.end, sk.level};
-        int v = h.locks[i] == Inherit ? base[i] : h.locks[i];
-        v = clamp(v + d * amount, i == 0 ? -24 : 0, i == 0 ? 24 : 100);
+        int v=editLock(h.locks[i],base[i],i==0?-24:0,i==0?24:100,d,amount);
+        if(!lockValue(v)) { change({Op::Hit,track,step,hitField(key,HitLock0+i),v}); return; }
         if (i == 1)
-          v = clamp(v, 0, (h.locks[2] == Inherit ? sk.end : h.locks[2]) - 1);
+          v = clamp(v, 0, (!lockValue(h.locks[2]) ? sk.end : h.locks[2]) - 1);
         if (i == 2)
-          v = clamp(v, (h.locks[1] == Inherit ? sk.start : h.locks[1]) + 1,
+          v = clamp(v, (!lockValue(h.locks[1]) ? sk.start : h.locks[1]) + 1,
                     100);
         change({Op::Hit, track, step, hitField(key, HitLock0 + i), v});
       } else if (bank == 2) {
         int type = t.fx.type;
         i += clamp(fxBank,0,fxBanks(type)-1)*4;
         amount = parameterDelta(repetitions, fxCoarseStep(type, i));
-        int v = s.fxLocks[type][i];
-        if (v == Inherit)
-          v = t.fx.values[type][i];
-        change({Op::FxLock, track, step, type * EffectParameters + i,
-                clamp(v + d * amount, fxLow(type, i), fxHigh(type, i))});
+        change({Op::FxLock,track,step,type*EffectParameters+i,
+                editLock(s.fxLocks[type][i],t.fx.values[type][i],fxLow(type,i),fxHigh(type,i),d,amount)});
       } else {
         if (i == 0)
           change(
@@ -743,6 +745,12 @@ struct App {
           change({Op::Track, track, 0, 4, clamp(value, 8, 64)});
           step = step / t.stride() * t.stride();
         }
+        if(i==2) {
+          const int values[]={Inherit,0,8,16,32,64}; int index=0;
+          while(index<5 && values[index]!=s.repeat) ++index;
+          change({Op::Step,track,step,StepRepeatField,values[clamp(index+d,0,5)]});
+        }
+        if(i==3) change({Op::SetEventType,track,step,key,clamp(selectedEvent(t,step,key)+d,0,2)});
         step = clamp(step, 0, t.cycle - 1);
       }
     } else if (page == Sampler && granularTrack()) {
@@ -1040,9 +1048,9 @@ struct App {
           return;
         }
         change(t.instrument
-                   ? Command{Op::Step, track, step, 0, !t.steps[step].on}
+                   ? Command{Op::Step, track, step, 0, t.steps[step].on==NoteEvent?EmptyEvent:NoteEvent}
                    : Command{Op::Hit, track, step, hitField(key, HitOn),
-                             !t.hits[key][step].on});
+                             t.hits[key][step].on==NoteEvent?EmptyEvent:NoteEvent});
       } else if (page == Sampler) {
         if (granularTrack() && !available(project.tracks[track].granular.asset))
           pickAsset();

@@ -1,6 +1,6 @@
 #pragma once
 namespace moss {
-inline constexpr char Version[] = "0.6.4-dev";
+inline constexpr char Version[] = "0.6.5-dev";
 // +33% monitor gain over the previous 135%; retained soft peak protection.
 constexpr int MonitorGainPercent = 180;
 constexpr unsigned AudioRate = 32000, AudioBlockFrames = 1024;
@@ -8,6 +8,13 @@ constexpr int Tracks = 4, Keys = 4, Projects = 32, Steps = 512;
 constexpr int EffectTypes = 5, EffectParameters = 8, ActiveEffects = 2,
               ParametersPerPage = 4, FxMoveField = EffectParameters + 2;
 constexpr int Inherit = -32768;
+constexpr int ResetLock = -32767;
+enum EventType { EmptyEvent, NoteEvent, LockEvent };
+constexpr int StepRepeatField = 10;
+inline bool lockValue(int value) { return value != Inherit && value != ResetLock; }
+inline bool repeatValid(int value) {
+  return value == Inherit || value == 0 || value == 8 || value == 16 || value == 32 || value == 64;
+}
 enum HitField {
   HitOn,
   HitVelocity,

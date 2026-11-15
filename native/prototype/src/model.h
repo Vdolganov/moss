@@ -21,6 +21,7 @@ struct Step {
   int16_t fxLocks[EffectTypes][EffectParameters];
   Step() { for(auto &row:fxLocks) for(auto &v:row) v=Inherit; }
   int on = 0, key = 0, velocity = 90, length = 4, probability = 100;
+  int repeat = Inherit; // Track audio fragment: --, OFF, 1/8, 1/16, 1/32, 1/64.
   int16_t locks[4] = {Inherit, Inherit, Inherit, Inherit};
 };
 struct Hit {
@@ -45,6 +46,35 @@ struct Track {
   int stride() const { return 64 / division; }
   int cells() const { return (cycle + stride() - 1) / stride(); }
 };
+inline bool hitLocksPresent(const Hit &h) {
+  for(int v:h.locks) if(v!=Inherit) return true;
+  return false;
+}
+inline bool stepLocksPresent(const Track &t, const Step &s) {
+  if(s.repeat!=Inherit) return true;
+  for(const auto &row:s.fxLocks) for(int v:row) if(v!=Inherit) return true;
+  if(t.instrument==GranularInstrument) { for(int v:s.grainLocks) if(v!=Inherit) return true; }
+  else if(t.instrument) { for(int v:s.synthLocks[t.instrument-1]) if(v!=Inherit) return true; }
+  return false;
+}
+inline bool noteAt(const Track &t,int at) {
+  if(t.instrument) return t.steps[at].on==NoteEvent;
+  for(const auto &lane:t.hits) if(lane[at].on==NoteEvent) return true;
+  return false;
+}
+inline void normalizeStepEvent(Track &t,int at) {
+  auto &s=t.steps[at];
+  if(s.on==NoteEvent) return;
+  if(s.on==EmptyEvent && !t.instrument && noteAt(t,at)) return;
+  s.on=stepLocksPresent(t,s)?LockEvent:EmptyEvent;
+}
+inline int selectedEvent(const Track &t,int at,int key) {
+  if(t.instrument) return t.steps[at].on;
+  return t.hits[key][at].on ? t.hits[key][at].on : t.steps[at].on==LockEvent?LockEvent:EmptyEvent;
+}
+inline const char *eventName(int type) {
+  return type==NoteEvent?"NOTE":type==LockEvent?"LOCK ONLY":"EMPTY";
+}
 struct Project {
   char name[25] = "UNTITLED";
   int trackCount = 3;
@@ -183,13 +213,13 @@ inline bool valid(const Project &p) {
       return false;
     for (const auto &lane : t.hits)
       for (const auto &h : lane) {
-        if (h.on < 0 || h.on > 1 || h.velocity < 0 || h.velocity > 127 ||
+        if (h.on < 0 || h.on > LockEvent || h.velocity < 0 || h.velocity > 127 ||
             h.probability < 0 || h.probability > 100 || h.fadeIn < 0 ||
             h.fadeIn > 5000 || h.fadeOut < 0 || h.fadeOut > 5000 ||
             h.length < 0 || h.length > Steps)
           return false;
         for (int i = 0; i < 4; i++)
-          if (h.locks[i] != Inherit && (h.locks[i] < (i == 0 ? -24 : 0) ||
+          if (lockValue(h.locks[i]) && (h.locks[i] < (i == 0 ? -24 : 0) ||
                                         h.locks[i] > (i == 0 ? 24 : 100)))
             return false;
       }
@@ -200,29 +230,29 @@ inline bool valid(const Project &p) {
         return false;
     for (const auto &s : t.steps) {
       for (int i = 0; i < GranularParameterCount; ++i)
-        if (s.grainLocks[i] != Inherit &&
+        if (lockValue(s.grainLocks[i]) &&
             (s.grainLocks[i] < GranularSpecs[i].low || s.grainLocks[i] > GranularSpecs[i].high))
           return false;
-      if (s.note < 24 || s.note > 96)
+      if (!repeatValid(s.repeat) || s.note < 24 || s.note > 96)
         return false;
       for (int type = 0; type < 3; type++)
         for (int i = 0; i < 8; i++)
-          if (s.synthLocks[type][i] != Inherit &&
+          if (lockValue(s.synthLocks[type][i]) &&
               (s.synthLocks[type][i] < synthMin(type + 1, i) ||
                s.synthLocks[type][i] > synthMax(type + 1, i)))
             return false;
       for (int type = 0; type < EffectTypes; type++)
         for (int i = 0; i < EffectParameters; i++)
-          if (s.fxLocks[type][i] != Inherit &&
+          if (lockValue(s.fxLocks[type][i]) &&
               (s.fxLocks[type][i] < fxLow(type, i) ||
                s.fxLocks[type][i] > fxHigh(type, i)))
             return false;
-      if (s.on < 0 || s.on > 1 || s.key < 0 || s.key >= Keys ||
+      if (s.on < 0 || s.on > LockEvent || s.key < 0 || s.key >= Keys ||
           s.velocity < 0 || s.velocity > 127 || s.length < 1 ||
           s.length > Steps || s.probability < 0 || s.probability > 100)
         return false;
       for (int i = 0; i < 4; i++)
-        if (s.locks[i] != Inherit && (s.locks[i] < (i == 0 ? -24 : 0) ||
+        if (lockValue(s.locks[i]) && (s.locks[i] < (i == 0 ? -24 : 0) ||
                                       s.locks[i] > (i == 0 ? 24 : 100)))
           return false;
     }
@@ -253,7 +283,9 @@ enum class Op {
   GranularParam,
   GranularLock,
   GranularSource,
-  GranularFreeze
+  GranularFreeze,
+  SetEventType,
+  ClearEvent
 };
 struct Command {
   Op op;
@@ -299,6 +331,7 @@ inline void apply(Project &p, const Command &c) {
   if (c.op == Op::FxLock) {
     p.tracks[c.track].steps[c.index].fxLocks[c.field / EffectParameters][c.field % EffectParameters] =
         c.value;
+    normalizeStepEvent(p.tracks[c.track],c.index);
     return;
   }
   if (c.op == Op::Global) {
@@ -311,10 +344,24 @@ inline void apply(Project &p, const Command &c) {
   if (c.track < 0 || c.track >= Tracks)
     return;
   auto &t = p.tracks[c.track];
+  if(c.op==Op::SetEventType) {
+    if(t.instrument) t.steps[c.index].on=c.value;
+    else if(c.value==NoteEvent) t.hits[c.field][c.index].on=NoteEvent;
+    else {
+      t.hits[c.field][c.index].on=c.value==LockEvent && hitLocksPresent(t.hits[c.field][c.index])?LockEvent:EmptyEvent;
+      if(!noteAt(t,c.index)) t.steps[c.index].on=c.value==LockEvent && stepLocksPresent(t,t.steps[c.index])?LockEvent:EmptyEvent;
+    }
+    return;
+  }
+  if(c.op==Op::ClearEvent) {
+    t.steps[c.index]=Step{};
+    if(!t.instrument) t.hits[c.field][c.index]=Hit{};
+    return;
+  }
   if (c.op == Op::GranularParam && c.field >= 0 && c.field < GranularParameterCount)
     t.granular.values[c.field] = c.value;
   if (c.op == Op::GranularLock && c.index >= 0 && c.index < Steps && c.field >= 0 && c.field < GranularParameterCount)
-    t.steps[c.index].grainLocks[c.field] = int16_t(c.value);
+    { t.steps[c.index].grainLocks[c.field] = int16_t(c.value); normalizeStepEvent(t,c.index); }
   if (c.op == Op::GranularSource)
     t.granular.asset = c.value;
   if (c.op == Op::GranularFreeze)
@@ -326,6 +373,8 @@ inline void apply(Project &p, const Command &c) {
                          &h.probability, &h.locks[0], &h.locks[1], &h.locks[2],
                          &h.locks[3],    &h.length};
     *fields[c.field % HitFieldCount] = int16_t(c.value);
+    if(c.field%HitFieldCount>=HitLock0 && c.field%HitFieldCount<=HitLock3 && h.on!=NoteEvent)
+      h.on=hitLocksPresent(h)?LockEvent:EmptyEvent;
   }
   if (c.op == Op::Instrument)
     t.instrument = c.value;
@@ -343,7 +392,7 @@ inline void apply(Project &p, const Command &c) {
       t.synthParams[c.index][i] = presetValues(c.index + 1, c.value)[i];
   }
   if (c.op == Op::SynthLock)
-    t.steps[c.index].synthLocks[c.field / 8][c.field % 8] = c.value;
+    { t.steps[c.index].synthLocks[c.field / 8][c.field % 8] = c.value; normalizeStepEvent(t,c.index); }
   if (c.op == Op::Track) {
     int *f[] = {&t.cycle, &t.level, &t.pan, &t.mute, &t.division};
     if (c.field >= 0 && c.field < 5)
@@ -357,6 +406,7 @@ inline void apply(Project &p, const Command &c) {
   }
   if (c.op == Op::Step && c.index >= 0 && c.index < Steps) {
     auto &s = t.steps[c.index];
+    if(c.field==StepRepeatField) { s.repeat=c.value; normalizeStepEvent(t,c.index); return; }
     if (c.field >= 5 && c.field <= 8)
       s.locks[c.field - 5] = int16_t(c.value);
     else {

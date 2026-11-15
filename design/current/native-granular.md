@@ -29,3 +29,8 @@ New persistence is MS10. Older IRREGULAR values/locks are cleared on load instea
 SCATTER replaces millisecond JITTER with 0–100% of the selected region. At full scatter, prioritize unoccupied birth regions and hide the common anchor marker; label FULL CLOUD / ALL REGIONS. The active parameter locks feed displayed bounds and mode. STEREO means independent latched grain pan. PLAY and SCAN retain their existing controls; TEXTURE ends with LEVEL. ENVELOPE contains GRAIN IN / GRAIN OUT / NOTE IN / NOTE OUT. Grain fades use percentages of SIZE, note fades use milliseconds. Whole-source, partial-range, zero-scatter, empty, held, lock and envelope states use the same renderer and colors.
 
 Parameter-only step events remain a documented proposal, not a shipping state. Global DESIGN.md and .impeccable/design.json remain authoritative and unchanged; this is an extension, not a visual rebrand.
+
+
+## Native 0.6.5 · LOCK ONLY / REPEAT
+
+PATTERN keeps four banks: STEP / VOICE LOCKS / FX LOCKS / TIMING. TIMING uses Y CYCLE, B STEP, A REPEAT, X TYPE. Repeat is a whole-track audio fragment (OFF / 1/8 / 1/16 / 1/32 / 1/64), before FX; it never calls noteOn. LOCK ONLY is an outlined diamond and LOCK label; note-only fields show NO NOTE. RESET is visually distinct from `--`; the latter adds no event. Existing button colors, graphite palette and navigation remain unchanged. [Current behavior](../../docs/TRIGLESS-LOCKS-PLAN.en.md).
