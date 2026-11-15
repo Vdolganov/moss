@@ -1,0 +1,112 @@
+{
+  "rate": 32000,
+  "neutral_pcm_exact": true,
+  "probe_seconds": 24,
+  "cases": [
+    {
+      "case": 0,
+      "reconstruction_error_rms": 0.0003046948676121505,
+      "output_rms_db": 0.005659669829715552,
+      "pitch_min_cents": -10.299405482880406,
+      "pitch_max_cents": 10.248308202837242,
+      "max_head_speed_deviation": 0.006591796875,
+      "stereo_identical": true,
+      "rate_hz": 0.09999424281267416,
+      "rate_error_percent": 0.005757187325838853,
+      "audio_depth_cents": 10.02716977830474
+    },
+    {
+      "case": 1,
+      "reconstruction_error_rms": 0.0003064821872125349,
+      "output_rms_db": 0.00570300446350964,
+      "pitch_min_cents": -10.300344936785695,
+      "pitch_max_cents": 10.248984931920184,
+      "max_head_speed_deviation": 0.00653076171875,
+      "stereo_identical": true,
+      "rate_hz": 0.29999763039674526,
+      "rate_error_percent": 0.0007898677515716379,
+      "audio_depth_cents": 10.027893238451789
+    },
+    {
+      "case": 2,
+      "reconstruction_error_rms": 0.0003087871812133259,
+      "output_rms_db": 0.005766444612192294,
+      "pitch_min_cents": -10.30061032774583,
+      "pitch_max_cents": 10.239986910151083,
+      "max_head_speed_deviation": 0.005828857421875,
+      "stereo_identical": true,
+      "rate_hz": 3.999993219170504,
+      "rate_error_percent": 0.00016952073740306162,
+      "audio_depth_cents": 10.028821830106635
+    },
+    {
+      "case": 3,
+      "reconstruction_error_rms": 0.0003134361376473781,
+      "output_rms_db": 0.005961967999955265,
+      "pitch_min_cents": -10.300390490919051,
+      "pitch_max_cents": 10.240191368294008,
+      "max_head_speed_deviation": 0.005828857421875,
+      "stereo_identical": true,
+      "rate_hz": 1.9999965999644462,
+      "rate_error_percent": 0.00017000177768844438,
+      "audio_depth_cents": 10.027717959637945
+    },
+    {
+      "case": 4,
+      "reconstruction_error_rms": 0.000304968925199631,
+      "output_rms_db": 0.005671554297547506,
+      "pitch_min_cents": -10.300356694382279,
+      "pitch_max_cents": 10.248254196033303,
+      "max_head_speed_deviation": 0.005828857421875,
+      "stereo_identical": true,
+      "rate_hz": 5.9999972456355115,
+      "rate_error_percent": 4.5906074808144126e-05,
+      "audio_depth_cents": 10.025143731690708
+    },
+    {
+      "case": 5,
+      "reconstruction_error_rms": 0.00028034021479726327,
+      "output_rms_db": 0.004894192018497292,
+      "pitch_min_cents": -10.286646912857785,
+      "pitch_max_cents": 10.234249499752558,
+      "max_head_speed_deviation": 0.005828857421875,
+      "stereo_identical": true,
+      "rate_hz": 30.000001255125145,
+      "rate_error_percent": 4.18375047939179e-06,
+      "audio_depth_cents": 9.99514705462997
+    },
+    {
+      "case": 6,
+      "reconstruction_error_rms": 0.0003057994394027289,
+      "output_rms_db": 0.005707002839984901,
+      "pitch_min_cents": -30.74479349086609,
+      "pitch_max_cents": 30.05928734728662,
+      "max_head_speed_deviation": 0.0174560546875,
+      "stereo_identical": true
+    },
+    {
+      "case": 7,
+      "reconstruction_error_rms": 0.00030380940152440296,
+      "output_rms_db": 0.005728969588390753,
+      "pitch_min_cents": -30.726181442677273,
+      "pitch_max_cents": 29.86351652754759,
+      "max_head_speed_deviation": 0.0174560546875,
+      "stereo_identical": true
+    },
+    {
+      "case": 8,
+      "reconstruction_error_rms": 0.00030636422220589967,
+      "output_rms_db": 0.005735431218348953,
+      "pitch_min_cents": -46.9543881248358,
+      "pitch_max_cents": 45.77050591662287,
+      "max_head_speed_deviation": 0.0260009765625,
+      "stereo_identical": true
+    }
+  ],
+  "source_sha256": {
+    "native/prototype/src/reel_motion.h": "aa2abb025ab83f5d8259ad5e7fc564a739b990ec762b815cc1cf97323822f268",
+    "native/prototype/src/reel_tables.h": "38001ff80897c23dab4ece92463fc22040c96772d3f5eab79cbfec549701305e",
+    "native/prototype/tests/reel_motion_render.cpp": "669628b9e583b24c1d9ad8da7c52ea26655232fa582114ef35e1d09f042627ae"
+  },
+  "audition_sha256": "910b95627d18fc1af81a02c7576532c8e00fe42d2dfc139bfd23b6d329e87c47"
+}

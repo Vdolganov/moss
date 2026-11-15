@@ -8,11 +8,23 @@ inline constexpr EffectSpec FxSpecs[EffectTypes][EffectParameters] = {
    {"LOW CUT",0,2000,100,"HZ"},{"HIGH CUT",500,14000,1000,"HZ"},{"DRIVE",0,100,10,"%"},{"MOTION",0,100,10,"%"}},
   {{"SIZE",0,100,10,"%"},{"DECAY",0,100,10,"%"},{"DAMP",0,100,10,"%"},{"MIX",0,100,10,"%"}},
   {{"DRIVE",0,100,10,"%"},{"BITS",2,16,2,"BIT"},{"RATE",1,32,4,"HOLD"},{"MIX",0,100,10,"%"}},
+#ifdef MOSS_REEL_MOTION_LAB
+  // Laboratory carrier only, never decode production projects with this layout.
+  {{"WOW",0,150,10,"0.1CT"},{"WOW RATE",10,400,10,"0.01HZ"},
+   {"FLUTTER",0,150,10,"0.1CT"},{"AMOUNT",0,100,10,"%"},
+   {"FLT RATE",20,300,10,"0.1HZ"},{"---",0,0,1,""},{"---",0,0,1,""},{"---",0,0,1,""}},
+#else
   {{"WOBBLE",0,100,10,"%"},{"WEAR",0,100,10,"%"},{"NOISE",0,100,10,"%"},{"MIX",0,100,10,"%"}},
+#endif
   {{"DRIVE",0,100,10,"%"},{"TONE",0,100,10,"%"},{"OUTPUT",0,150,10,"%"},{"MIX",0,100,10,"%"},
    {"CURVE",0,2,1,""},{"BIAS",-100,100,10,"%"},{"BODY",0,100,10,"%"},{"DYNAMICS",0,100,10,"%"}}
 };
-inline int fxBanks(int type) { return type == Orbit || type == Drive ? 2 : 1; }
+inline int fxBanks(int type) {
+#ifdef MOSS_REEL_MOTION_LAB
+  if (type == Reel) return 2;
+#endif
+  return type == Orbit || type == Drive ? 2 : 1;
+}
 inline int fxParameters(int type) { return fxBanks(type)*ParametersPerPage; }
 inline const char *fxBankName(int bank) { return bank ? "CHARACTER" : "CORE"; }
 inline const char *driveCurveName(int curve) {
@@ -28,7 +40,12 @@ inline const char *fxName(int type) {
 struct Effect {
   int type=0,enabled=0;
   int values[EffectTypes][EffectParameters] = {
-    {3,35,60,25,0,9000,15,0}, {60,60,45,25}, {20,12,2,25}, {20,30,10,35},
+    {3,35,60,25,0,9000,15,0}, {60,60,45,25}, {20,12,2,25},
+#ifdef MOSS_REEL_MOTION_LAB
+    {20,30,10,35,60},
+#else
+    {20,30,10,35},
+#endif
     {30,50,100,100,0,0,50,0}};
   int enabledTypes[EffectTypes]={},order[EffectTypes]={0,1,2,3,4};
   bool active(int id) const { return id==type ? enabled!=0 : enabledTypes[id]!=0; }

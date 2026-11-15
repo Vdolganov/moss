@@ -1,0 +1,27 @@
+[
+  {
+    "label": "fx_character_test-production",
+    "passed": true,
+    "output": "PASS FX controls: two banks, physical gestures, master navigation, lock identity/reorder, MS12 and MOS8 migration\r\nPASS DRIVE: polynomial primitives, monotonic curves, equal-input ADAA and parameter extrema at four sample rates\r\nPASS ORBIT: stereo feedback decay, no stale history, bounded rapid TIME locks and modulation\r\nBASS dry sampler 20 Hz: 0.0002 dB vs 1 kHz\r\nBASS dry sampler 30 Hz: 0.0001 dB vs 1 kHz\r\nBASS dry sampler 40 Hz: 0.0002 dB vs 1 kHz\r\nBASS dry sampler 60 Hz: 0.0002 dB vs 1 kHz\r\nBASS dry sampler 80 Hz: 0.0003 dB vs 1 kHz\r\nBASS dry sampler 100 Hz: 0.0001 dB vs 1 kHz\r\nBASS dry sampler 200 Hz: 0.0001 dB vs 1 kHz\r\nBASS dry sampler 500 Hz: -0.0002 dB vs 1 kHz\r\nBASS dry sampler 1000 Hz: 0.0000 dB vs 1 kHz\r\nPASS bass: dry sample -> track -> master -> monitor is flat within 0.1 dB from 20 Hz to 1 kHz\r\nPASS DRIVE neutrality: zero drive preserves 20 Hz within 0.5 dB; biased curves settle to silence\r\nPASS engine block invariance: DRIVE curve and ORBIT time/filter locks, hash 61c69909\r\nPASS all 16 DRIVE/ORBIT controls measurably change stereo output\r\n"
+  },
+  {
+    "label": "swing_test-production",
+    "passed": true,
+    "output": "PASS sample-exact SWING + SHIFT at 8/16/32/64, 30/70/137/240 BPM, 8/32/44.1 kHz, odd cycles, reordered/tied events, early wraps, bounded queue\r\nPASS all five instruments: shifted notes keep their full LENGTH measured from actual onset\r\nPASS shifted LOCK ONLY + REPEAT: no retrigger, unchanged gate deadline/head, block-size invariant audio\r\nPASS first early step clips only at START; subsequent cycles anticipate the wrap; STOP clears pending events\r\nPASS live timing edits affect only pending events; CYCLE does not orphan gates; BPM changes preserve musical deadlines\r\nPASS SONG slot boundary: no early next-slot note, no leaked pending events, exact slot duration\r\nPASS physical controls, fine/coarse, nested-page release guard, clear SHIFT, inactive empty-step metadata, MS12 roundtrip/MS11 migration and validation\r\n"
+  },
+  {
+    "label": "trigless_repeat_test-production",
+    "passed": true,
+    "output": "PASS held GRANULAR: locks/repeat preserve gate deadline, read head, grain ages and envelope; per-parameter persistence/RESET/probability; block invariant\r\nPASS MONO/ORGANISM/FM: no note restart or LENGTH extension on locks/repeat\r\nPASS SAMPLER: selected lane only, phase/age preserved; track repeat; stop clears event state\r\nPASS REPEAT: exact 1/8..1/64 periods, 30..240 BPM, stereo fragment, bounded storage and return to live sound\r\nPASS UI/model/MS12: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration\r\nPASS independent 15/16 cycles and 1/8 vs 1/32 resolution; new NOTE resets previous parameter events\r\nPASS silent LOCK ONLY does not create voices; START/STOP reset overrides; FX events process an existing tail\r\nPASS SONG transition/end: repeat and parameter events cannot leak into the next sequence\r\nPASS physical Y/B/A/X mapping: A+arrows REPEAT/RESET, X+arrows TYPE, no short-action leakage, context conversion/clear\r\n"
+  },
+  {
+    "label": "swing_test-reel-lab",
+    "passed": true,
+    "output": "PASS sample-exact SWING + SHIFT at 8/16/32/64, 30/70/137/240 BPM, 8/32/44.1 kHz, odd cycles, reordered/tied events, early wraps, bounded queue\r\nPASS all five instruments: shifted notes keep their full LENGTH measured from actual onset\r\nPASS shifted LOCK ONLY + REPEAT: no retrigger, unchanged gate deadline/head, block-size invariant audio\r\nPASS first early step clips only at START; subsequent cycles anticipate the wrap; STOP clears pending events\r\nPASS live timing edits affect only pending events; CYCLE does not orphan gates; BPM changes preserve musical deadlines\r\nPASS SONG slot boundary: no early next-slot note, no leaked pending events, exact slot duration\r\nPASS physical controls, fine/coarse, nested-page release guard, clear SHIFT, inactive empty-step metadata, MS12 roundtrip/MS11 migration and validation\r\n"
+  },
+  {
+    "label": "trigless_repeat_test-reel-lab",
+    "passed": true,
+    "output": "PASS held GRANULAR: locks/repeat preserve gate deadline, read head, grain ages and envelope; per-parameter persistence/RESET/probability; block invariant\r\nPASS MONO/ORGANISM/FM: no note restart or LENGTH extension on locks/repeat\r\nPASS SAMPLER: selected lane only, phase/age preserved; track repeat; stop clears event state\r\nPASS REPEAT: exact 1/8..1/64 periods, 30..240 BPM, stereo fragment, bounded storage and return to live sound\r\nPASS UI/model/MS12: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration\r\nPASS independent 15/16 cycles and 1/8 vs 1/32 resolution; new NOTE resets previous parameter events\r\nPASS silent LOCK ONLY does not create voices; START/STOP reset overrides; FX events process an existing tail\r\nPASS SONG transition/end: repeat and parameter events cannot leak into the next sequence\r\nPASS physical Y/B/A/X mapping: A+arrows REPEAT/RESET, X+arrows TYPE, no short-action leakage, context conversion/clear\r\n"
+  }
+]

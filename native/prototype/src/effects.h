@@ -2,6 +2,9 @@
 #include "dsp_math.h"
 #include "effect_defs.h"
 #include "fx_character.h"
+#ifdef MOSS_REEL_MOTION_LAB
+#include "reel_motion.h"
+#endif
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -33,6 +36,9 @@ struct FxState {
   } prepared[EffectTypes];
   OrbitDSP orbit;
   DriveDSP drive;
+#ifdef MOSS_REEL_MOTION_LAB
+  ReelMotion reelMotion;
+#endif
   int previousValues[EffectTypes][EffectParameters] = {};
   unsigned preparedRate[EffectTypes] = {};
   int preparedBpm = 0;
@@ -56,6 +62,10 @@ struct FxState {
         c.levels = float(1 << (p[1] - 1));
         c.inverseLevels = 1.f / c.levels;
       } else if (type == Reel) {
+#ifdef MOSS_REEL_MOTION_LAB
+        reelMotion.prepare({p[0] * .1f, p[1] * .01f, p[2] * .1f,
+                            p[4] * .1f, lastEnabled[Reel] ? p[3] * .01f : 0}, rate);
+#endif
         c.phase0 = .62f / rate;
         c.phase1 = 12.4f / rate;
         c.envelope = 1.f / (rate * .03f);
@@ -71,6 +81,10 @@ struct FxState {
   }
   unsigned delayWritten = 0;
   void invalidate() {
+#ifdef MOSS_REEL_MOTION_LAB
+    reelMotion.reset(reelMotion.rate ? reelMotion.rate : AudioRate);
+    preparedRate[Reel] = 0; // A removed/reused SONG track must rebind its controls.
+#endif
     // Each effect clears its logical history on the next enable edge.
     for (int i = 0; i < EffectTypes; ++i) {
       lastEnabled[i] = false;
@@ -119,6 +133,20 @@ struct FxState {
     float l=left/32768.f, r=right/32768.f;
     for (int type : e.order) {
       bool enabled=e.active(type);
+#ifdef MOSS_REEL_MOTION_LAB
+      if (type == Reel) {
+        // Fixed transport latency even in bypass, on all four tracks + master.
+        // Bypass ramps the motion depth; it never crossfades unaligned audio.
+        if (enabled != lastEnabled[Reel]) {
+          const int *p = values[Reel];
+          reelMotion.prepare({p[0] * .1f, p[1] * .01f, p[2] * .1f,
+                              p[4] * .1f, enabled ? p[3] * .01f : 0}, rate);
+          lastEnabled[Reel] = enabled;
+        }
+        reelMotion.process(l, r);
+        continue;
+      }
+#endif
       if(!enabled && wetness[type]==0) { lastEnabled[type]=false;continue; }
       processFloat(l, r, type, enabled, values[type], rate, bpm);
     }

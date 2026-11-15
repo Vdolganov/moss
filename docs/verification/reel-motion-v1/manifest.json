@@ -1,0 +1,180 @@
+{
+  "completed_utc": "2026-11-15T14:57:46.353993+00:00",
+  "stage": "isolated clean-path + wow/flutter candidate",
+  "device": "original RG35XX / GarlicOS 1.4.9",
+  "production_installed": false,
+  "hardware_series_passed": true,
+  "release_qualified": false,
+  "reason": "Preview/capture routing, final UI/persistence, listening and cold-boot qualification remain separate integration work.",
+  "binary": {
+    "remote": "/mnt/mmc/MOSS-Reel-Motion-v5",
+    "sha256": {
+      "moss": "abec1b9a7c6cbb01901a1013948dad664ce4b9fd9cb290a18465eb3fce8e70fe",
+      "moss-baseline": "cd899d2146e4e68eafa5a5477caf5bcc3fa68e74bcef73be4ef8da3f30874cf6",
+      "test-arm": "7ff5661e85093471689cf62c1bec58cd57a065bbe5253ada0fcb0a205631a0b1"
+    }
+  },
+  "run_count": 14,
+  "total_profile_seconds": 1326,
+  "candidate_profile_seconds": 1176,
+  "callbacks": 41469,
+  "candidate_callbacks": 36774,
+  "candidate_worst_callback_us": 26848,
+  "candidate_worst_p99_upper_us": 26000,
+  "active_reel_mean_cost_target_met": true,
+  "overall_p99_24ms_target_met": false,
+  "overall_max_28ms_target_met": true,
+  "audio_faults": 0,
+  "queue_overflows": 0,
+  "slow_ui_frames": 0,
+  "governor_restored": "interactive",
+  "garlic_restored": true,
+  "comparison": [
+    {
+      "mask": 9,
+      "baseline_mean_us": 18800,
+      "candidate_mean_us": 20013,
+      "delta_mean_us": 1213,
+      "baseline_p99_upper_us": 21000,
+      "candidate_p99_upper_us": 22500,
+      "baseline_max_us": 21903,
+      "candidate_max_us": 23754
+    },
+    {
+      "mask": 10,
+      "baseline_mean_us": 20539,
+      "candidate_mean_us": 21157,
+      "delta_mean_us": 618,
+      "baseline_p99_upper_us": 23000,
+      "candidate_p99_upper_us": 23750,
+      "baseline_max_us": 24131,
+      "candidate_max_us": 24981
+    },
+    {
+      "mask": 12,
+      "baseline_mean_us": 17439,
+      "candidate_mean_us": 18043,
+      "delta_mean_us": 604,
+      "baseline_p99_upper_us": 19750,
+      "candidate_p99_upper_us": 20500,
+      "baseline_max_us": 20968,
+      "candidate_max_us": 21404
+    },
+    {
+      "mask": 24,
+      "baseline_mean_us": 19267,
+      "candidate_mean_us": 20582,
+      "delta_mean_us": 1315,
+      "baseline_p99_upper_us": 21500,
+      "candidate_p99_upper_us": 23000,
+      "baseline_max_us": 24021,
+      "candidate_max_us": 24163
+    },
+    {
+      "mask": 18,
+      "baseline_mean_us": 21825,
+      "candidate_mean_us": 23568,
+      "delta_mean_us": 1743,
+      "baseline_p99_upper_us": 24000,
+      "candidate_p99_upper_us": 26000,
+      "baseline_max_us": 24596,
+      "candidate_max_us": 26848
+    }
+  ],
+  "soak": {
+    "build": "MOSS 0.6.6-dev",
+    "completed": true,
+    "rate": 32000,
+    "buffer": 1024,
+    "callbacks": 28329,
+    "callback_max_us": 26753,
+    "over_budget": 0,
+    "late_intervals": 0,
+    "frames": 29008896,
+    "triggers": [
+      114,
+      114,
+      114,
+      114
+    ],
+    "grain_peaks": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "lock_events": [
+      57903,
+      57904,
+      57903,
+      57904
+    ],
+    "repeat_events": [
+      4533,
+      4533,
+      4533,
+      4533
+    ],
+    "track_count": 4,
+    "stream_underruns": 0,
+    "project_saved": true,
+    "pcm_bytes": 33554432,
+    "assets": 32,
+    "fx_seen_mask": 10,
+    "capture_started": 91,
+    "capture_finished": 91,
+    "instruments_seen_mask": 16,
+    "callback_mean_us": 21483,
+    "reserved_objects_bytes": 71309712,
+    "callback_p99_upper_us": 23000,
+    "ui_frame_max_us": 12400,
+    "ui_slow_frames": 0,
+    "profile_kind": 17,
+    "profile_effect_mask": 10,
+    "profile_target_seconds": 1200,
+    "elapsed_seconds": 906,
+    "audio_realtime_error": 0,
+    "audio_priority": 10,
+    "timing_events": [
+      58017,
+      58018,
+      58017,
+      58018
+    ],
+    "schedule_overflows": 0,
+    "profile_passed": false
+  },
+  "soak_shortened_by_user": {
+    "requested_utc": "2026-11-15T14:55:42.394086+00:00",
+    "reason": "User explicitly requested a shorter run than 20 minutes.",
+    "minimum_observed_seconds": 840,
+    "pid": "7319",
+    "remote": "/mnt/mmc/MOSS-Reel-Motion-v5"
+  },
+  "reports": [
+    "baseline-10",
+    "baseline-12",
+    "baseline-18",
+    "baseline-24",
+    "baseline-9",
+    "candidate-10",
+    "candidate-12",
+    "candidate-18",
+    "candidate-24",
+    "candidate-9",
+    "mixed",
+    "sampler",
+    "soak-reel-pond",
+    "song"
+  ],
+  "source_sha256": {
+    "native/prototype/src/reel_motion.h": "aa2abb025ab83f5d8259ad5e7fc564a739b990ec762b815cc1cf97323822f268",
+    "native/prototype/src/reel_tables.h": "38001ff80897c23dab4ece92463fc22040c96772d3f5eab79cbfec549701305e",
+    "native/prototype/src/effects.h": "d8d4aa8261003b6d7787465bbb646a83579242f91ad50a3d237c707c59d1e9b2",
+    "native/prototype/src/effect_defs.h": "275a469da3fb846b882a7a1bee31af5813d7a4d3fdcdfd2ded26cb46b25c552f",
+    "native/prototype/src/diagnostics/stress_scenario.h": "56226dce3af2cb7bd390870b5e999b28f0abcca126ee4cd60867906a0cc3e180",
+    "native/prototype/tests/reel_motion_garlic.cpp": "274e5e731be669f559222f687deaa507d5165f616cf6a9c15e2838a4e5e73487",
+    "native/prototype/tests/reel_motion_test.cpp": "e010d68a7cd697c13bfab90d4dda982d856f64090a4f77aa4d1b9956de5c2db7"
+  },
+  "installed_granular_binary_unchanged": "d4fbf9572fdf6af441637a5c1dc6b5ead2b5b621e3bfda0242ea882182152fb3"
+}

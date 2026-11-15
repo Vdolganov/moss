@@ -2,6 +2,8 @@
 
 [Русский](REEL-RESEARCH-PLAN.md) · **English** · 15 November 2026
 
+Follow-up: [implemented clean-path and WOW/FLUTTER candidate](REEL-MOTION-v1.en.md), including hardware results. The user agreed to focused 2–3 minute checks for intermediate DSP edits; the 20-minute duration below is no longer the default requirement. The remaining document preserves the original rationale and full REEL plan.
+
 Status: research and proposed implementation. Production DSP, UI, application version and device were not changed. Baseline: 0.6.6-dev, commit `59c7cd217fd43acc8c63de9b39ab39134913f38b`. This supersedes the earlier eight-parameter REEL proposal in the [Elektron research](ELEKTRON-FX-RESEARCH.en.md), not the controls available in the current application.
 
 ## 1. What REEL is based on

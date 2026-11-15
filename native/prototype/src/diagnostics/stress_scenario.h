@@ -30,6 +30,10 @@ inline void stressProject(Project &p, int tracks, int instrument,
     for(int kind=0;kind<EffectTypes;++kind) fx.values[kind][3]=100;
     fx.values[Drive][0]=100;fx.values[Drive][4]=2;fx.values[Drive][7]=100;
     fx.values[Orbit][6]=100;fx.values[Orbit][7]=100;
+#ifdef MOSS_REEL_MOTION_LAB
+    fx.values[Reel][0]=150;fx.values[Reel][1]=10;
+    fx.values[Reel][2]=150;fx.values[Reel][4]=300;
+#endif
     fx.values[0][1] = 95;
     fx.values[1][1] = 100;
     fx.values[2][2] =
