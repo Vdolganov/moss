@@ -63,7 +63,7 @@ inline void stressProject(Project &p, int tracks, int instrument,
       step.length = Steps;
       step.velocity = 127;
       for (int kind = 1; kind <= 3; ++kind)
-        for (int i = 0; i < 8; ++i) {
+        for (int i = 0; i < synthCount(kind); ++i) {
           int lo = synthMin(kind, i), hi = synthMax(kind, i);
           step.synthLocks[kind - 1][i] =
               int16_t(lo + (hi - lo) * ((s + t + i) % 3) / 2);

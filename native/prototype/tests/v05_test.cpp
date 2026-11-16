@@ -74,8 +74,8 @@ static void timelineAndGestures() {
   assert(t.steps[8].synthLocks[0][2] == Inherit);
   app.page = Sampler;
   app.parameterPage(1);
-  assert(app.synthBank == 0);
-  app.parameterPage(1);
+  assert(app.synthBank == 2);
+  app.parameterPage(-1);
   app.edit(3, 1, 5);
   assert(t.synthParams[0][7] == 25);
   app.page = Space;

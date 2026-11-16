@@ -21,7 +21,7 @@ execFileSync(path.join(build,'granular_ambient_test.exe'),[],{stdio:'inherit',cw
 execFileSync(path.join(build,'trigless_repeat_test.exe'),[],{stdio:'inherit',cwd:root});
 execFileSync(path.join(build,'swing_test.exe'),[],{stdio:'inherit',cwd:root});
 execFileSync(path.join(build,'fx_character_test.exe'),[],{stdio:'inherit',cwd:root});
-for(const name of ['reel_motion_test','reel_color_test','reel_release_test','reel_color_engine_test','ambient_update_test']) {
+for(const name of ['reel_motion_test','reel_color_test','reel_release_test','reel_color_engine_test','ambient_update_test','mono_update_test']) {
   run([...host,'-I'+path.join(root,'src'),path.join(root,'tests',name+'.cpp'),'-o',path.join(build,name+'.exe')]);
   execFileSync(path.join(build,name+'.exe'),[],{stdio:'inherit',cwd:root});
 }
@@ -30,5 +30,5 @@ for(const mode of ['mono','organism','fm','synthlocks','synthgrid','instrument']
 run([...host,path.join(root,'src/main_windows.cpp'),'-Wl,/subsystem:windows','-lwinmm','-lgdi32','-o',path.join(build,process.env.MOSS_DESKTOP_NAME||'MOSS.exe')]);
 fs.mkdirSync(path.join(build,'samples'),{recursive:true});for(const n of ['chime','air','dust'])fs.copyFileSync(path.join(root,'samples',n+'.wav'),path.join(build,'samples',n+'.wav'));
 const version=fs.readFileSync(path.join(root,'src/config.h'),'utf8').match(/Version\[\] = "([^"]+)"/)[1];
-fs.writeFileSync(path.join(build,'tests.json'),JSON.stringify({version,desktop_exe:process.env.MOSS_DESKTOP_NAME||'MOSS.exe',music:'passed',interaction:'passed',features:'passed',synth:'passed',workflow:'passed',v05:'passed',v051:'passed',v052:'passed',granularUnit:'passed',granularAmbient:'passed',triglessRepeat:'passed',swing:'passed',granularIntegration:'passed',fxCharacter:'passed',reelMotion:'passed',reelColor:'passed',reelRelease:'passed',reelEngine:'passed',ambientUpdate:'passed',previews:7,synthPreviews:6,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(build,'moss'))).digest('hex'),device:'pending'},null,2));
+fs.writeFileSync(path.join(build,'tests.json'),JSON.stringify({version,desktop_exe:process.env.MOSS_DESKTOP_NAME||'MOSS.exe',music:'passed',interaction:'passed',features:'passed',synth:'passed',workflow:'passed',v05:'passed',v051:'passed',v052:'passed',granularUnit:'passed',granularAmbient:'passed',triglessRepeat:'passed',swing:'passed',granularIntegration:'passed',fxCharacter:'passed',reelMotion:'passed',reelColor:'passed',reelRelease:'passed',reelEngine:'passed',ambientUpdate:'passed',monoUpdate:'passed',previews:7,synthPreviews:6,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(build,'moss'))).digest('hex'),device:'pending'},null,2));
 console.log('Built ARM, Windows, tests and seven previews');

@@ -105,7 +105,7 @@ struct App {
     return id >= 0 && id < engine->sampleCount && engine->samples[id].frames;
   }
   bool granularTrack() const { return project.tracks[track].instrument == GranularInstrument; }
-  int voiceBanks() const { return granularTrack() ? GranularBankCount : 2; }
+  int voiceBanks() const { return granularTrack() ? GranularBankCount : synthBanks(project.tracks[track].instrument); }
   void assignSample(int id) {
     change(granularTrack() ? Command{Op::GranularSource, track, 0, 0, id}
                            : Command{Op::Key, track, key, 0, id});
@@ -718,7 +718,7 @@ struct App {
           int type = t.instrument - 1;
           i += synthBank * 4;
           const auto &spec=SynthParameters[type][i];
-          change({Op::SynthLock,track,step,type*8+i,editLock(s.synthLocks[type][i],t.synthParams[type][i],synthMin(t.instrument,i),synthMax(t.instrument,i),d,parameterDelta(repetitions,spec.coarse))});
+          change({Op::SynthLock,track,step,type*SynthParameterCount+i,editLock(s.synthLocks[type][i],t.synthParams[type][i],synthMin(t.instrument,i),synthMax(t.instrument,i),d,parameterDelta(repetitions,spec.coarse))});
           return;
         }
         const auto &sk = t.keys[key];

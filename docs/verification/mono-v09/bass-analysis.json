@@ -1,0 +1,98 @@
+[
+  {
+    "note": 28,
+    "hz": 41.20344461410875,
+    "resonance": 0,
+    "before": {
+      "fundamental_dbfs": -8.873468190800653,
+      "rms_dbfs": -11.16668701171875,
+      "peak": 0.4244384765625
+    },
+    "after": {
+      "fundamental_dbfs": -7.307352541632421,
+      "rms_dbfs": -9.264424324035645,
+      "peak": 0.51318359375
+    },
+    "fundamental_gain_db": 1.566115649168231
+  },
+  {
+    "note": 28,
+    "hz": 41.20344461410875,
+    "resonance": 85,
+    "before": {
+      "fundamental_dbfs": -13.318882903079468,
+      "rms_dbfs": -15.098752975463867,
+      "peak": 0.46148681640625
+    },
+    "after": {
+      "fundamental_dbfs": -7.178934850088322,
+      "rms_dbfs": -8.545077323913574,
+      "peak": 0.78326416015625
+    },
+    "fundamental_gain_db": 6.139948052991145
+  },
+  {
+    "note": 33,
+    "hz": 55.0,
+    "resonance": 0,
+    "before": {
+      "fundamental_dbfs": -8.81468749181249,
+      "rms_dbfs": -11.147822380065918,
+      "peak": 0.400909423828125
+    },
+    "after": {
+      "fundamental_dbfs": -7.310067113593774,
+      "rms_dbfs": -9.312379837036133,
+      "peak": 0.498077392578125
+    },
+    "fundamental_gain_db": 1.5046203782187169
+  },
+  {
+    "note": 33,
+    "hz": 55.0,
+    "resonance": 85,
+    "before": {
+      "fundamental_dbfs": -13.31690676973462,
+      "rms_dbfs": -14.954499244689941,
+      "peak": 0.448944091796875
+    },
+    "after": {
+      "fundamental_dbfs": -7.206326830410071,
+      "rms_dbfs": -8.547030448913574,
+      "peak": 0.773895263671875
+    },
+    "fundamental_gain_db": 6.110579939324549
+  },
+  {
+    "note": 40,
+    "hz": 82.4068892282175,
+    "resonance": 0,
+    "before": {
+      "fundamental_dbfs": -8.795785339500402,
+      "rms_dbfs": -11.20832347869873,
+      "peak": 0.375091552734375
+    },
+    "after": {
+      "fundamental_dbfs": -7.339382410572525,
+      "rms_dbfs": -9.443917274475098,
+      "peak": 0.478912353515625
+    },
+    "fundamental_gain_db": 1.4564029289278766
+  },
+  {
+    "note": 40,
+    "hz": 82.4068892282175,
+    "resonance": 85,
+    "before": {
+      "fundamental_dbfs": -13.426539847690142,
+      "rms_dbfs": -14.724054336547852,
+      "peak": 0.438507080078125
+    },
+    "after": {
+      "fundamental_dbfs": -7.288487936826505,
+      "rms_dbfs": -8.553854942321777,
+      "peak": 0.76727294921875
+    },
+    "fundamental_gain_db": 6.138051910863637
+  }
+]

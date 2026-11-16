@@ -1,0 +1,42 @@
+[
+  {
+    "preset": "signal",
+    "rate": 32000,
+    "seconds": 12,
+    "peak": 0.693145751953125,
+    "rms_dbfs": -10.115680694580078,
+    "mean": 0.0002150004729628563,
+    "nonfinite": 0,
+    "samples_at_limit": 0
+  },
+  {
+    "preset": "soft",
+    "rate": 32000,
+    "seconds": 12,
+    "peak": 0.649505615234375,
+    "rms_dbfs": -9.977444648742676,
+    "mean": -0.0001776943972799927,
+    "nonfinite": 0,
+    "samples_at_limit": 0
+  },
+  {
+    "preset": "acid",
+    "rate": 32000,
+    "seconds": 12,
+    "peak": 0.882598876953125,
+    "rms_dbfs": -13.230674743652344,
+    "mean": -0.0010206354781985283,
+    "nonfinite": 0,
+    "samples_at_limit": 0
+  },
+  {
+    "preset": "sub",
+    "rate": 32000,
+    "seconds": 12,
+    "peak": 0.622955322265625,
+    "rms_dbfs": -10.191387176513672,
+    "mean": 0.00015501101734116673,
+    "nonfinite": 0,
+    "samples_at_limit": 0
+  }
+]

@@ -101,7 +101,7 @@ int main() {
   assert(app.editLock(20,50,20,100,-1,1)==ResetLock);
   assert(app.editLock(ResetLock,50,20,100,-1,1)==Inherit);
   app.change({Op::GranularLock,0,8,10,ResetLock});assert(app.project.tracks[0].steps[8].on==LockEvent);
-  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS14",4));assert(codec.decode(restored,codec.cursor));
+  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS15",4));assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[8].grainLocks[10]==ResetLock && restored.tracks[0].steps[8].repeat==8);
   setup(GranularInstrument);project.tracks[0].steps[28].on=EmptyEvent;
   // Old off steps with locks must stay off, and repeat must default to --.

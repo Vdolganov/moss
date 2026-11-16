@@ -6,6 +6,7 @@
 #include "song.h"
 #include "stream_preview.h"
 #include "synth.h"
+#include "mono_view.h"
 #include "granular.h"
 #include "repeat.h"
 #include "sequencer_timing.h"
@@ -49,6 +50,7 @@ struct Engine {
   }
   SynthTables tables;
   SynthVoice synth[Tracks], synthTails[Tracks];
+  MonoMailbox monoView[Tracks];
   float muteGain[Tracks] = {1, 1, 1};
   uint64_t rates[32][49] = {};
   unsigned rate = 44100;
@@ -113,6 +115,7 @@ struct Engine {
       triggerCount[t] = lastTrigger[t] = 0;
       bindGranular(t);
       grainView[t].publish(granular[t]);
+      monoView[t].publish(synth[t].monoVoice,project.tracks[t].instrument==MonoInstrument);
     }
     for (int s = 0; s < sampleCount; s++)
       for (int pitch = -24; pitch <= 24; pitch++)
@@ -168,10 +171,10 @@ struct Engine {
       return;
     }
     if (tr.instrument != SampleInstrument) {
-      int params[8];
+      int params[SynthParameterCount];
       synthSettings(t, &step, params);
       if (!(synth[t].active && synth[t].kind == OrganismInstrument &&
-            tr.instrument == OrganismInstrument)) {
+            tr.instrument == OrganismInstrument) && !(synth[t].active && synth[t].kind==MonoInstrument && tr.instrument==MonoInstrument)) {
         synthTails[t] = synth[t];
         synthTails[t].stop();
         synth[t] = SynthVoice{};
@@ -179,7 +182,7 @@ struct Engine {
       synth[t].on(tr.instrument, step.note, tables.frequency[step.note],
                   step.velocity, step.length, params,
                   tr.synthMode[tr.instrument - 1], rate,
-                  project.seed ^ uint32_t(t + 1) * 73537u ^ uint32_t(tick));
+                  project.seed ^ uint32_t(t + 1) * 73537u ^ uint32_t(tick),synthCount(tr.instrument));
       seenInstrumentMask |= 1u << tr.instrument;
       triggerCount[t]++;
       lastTrigger[t] = uint32_t(frame);
@@ -207,7 +210,7 @@ struct Engine {
   void synthSettings(int t, const Step *step, int *params) {
     const auto &tr = project.tracks[t];
     int type = tr.instrument - 1;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < synthCount(tr.instrument); i++)
       params[i] = step && lockValue(step->synthLocks[type][i])
                       ? step->synthLocks[type][i]
                       : tr.synthParams[type][i];
@@ -220,11 +223,11 @@ struct Engine {
     }
     if (!tr.instrument)
       return;
-    int params[8];
+    int params[SynthParameterCount];
     synthSettings(
         t, &eventValues[t],
         params);
-    synth[t].setTarget(params, tr.synthMode[tr.instrument - 1]);
+    synth[t].setTarget(params, tr.synthMode[tr.instrument - 1],synthCount(tr.instrument));
   }
   void dispatchStep(int t,int at,uint64_t nominal) {
     const auto &tr=project.tracks[t];
@@ -532,6 +535,7 @@ struct Engine {
     for (int t = 0; t < Tracks; t++) {
       __atomic_store_n(&shownPeak[t], peaks[t], __ATOMIC_RELEASE);
       grainView[t].publish(granular[t]);
+      monoView[t].publish(synth[t].monoVoice,project.tracks[t].instrument==MonoInstrument);
     }
   }
 };

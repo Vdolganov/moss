@@ -15,10 +15,8 @@ struct Step {
                             Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
                             Inherit, Inherit, Inherit, Inherit};
   int note = 48;
-  int16_t synthLocks[3][8] = {
-      {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
-      {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},
-      {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit}};
+  int16_t synthLocks[3][SynthParameterCount];
+  Step(){for(auto &row:synthLocks)for(auto &v:row)v=Inherit;}
   FxLocks fxLocks;
   int on = 0, key = 0, velocity = 90, length = 4, probability = 100;
   int repeat = Inherit; // Track audio fragment: --, OFF, 1/8, 1/16, 1/32, 1/64.
@@ -34,7 +32,7 @@ struct Track {
   GranularPatch granular;
   char name[25] = "TRACK";
   int instrument = SampleInstrument, audition = 48;
-  int synthParams[3][8] = {{1200, 30, 8, 600, 35, 25, 0, 20},
+  int synthParams[3][SynthParameterCount] = {{1200,30,8,600,35,25,0,20,50,0,0,12,500,100,300,20,30,0,0,0},
                            {30, 35, 15, 65, 55, 8, 450, 2500},
                            {45, 4, 12, 2200, 4, 0, 3, 0}};
   int synthMode[3] = {}, synthPreset[3] = {};
@@ -200,7 +198,7 @@ inline bool valid(const Project &p) {
       if (t.synthMode[type] < 0 || t.synthMode[type] > 1 ||
           t.synthPreset[type] < -1 || t.synthPreset[type] > 3)
         return false;
-      for (int i = 0; i < 8; i++)
+      for (int i = 0; i < synthCount(type+1); i++)
         if (t.synthParams[type][i] < synthMin(type + 1, i) ||
             t.synthParams[type][i] > synthMax(type + 1, i))
           return false;
@@ -240,7 +238,7 @@ inline bool valid(const Project &p) {
           !repeatValid(s.repeat) || s.note < 24 || s.note > 96)
         return false;
       for (int type = 0; type < 3; type++)
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < synthCount(type+1); i++)
           if (lockValue(s.synthLocks[type][i]) &&
               (s.synthLocks[type][i] < synthMin(type + 1, i) ||
                s.synthLocks[type][i] > synthMax(type + 1, i)))
@@ -399,11 +397,11 @@ inline void apply(Project &p, const Command &c) {
     t.synthMode[c.index] = c.value;
   if (c.op == Op::SynthPreset) {
     t.synthPreset[c.index] = c.value;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < synthCount(c.index+1); i++)
       t.synthParams[c.index][i] = presetValues(c.index + 1, c.value)[i];
   }
   if (c.op == Op::SynthLock)
-    { t.steps[c.index].synthLocks[c.field / 8][c.field % 8] = c.value; normalizeStepEvent(t,c.index); }
+    { t.steps[c.index].synthLocks[c.field / SynthParameterCount][c.field % SynthParameterCount] = c.value; normalizeStepEvent(t,c.index); }
   if (c.op == Op::Track) {
     int *f[] = {&t.cycle, &t.level, &t.pan, &t.mute, &t.division, &t.swing};
     if (c.field >= 0 && c.field < 6)

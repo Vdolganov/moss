@@ -33,6 +33,16 @@ int main(int argc, char **argv) {
   app.projectTracks[0] = 3;
   app.projectTempos[0] = 70;
   if (argc == 4) {
+    if(!strncmp(argv[3],"mono-v09-",9)){
+      app.project=Project{};app.project.trackCount=1;app.track=0;app.page=Sampler;
+      strcpy(app.project.name,"MONO STUDY");auto &tr=app.project.tracks[0];strcpy(tr.name,"DEEP SIGNAL");tr.instrument=MonoInstrument;tr.audition=33;
+      for(int i=0;i<20;++i)tr.synthParams[0][i]=presetValues(1,1)[i];tr.synthPreset[0]=1;tr.synthMode[0]=1;
+      app.synthBank=atoi(argv[3]+9);engine.init(app.project,nullptr,AudioRate,0);engine.handle({Op::Audition,0});
+      int16_t sound[2048];for(int i=0;i<22;++i)engine.render(sound,1024);
+      if(!strcmp(argv[3],"mono-v09-idle")){engine.handle({Op::Stop});engine.render(sound,1024);app.synthBank=0;}
+      if(!strcmp(argv[3],"mono-v09-release")){engine.synth[0].off();engine.render(sound,1024);app.synthBank=3;}
+      if(!strcmp(argv[3],"mono-v09-locks")){app.page=Pattern;app.bank=1;app.synthBank=4;app.step=8;tr.steps[8].on=LockEvent;tr.steps[8].synthLocks[0][16]=137;}
+    }
     if(!strncmp(argv[3],"event-",6)) {
       app.project=makeSynthDemo();app.page=Pattern;app.track=0;app.step=28;app.bank=0;
       auto &tr=app.project.tracks[0];tr.instrument=GranularInstrument;tr.cycle=64;

@@ -44,7 +44,7 @@ struct Codec {
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
   bool upgradedReel=false;
-  void fields(Project &p, bool writing, int version = 14) {
+  void fields(Project &p, bool writing, int version = 15) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -108,9 +108,8 @@ struct Codec {
         value(t.granular.freeze);
         for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(t.granular.values[i]);
       }
-      for (auto &row : t.synthParams)
-        for (auto &n : row)
-          value(n);
+      for(int type=0;type<3;++type)
+        for(int i=0;i<(version>=15?synthCount(type+1):8);++i)value(t.synthParams[type][i]);
       for (auto &n : t.synthMode)
         value(n);
       for (auto &n : t.synthPreset)
@@ -169,9 +168,8 @@ struct Codec {
         value(s.note);
         if (version >= 7)
           for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(s.grainLocks[i]);
-        for (auto &row : s.synthLocks)
-          for (auto &n : row)
-            value(n);
+        for(int type=0;type<3;++type)
+          for(int i=0;i<(version>=15?synthCount(type+1):8);++i)value(s.synthLocks[type][i]);
         for(int type=0;type<(version>=9?EffectTypes:4);++type) {
           int old[16];for(auto &v:old)v=Inherit;
           for(int i=0;i<(version>=14?fxParameters(type):version==13?(type==Pond?4:fxParameters(type)):version>=9?8:4);++i) {
@@ -211,8 +209,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MS14", 4);
-    word(4, 14);
+    memcpy(bytes, "MS15", 4);
+    word(4, 15);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -227,15 +225,20 @@ struct Codec {
     bool v11 = !memcmp(bytes, "MS11", 4) && word(4) == 11;
     bool v12 = !memcmp(bytes, "MS12", 4) && word(4) == 12;
     bool v13 = !memcmp(bytes, "MS13", 4) && word(4) == 13;
+    bool v14 = !memcmp(bytes, "MS14", 4) && word(4) == 14;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && !v13 && (memcmp(bytes, "MS14", 4) || word(4) != 14)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && !v13 && !v14 && (memcmp(bytes, "MS15", 4) || word(4) != 15)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:v13?13:14;
+    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:v13?13:v14?14:15;
     fields(temp,false,version);
+    if(version<15)for(auto &t:temp.tracks){
+      const int extra[]={50,0,0,0,500,100,80+t.synthParams[0][3]*2/5,0,30,0,0,0};
+      for(int i=8;i<SynthParameterCount;++i)t.synthParams[0][i]=extra[i-8];
+    }
     if(version<14) for(auto &t:temp.tracks) for(int i=16;i<GranularParameterCount;++i)t.granular.values[i]=0;
     // The old timing-irregularity control must not silently become head jumps.
     if (legacy || v6 || v7 || v8 || v9) for (auto &t : temp.tracks) {

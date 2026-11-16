@@ -1,0 +1,47 @@
+{
+  "remote": "/mnt/mmc/MOSS-Reel-Release-v15",
+  "sha256": "65d2f0a28e468eb02e9b4911c159b1b032a845b16b762799c9c47a453bf5907d",
+  "profiles": [
+    [
+      "mono-max",
+      "24",
+      "10",
+      "20"
+    ],
+    [
+      "mono-locks",
+      "22",
+      "10",
+      "20"
+    ],
+    [
+      "mono-orbit",
+      "22",
+      "9",
+      "15"
+    ],
+    [
+      "mixed",
+      "23",
+      "10",
+      "15"
+    ],
+    [
+      "granular",
+      "21",
+      "10",
+      "20"
+    ],
+    [
+      "song",
+      "20",
+      "10",
+      "15"
+    ]
+  ],
+  "checks": false,
+  "qualified": true,
+  "callbacks": 3289,
+  "max_us": 30078,
+  "seconds": 105
+}

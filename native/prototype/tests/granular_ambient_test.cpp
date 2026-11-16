@@ -63,7 +63,7 @@ int main() {
   puts("PASS independent head RNG: full SCATTER births unchanged by JUMP and FREEZE");
   project.tracks[0].instrument=GranularInstrument;auto &t=project.tracks[0];
   t.granular.values[2]=8000;t.granular.values[9]=73;t.steps[0].grainLocks[9]=91;
-  assert(codec.encode(project) && !memcmp(codec.bytes,"MS14",4));
+  assert(codec.encode(project) && !memcmp(codec.bytes,"MS15",4));
   assert(codec.decode(restored,codec.cursor));assert(restored.tracks[0].granular.values[2]==8000);
   assert(restored.tracks[0].granular.values[9]==73 && restored.tracks[0].steps[0].grainLocks[9]==91);
   // Genuine old payload, with timing irregularity in the now-replaced slot.

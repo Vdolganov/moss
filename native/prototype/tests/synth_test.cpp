@@ -179,7 +179,7 @@ static void boundsAndPitch() {
             int l = 0, r = 0;
             v.render(l, r, tables);
             assert(isfinite(v.env) && isfinite(v.dcOut) &&
-                   isfinite(v.filter[3]));
+                   isfinite(v.monoVoice.state[3]));
             assert(l == r && abs(l) < 32113);
           }
           v.stop();

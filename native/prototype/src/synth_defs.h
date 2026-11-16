@@ -13,15 +13,28 @@ inline const char *instrumentName(int i) {
   const char *n[] = {"SAMPLER", "MONO", "ORGANISM", "FM", "GRANULAR"};
   return n[i];
 }
-inline constexpr ParameterSpec SynthParameters[3][8] = {
+inline constexpr int SynthParameterCount=20;
+inline int synthCount(int kind) { return kind==MonoInstrument?20:8; }
+inline int synthBanks(int kind) { return synthCount(kind)/4; }
+inline const char *synthBankName(int kind,int bank) {
+  const char *mono[]={"CORE","COLOR","OSC","ENV","MOTION"};
+  return kind==MonoInstrument?mono[bank]:bank?"CHARACTER":"CORE";
+}
+inline constexpr ParameterSpec SynthParameters[3][SynthParameterCount] = {
     {{"CUTOFF", 20, 12000, "HZ", 100},
      {"RESONANCE", 0, 100, "PERCENT"},
      {"ATTACK", 0, 5000, "MS", 100},
      {"RELEASE", 0, 10000, "MS", 100},
-     {"ENV AMT", 0, 100, "PERCENT"},
+     {"ENV AMT", -100, 100, "PERCENT"},
      {"SUB", 0, 100, "PERCENT"},
      {"NOISE", 0, 100, "PERCENT"},
-     {"DRIVE", 0, 100, "PERCENT"}},
+     {"DRIVE", 0, 100, "PERCENT"},
+     {"PULSE W", 5, 95, "PERCENT"}, {"DETUNE", 0, 30, "CENTS", 5},
+     {"GLIDE", 0, 2000, "MS", 100}, {"DRIFT", 0, 100, "PERCENT"},
+     {"DECAY", 10, 8000, "MS", 100}, {"SUSTAIN", 0, 100, "PERCENT"},
+     {"FLT DECAY", 10, 8000, "MS", 100}, {"KEY TRACK", 0, 100, "PERCENT"},
+     {"LFO RATE", 1, 2000, "HZ", 10}, {"PWM", 0, 100, "PERCENT"},
+     {"VCF MOD", 0, 100, "PERCENT"}, {"VIBRATO", 0, 100, "CENTS"}},
     {{"TENSION", 0, 100, "PERCENT"},
      {"DRIFT", 0, 100, "PERCENT"},
      {"CHAOS", 0, 100, "PERCENT"},
@@ -59,10 +72,10 @@ inline const char *presetName(int kind, int n) {
   return p[kind - 1][n];
 }
 inline const int *presetValues(int kind, int n) {
-  static const int p[3][4][8] = {{{1200, 30, 8, 600, 35, 25, 0, 20},
-                                  {700, 20, 350, 1800, 10, 30, 8, 5},
-                                  {400, 85, 3, 700, 80, 10, 5, 60},
-                                  {200, 25, 3, 400, 15, 85, 0, 25}},
+  static const int p[3][4][SynthParameterCount] = {{{1200,30,8,600,35,25,0,20,50,0,0,12,500,100,300,20,30,0,0,0},
+                                  {700,20,350,1800,10,30,4,10,50,7,140,35,1800,80,2400,30,18,35,12,3},
+                                  {220,88,3,350,80,20,0,48,50,0,85,8,260,50,220,45,110,0,0,0},
+                                  {180,15,4,700,18,100,0,12,50,0,80,8,700,90,450,35,12,0,0,0}},
                                  {{30, 35, 15, 65, 55, 8, 450, 2500},
                                   {15, 60, 8, 85, 40, 35, 1600, 6500},
                                   {75, 55, 65, 90, 85, 50, 100, 4000},

@@ -4,7 +4,7 @@
 
 [Русский](README.md) · **English**
 
-The stable application version is **0.5.2**; experimental **0.8.0-dev / GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
+The stable application version is **0.5.2**; experimental **0.9.0-dev / MONO + GRANULAR** is developed separately. Use the native guide for RG35XX and Windows. The browser prototype is a separate implementation without audio, with different bindings and limits.
 
 | Document | Русский | English |
 |---|---|---|
@@ -16,6 +16,7 @@ The stable application version is **0.5.2**; experimental **0.8.0-dev / GRANULAR
 | Browser prototype v0.6 | [Руководство](<../visual prototype/README.md>) | [Guide](<../visual prototype/README.en.md>) |
 | 0.5.2 release notes | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
 | GRANULAR / LENS: experimental 0.8.0-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| MONO: 0.9.0-dev | [Звук, управление и исследование](MONO-v09.md) | [Sound, controls and research](MONO-v09.en.md) |
 | DRIVE / ORBIT: 0.6.2-dev | [Эффекты и проверка](FX-CHARACTER-v1.md) | [Effects and verification](FX-CHARACTER-v1.en.md) |
 | Ambient LENS: 0.6.4-dev | [Пэды, JUMP и проверка](AMBIENT-LENS-v1.md) | [Pads, JUMP and verification](AMBIENT-LENS-v1.en.md) |
 | WAV catalog: 0.6.3-dev | [Изменения и проверка](CATALOG-v063.md) | [Changes and verification](CATALOG-v063.en.md) |

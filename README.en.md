@@ -11,7 +11,7 @@ A standalone groovebox for the **original Anbernic RG35XX**: a sequencer, synthe
 RG35XX Plus/H/2024/SP and other models have not been tested for this release. GarlicOS 1.3.9 remains a compatibility target, but this particular 0.5.2 build has not been retested on it.
 
 
-Current development branch **0.8.0-dev** adds [ambient GRANULAR and updated POND](docs/AMBIENT-RESEARCH-v08.en.md), plus the larger REEL visual. Saves use MS14; the published stable 0.5.2 snapshot remains a separate release.
+Current development branch **0.9.0-dev** adds [rebuilt MONO](docs/MONO-v09.en.md) with twenty controls and a live scope, [ambient GRANULAR and updated POND](docs/AMBIENT-RESEARCH-v08.en.md), plus the larger REEL visual. Saves use MS15; the published stable 0.5.2 snapshot remains a separate release.
 
 ## Features
 

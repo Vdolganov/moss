@@ -1,6 +1,7 @@
 #pragma once
 #include "dsp_math.h"
 #include "synth_defs.h"
+#include "mono_dsp.h"
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -8,8 +9,10 @@ namespace moss {
 // Original MOSS DSP. The algorithms are inspired by the instrument families,
 // not component-accurate emulations or ports of their firmware.
 struct SynthTables {
+  MonoTables mono;
   float sine[2049], frequency[128];
   void init() {
+    mono.init();
     for (int i = 0; i <= 2048; i++)
       sine[i] = float(sin(6.283185307179586 * i / 2048));
     for (int i = 0; i < 128; i++)
@@ -29,6 +32,7 @@ struct SynthTables {
   }
 };
 struct SynthVoice {
+  MonoDSP monoVoice;
   bool active = false, gate = false;
   int kind = MonoInstrument, mode = 0, note = 48, remaining = 0;
   unsigned rate = 44100, control = 0, previewFrames = 0, forced = 0,
@@ -36,12 +40,11 @@ struct SynthVoice {
   float phase[4] = {}, previous[4] = {}, drift[4] = {}, driftTarget[4] = {};
   float lfo[2] = {}, params[8] = {}, target[8] = {}, env = 0, gain = 0,
         targetGain = 0, base = 130.8128f;
-  float filter[4] = {}, G = .05f, resonance = 0, attackStep = .001f,
+  float attackStep = .001f,
         releaseCoefficient = .999f;
   float fmDecay = 1, fmCoefficient = .999f, ratio = 1, dcIn = 0, dcOut = 0,
         dcCoefficient = .999f;
-  float colorState = 0, colorCoefficient = .5f, filterEnv = 1,
-        filterDecay = .999f;
+  float colorState = 0, colorCoefficient = .5f, filterEnv = 1;
   float fir[17] = {};
   unsigned firPos = 0, randomAt = 0;
   uint32_t random = 1;
@@ -80,13 +83,22 @@ struct SynthVoice {
     random ^= random << 5;
     return float(random & 65535) / 32767.5f - 1;
   }
-  void setTarget(const int *v, int selectedMode) {
+  void setTarget(const int *v, int selectedMode,int count=8) {
+    if(kind==MonoInstrument){int values[SynthParameterCount];for(int i=0;i<SynthParameterCount;++i)values[i]=i<count?v[i]:int(monoVoice.target[i]);monoVoice.setTarget(values,selectedMode);}
     mode = selectedMode;
     for (int i = 0; i < 8; i++)
       target[i] = float(v[i]);
   }
   void on(int type, int midi, float hz, int velocity, int length, const int *v,
-          int selectedMode, unsigned sampleRate, uint32_t seed) {
+          int selectedMode, unsigned sampleRate, uint32_t seed,int count=8) {
+    if(type==MonoInstrument){
+      if(kind!=MonoInstrument||!active)monoVoice=MonoDSP{};
+      int values[SynthParameterCount];for(int i=0;i<SynthParameterCount;++i)values[i]=i<count?v[i]:presetValues(MonoInstrument,0)[i];
+      monoVoice.on(midi,hz,velocity,values,selectedMode,sampleRate,seed);
+      kind=type;note=midi;base=hz;rate=sampleRate;remaining=length;mode=selectedMode;previewFrames=forced=0;active=gate=true;
+      for(int i=0;i<8;++i)params[i]=target[i]=float(v[i]);
+      return;
+    }
     bool continuous =
         active && kind == OrganismInstrument && type == OrganismInstrument;
     if (!continuous) {
@@ -112,9 +124,10 @@ struct SynthVoice {
     control = 0;
     setTarget(v, selectedMode);
   }
-  void off() { gate = false; }
+  void off() { gate = false;if(kind==MonoInstrument)monoVoice.off(); }
   void stop(unsigned samples = 128) {
     if (active) {
+      if(kind==MonoInstrument)monoVoice.stop(samples);
       forced = forcedTotal = samples;
       gate = false;
     }
@@ -132,22 +145,7 @@ struct SynthVoice {
   }
   void coefficients() {
     prepareRate();
-    if (kind == MonoInstrument) {
-      float cut = bounded(params[0] * powf(2, params[4] * .06f * filterEnv), 20,
-                          rate * .4f);
-      if (coefficientChanged(3)) {
-        filterDecay = expf(-4.60517f / (rate * (.08f + params[3] * .0004f)));
-        releaseCoefficient =
-            expf(-9.21034037f / (rate * fmaxf(.005f, params[3] / 1000)));
-      }
-      float g = tanf(3.141592653589793f * cut / (rate * 2));
-      G = g / (1 + g);
-      resonance = bounded(params[1] * .039f, 0, 3.9f);
-      if (coefficientChanged(2))
-        attackStep =
-            1.f /
-            (rate * (params[2] > .0f ? fmaxf(.003f, params[2] / 1000) : .003f));
-    } else if (kind == OrganismInstrument) {
+    if (kind == OrganismInstrument) {
       if (coefficientChanged(6))
         attackStep = 1.f / (rate * fmaxf(.003f, params[6] / 1000));
       if (coefficientChanged(4))
@@ -189,35 +187,6 @@ struct SynthVoice {
     frequency[3] *= 1 - params[4] * .00028f;
     for (int i = 0; i < 4; i++)
       fmSteps[i] = bounded(frequency[i] / (rate * 2), .000001f, .45f);
-  }
-  float mono() {
-    float dt = bounded(base / (rate * 2), .000001f, .4f),
-          x = mode ? pulse(phase[0], dt) : saw(phase[0], dt);
-    phase[0] += dt;
-    if (phase[0] >= 1)
-      phase[0] -= 1;
-    phase[1] += dt * .5f;
-    if (phase[1] >= 1)
-      phase[1] -= 1;
-    float sub = 1 - 4 * fabsf(phase[1] - .5f);
-    x = (x + sub * params[5] * .014f + randomBipolar() * params[6] * .008f) /
-        (1 + params[5] * .006f);
-    // Four trapezoidal one-poles with solved global feedback, then bounded
-    // drive.
-    float g2 = G * G, g3 = g2 * G, g4 = g3 * G;
-    float state =
-        (1 - G) * (g3 * filter[0] + g2 * filter[1] + G * filter[2] + filter[3]);
-    float u = (saturate(x * (1.35f + params[7] * .05f)) - resonance * state) /
-              (1 + resonance * g4);
-    u = bounded(u, -4, 4);
-    for (int i = 0; i < 4; i++) {
-      float v = (u - filter[i]) * G;
-      u = v + filter[i];
-      filter[i] = u + v;
-      if (fabsf(filter[i]) < 1e-15f)
-        filter[i] = 0;
-    }
-    return saturate(u * (1 + resonance * .35f)) * 1.1f;
   }
   float organism(const SynthTables &t) {
     float tension = params[0] / 100, depth = params[1] / 100,
@@ -291,6 +260,12 @@ struct SynthVoice {
   void render(int &left, int &right, const SynthTables &t) {
     if (!active)
       return;
+    if(kind==MonoInstrument){
+      if(previewFrames&&! --previewFrames)off();
+      int result=int(monoVoice.render(t.mono)*32767);left+=result;right+=result;
+      active=monoVoice.active;gate=monoVoice.gate;env=monoVoice.env;gain=monoVoice.gain;filterEnv=monoVoice.filterEnv;
+      return;
+    }
     prepareRate();
     for (int i = 0; i < 8; i++)
       params[i] += (target[i] - params[i]) * smoothing;
@@ -306,11 +281,6 @@ struct SynthVoice {
       env = minimum(1, env + attackStep);
     else
       env *= releaseCoefficient;
-    if (kind == MonoInstrument) {
-      filterEnv *= filterDecay;
-      if (filterEnv < 1e-10f)
-        filterEnv = 0;
-    }
     if (kind == FmInstrument) {
       fmDecay *= fmCoefficient;
       if (fmDecay < 1e-10f)
@@ -321,9 +291,7 @@ struct SynthVoice {
       return;
     }
     for (int os = 0; os < 2; os++) {
-      float sample = kind == MonoInstrument       ? mono()
-                     : kind == OrganismInstrument ? organism(t)
-                                                  : fm(t);
+      float sample = kind == OrganismInstrument ? organism(t) : fm(t);
       fir[firPos] = sample;
       if (++firPos == 17)
         firPos = 0;

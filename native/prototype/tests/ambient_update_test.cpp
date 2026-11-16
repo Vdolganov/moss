@@ -42,7 +42,7 @@ static void storage(){
   assert(codec.decode(restored,codec.cursor));
   for(int i=16;i<20;++i)assert(restored.tracks[0].granular.values[i]==0 && restored.tracks[0].steps[3].grainLocks[i]==Inherit);
   for(int i=4;i<8;++i)assert(restored.tracks[0].steps[3].fxLocks[Pond][i]==Inherit);
-  puts("PASS MS14 round trip and real MS13 field layout; no invented cloud or POND locks");
+  puts("PASS MS15 round trip and real MS13 field layout; no invented cloud or POND locks");
 }
 static void reverb(){
   const unsigned rates[]={8000u,32000u,44100u,96000u};

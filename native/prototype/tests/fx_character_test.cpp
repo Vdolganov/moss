@@ -33,7 +33,7 @@ static void controls() {
   tap(lab::R1);assert(app.mixTab==1&&app.fxDetail&&app.fxBank==1);
   gesture(lab::B,lab::Up);assert(app.project.fx.values[Orbit][5]==10000);
   assert(valid(app.project));
-  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS14",4));
+  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS15",4));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[0].fxLocks[Drive][7]==1);
   assert(restored.fx.values[Orbit][5]==10000);

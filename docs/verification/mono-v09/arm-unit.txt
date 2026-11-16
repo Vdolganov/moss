@@ -1,0 +1,9 @@
+PASS MONO: both waves, all-control extrema, rapid locks, 8/32/44.1/96 kHz, finite bounded output, exp2 accuracy
+
+PASS MONO: legato preserves phase/envelopes, glide reaches destination, live edits do not retrigger, release ends
+
+PASS MONO: twenty controls/locks MS15, real MS14 layout, neutral added modulation and inherited locks
+
+PASS MONO: five banks, voice and lock edits, isolated other instruments, real scope and idle reset
+
+RESULT:0

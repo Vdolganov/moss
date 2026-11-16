@@ -467,7 +467,7 @@ void chooseOption() {
                 ? Command{Op::GranularLock, track, step, synthBank * 4 + j, i==8?ResetLock:Inherit}
             : t.instrument
                 ? Command{Op::SynthLock, track, step,
-                          (t.instrument - 1) * 8 + synthBank * 4 + j, i==8?ResetLock:Inherit}
+                          (t.instrument - 1) * SynthParameterCount + synthBank * 4 + j, i==8?ResetLock:Inherit}
                 : Command{Op::Hit, track, step, hitField(key, HitLock0 + j),
                           i==8?ResetLock:Inherit});
     if (i == 5) {

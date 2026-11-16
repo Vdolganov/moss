@@ -254,7 +254,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       } else text(c, 520, 326,
            a.bank == 2                    ? fxName(tr.fx.type)
            : a.bank == 1 && a.granularTrack() ? GranularBanks[a.synthBank]
-           : a.bank == 1 && tr.instrument ? (a.synthBank ? "CHAR" : "CORE")
+           : a.bank == 1 && tr.instrument ? synthBankName(tr.instrument,a.synthBank)
                                           : "L1/R1",
            DIM, 2, 8);
     }
@@ -436,6 +436,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           else if(value==ResetLock) strcpy(b,"RESET");
           else if (t.instrument == FmInstrument && parameter == 1)
             snprintf(b, sizeof(b), "%s", ratioName(value));
+          else if(t.instrument==MonoInstrument&&parameter==16){snprintf(b,sizeof(b),"%.2f",value*.01);unit="HZ";}
           else
             snprintf(b, sizeof(b), "%d", value);
         } else {
@@ -479,7 +480,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       : a.page == Pattern && !a.project.tracks[a.track].instrument
           ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"
-      : a.page == Pattern && a.bank == 1 ? "L1+ARROWS CORE-CHAR / L1/R1 BANK"
+      : a.page == Pattern && a.bank == 1 ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"
       : a.page == Pattern ? "ARROWS STEP / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Sampler && a.granularTrack()
           ? (a.available(a.project.tracks[a.track].granular.asset) ? "A AUDITION / X FREEZE / L1/R1 BANK" : "A ASSIGN / L1/R1 BANK / L1+R1 OPTIONS")

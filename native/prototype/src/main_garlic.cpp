@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 21 || profileMask >= (1u << EffectTypes) ||
+    if (profileKind < -1 || profileKind > 24 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -311,19 +311,22 @@ int main(int argc, char **argv) {
       stressSample(sample);
       if (profileKind >= 5) sample.rate = 96000;
     }
-    if(profileKind>=17) stressSwing(app.project,profileMask,profileKind==18?1:profileKind==19?2:0);
+    if(profileKind>=22) stressProject(app.project,Tracks,profileKind==23?-1:MonoInstrument,profileMask);
+    else if(profileKind>=17) stressSwing(app.project,profileMask,profileKind==18?1:profileKind==19?2:0);
     else if(profileKind>=13) stressEvents(app.project,profileMask,profileKind==14?1:profileKind==15?2:0);
     else if (profileKind >= 5)
       stressGranular(app.project, profileMask, profileKind==6?1:profileKind==8?2:profileKind==9?3:profileKind==10?4:profileKind==11?5:profileKind==12?6:0);
     else
       stressProject(app.project, Tracks, profileKind == 4 ? 2 : profileKind, profileMask);
-    app.page = Pattern;
-  }
-  engine.init(app.project, library.pcm, got.freq, Assets);
-  app.engine = &engine;
-  if (!profiling)
-    app.seedProjects();
-  else {
+    if(profileKind==24) {
+      for(auto &track:app.project.tracks){track.synthMode[0]=1;
+        for(auto &step:track.steps){
+          for(int i=0;i<synthCount(MonoInstrument);++i)step.synthLocks[0][i]=synthMax(MonoInstrument,i);
+          step.synthLocks[0][2]=3;step.note=36;
+          for(int type=0;type<EffectTypes;++type)for(int i=0;i<fxParameters(type);++i)step.fxLocks[type][i]=track.fx.values[type][i];
+        }
+      }
+    }
     if(profileKind==21) {
       for(auto &track:app.project.tracks)for(auto &step:track.steps){
         for(int i=0;i<16;++i)step.fxLocks[Reel][i]=track.fx.values[Reel][i];
@@ -334,6 +337,13 @@ int main(int argc, char **argv) {
         step.grainLocks[18]=step.grainLocks[19]=0;
       }
     }
+    app.page = Pattern;
+  }
+  engine.init(app.project, library.pcm, got.freq, Assets);
+  app.engine = &engine;
+  if (!profiling)
+    app.seedProjects();
+  else {
     if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) {
       void *memory = malloc(sizeof(SongBank));
       if (!memory)
@@ -390,7 +400,7 @@ int main(int argc, char **argv) {
       unsigned seconds = unsigned((micros() - start) / 1000000);
       const Page pages[] = {Pattern, Sampler, Space, Mix, Grid, Tape};
       app.page = (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) ? SongPage : pages[(seconds / 2) % 6];
-      if (profileKind==11 || profileKind==13 || profileKind==17) app.page=Sampler; // Keep the full live lens visible.
+      if (profileKind==11 || profileKind==13 || profileKind==17 || profileKind>=22) app.page=Sampler;
       if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20))
         app.songRow = int(seconds % SongSlots);
       app.track = int((seconds / 3) % Tracks);

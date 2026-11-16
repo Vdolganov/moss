@@ -20,7 +20,7 @@ void voiceEvent(int t,const Step &s,int at,bool note) {
     for(auto &row:v.synthLocks) for(auto &n:row) n=Inherit;
     memset(voiceEventSource[t],255,sizeof(voiceEventSource[t]));
   }
-  int count=tr.instrument==GranularInstrument?GranularParameterCount:8;
+  int count=tr.instrument==GranularInstrument?GranularParameterCount:synthCount(tr.instrument);
   for(int i=0;i<count;++i) {
     int value=tr.instrument==GranularInstrument?s.grainLocks[i]:s.synthLocks[tr.instrument-1][i];
     if(value==Inherit) continue;
@@ -64,8 +64,8 @@ void liveEventEdit(const Command &c) {
   if(c.op==Op::GranularLock && (voiceEventSource[t][c.field]==c.index || activeVoiceStep[t]==c.index)) {
     v.grainLocks[c.field]=int16_t(value); voiceEventSource[t][c.field]=int16_t(c.index);
   }
-  if(c.op==Op::SynthLock && (voiceEventSource[t][c.field%8]==c.index || activeVoiceStep[t]==c.index)) {
-    v.synthLocks[c.field/8][c.field%8]=int16_t(value); voiceEventSource[t][c.field%8]=int16_t(c.index);
+  if(c.op==Op::SynthLock && (voiceEventSource[t][c.field%SynthParameterCount]==c.index || activeVoiceStep[t]==c.index)) {
+    v.synthLocks[c.field/SynthParameterCount][c.field%SynthParameterCount]=int16_t(value); voiceEventSource[t][c.field%SynthParameterCount]=int16_t(c.index);
   }
   if(c.op==Op::FxLock && (fxEventSource[t][c.field/EffectParameters][c.field%EffectParameters]==c.index || activeFxStep[t]==c.index)) {
     v.fxLocks[c.field/EffectParameters][c.field%EffectParameters]=int16_t(value);
