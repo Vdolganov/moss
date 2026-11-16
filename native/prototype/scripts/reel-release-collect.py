@@ -7,7 +7,9 @@ adb=str(root/'native/tooling/platform-tools/adb.exe');remote=manifest['remote']
 def pull(name,target):subprocess.run([adb,'pull',remote+'/'+name,str(target)],capture_output=True,check=True)
 def shell(command):return subprocess.check_output([adb,'shell',command],text=True).replace('\r','')
 assert shell('cat '+remote+'/complete').strip()=='done','The series is incomplete'
-out=root/'docs/verification/reel-v1'/revision;out.mkdir(exist_ok=True,parents=True)
+# Optional destination lets later DSP revisions reuse the same strict collector.
+out=root/sys.argv[2] if len(sys.argv)>2 else root/'docs/verification/reel-v1'/revision
+out.mkdir(exist_ok=True,parents=True)
 results=[]
 for name,kind,mask,seconds in manifest['profiles']:
     target=out/(name+'.json');pull(name+'.json',target);pull(name+'.log',out/(name+'-output.txt'))

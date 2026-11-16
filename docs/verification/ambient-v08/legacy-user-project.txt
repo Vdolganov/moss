@@ -1,0 +1,5 @@
+HISS white RMS -24.017 dBFS / channel correlation -0.00243
+PASS REEL: exact neutral float / dual-head FIR / independent calibrated hiss / STOP / defects / AMOUNT recovery
+PASS REEL: four pages / physical fine-coarse / all lock pages / MS14 roundtrip / atomic master preset
+PASS capture alignment: track/master, exact one-bar length, no leading transport delay, manual finish during warmup
+PASS actual legacy project: [private name omitted] / 3 tracks

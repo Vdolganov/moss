@@ -44,7 +44,7 @@ struct Codec {
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
   bool upgradedReel=false;
-  void fields(Project &p, bool writing, int version = 13) {
+  void fields(Project &p, bool writing, int version = 14) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -61,9 +61,9 @@ struct Codec {
       for(int i=0;i<types;++i) value(e.order[i]);
       for(int t=0;t<types;++t) {
         int old[16]={};
-        for(int i=0;i<(version>=13?fxParameters(t):version>=9?8:4);++i) {
+        for(int i=0;i<(version>=14?fxParameters(t):version==13?(t==Pond?4:fxParameters(t)):version>=9?8:4);++i) {
           int v=i<fxParameters(t)?e.values[t][i]:0;value(v);old[i]=v;
-          if(version>=13 || t!=Reel) {if(i<fxParameters(t))e.values[t][i]=v;}
+          if(version>=13 || t!=Reel) {if(i<fxParameters(t) && !(version<14 && t==Pond && i>=4))e.values[t][i]=v;}
         }
         if(!writing && version<13 && t==Reel) {
           for(int i=0;i<4;++i)if(old[i]<0 || old[i]>100)ok=false;
@@ -106,7 +106,7 @@ struct Codec {
       if (version >= 7) {
         value(t.granular.asset);
         value(t.granular.freeze);
-        for (int i=0;i<(version>=8?GranularParameterCount:12);++i) value(t.granular.values[i]);
+        for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(t.granular.values[i]);
       }
       for (auto &row : t.synthParams)
         for (auto &n : row)
@@ -168,15 +168,15 @@ struct Codec {
       for (auto &s : t.steps) {
         value(s.note);
         if (version >= 7)
-          for (int i=0;i<(version>=8?GranularParameterCount:12);++i) value(s.grainLocks[i]);
+          for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(s.grainLocks[i]);
         for (auto &row : s.synthLocks)
           for (auto &n : row)
             value(n);
         for(int type=0;type<(version>=9?EffectTypes:4);++type) {
           int old[16];for(auto &v:old)v=Inherit;
-          for(int i=0;i<(version>=13?fxParameters(type):version>=9?8:4);++i) {
+          for(int i=0;i<(version>=14?fxParameters(type):version==13?(type==Pond?4:fxParameters(type)):version>=9?8:4);++i) {
             int v=i<fxParameters(type)?s.fxLocks[type][i]:Inherit;value(v);old[i]=v;
-            if(version>=13 || type!=Reel) {if(i<fxParameters(type))s.fxLocks[type][i]=int16_t(v);}
+            if(version>=13 || type!=Reel) {if(i<fxParameters(type) && !(version<14 && type==Pond && i>=4))s.fxLocks[type][i]=int16_t(v);}
           }
           if(!writing && version<13 && type==Reel) {
             for(int i=0;i<4;++i)if(lockValue(old[i]) && (old[i]<0 || old[i]>100))ok=false;
@@ -211,8 +211,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MS13", 4);
-    word(4, 13);
+    memcpy(bytes, "MS14", 4);
+    word(4, 14);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -226,15 +226,17 @@ struct Codec {
     bool v10 = !memcmp(bytes, "MS10", 4) && word(4) == 10;
     bool v11 = !memcmp(bytes, "MS11", 4) && word(4) == 11;
     bool v12 = !memcmp(bytes, "MS12", 4) && word(4) == 12;
+    bool v13 = !memcmp(bytes, "MS13", 4) && word(4) == 13;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && (memcmp(bytes, "MS13", 4) || word(4) != 13)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && !v13 && (memcmp(bytes, "MS14", 4) || word(4) != 14)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:13;
+    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:v13?13:14;
     fields(temp,false,version);
+    if(version<14) for(auto &t:temp.tracks) for(int i=16;i<GranularParameterCount;++i)t.granular.values[i]=0;
     // The old timing-irregularity control must not silently become head jumps.
     if (legacy || v6 || v7 || v8 || v9) for (auto &t : temp.tracks) {
       if (t.granular.values[9] < 0 || t.granular.values[9] > 100) ok = false;

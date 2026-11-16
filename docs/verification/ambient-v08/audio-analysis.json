@@ -1,0 +1,66 @@
+{
+  "pond-0": {
+    "t20_extrapolated_seconds": 2.997,
+    "energy": 0.132693,
+    "late_normalized_echo_density": 0.821,
+    "lr_correlation": 0.0744,
+    "first_nonzero_ms": 43.94,
+    "peak": 0.03206
+  },
+  "pond-1": {
+    "t20_extrapolated_seconds": 10.074,
+    "energy": 0.240988,
+    "late_normalized_echo_density": 0.936,
+    "lr_correlation": 0.047,
+    "first_nonzero_ms": 43.94,
+    "peak": 0.03206
+  },
+  "pond-2": {
+    "t20_extrapolated_seconds": 2.956,
+    "energy": 0.133082,
+    "late_normalized_echo_density": 0.352,
+    "lr_correlation": 0.074,
+    "first_nonzero_ms": 61.31,
+    "peak": 0.1048
+  },
+  "pond-3": {
+    "t20_extrapolated_seconds": 3.123,
+    "energy": 0.132567,
+    "late_normalized_echo_density": 0.818,
+    "lr_correlation": 0.0189,
+    "first_nonzero_ms": 43.84,
+    "peak": 0.03041
+  },
+  "pond-4": {
+    "t20_extrapolated_seconds": 2.997,
+    "energy": 0.132693,
+    "late_normalized_echo_density": 0.776,
+    "lr_correlation": 0.0744,
+    "first_nonzero_ms": 143.94,
+    "peak": 0.03206
+  },
+  "pond-5": {
+    "t20_extrapolated_seconds": 2.893,
+    "energy": 0.015725,
+    "late_normalized_echo_density": 0.835,
+    "lr_correlation": -0.0042,
+    "first_nonzero_ms": 43.94,
+    "peak": 0.00874
+  },
+  "cloud-0": {
+    "peak": 0.3287491202354431,
+    "steady_rms_dbfs": -21.58
+  },
+  "cloud-1": {
+    "peak": 0.326048880815506,
+    "steady_rms_dbfs": -23.54
+  },
+  "cloud-2": {
+    "peak": 0.36320760846138,
+    "steady_rms_dbfs": -22.75
+  },
+  "cloud-3": {
+    "peak": 0.22894807159900665,
+    "steady_rms_dbfs": -25.14
+  }
+}

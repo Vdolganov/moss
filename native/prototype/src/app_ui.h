@@ -351,7 +351,7 @@ inline void draw(lab::Canvas &c, const App &a) {
           int value = f.values[f.type][parameter];
           if (a.page == Pattern) {
             value = s.fxLocks[f.type][parameter];
-            unit = f.type==Reel && lockValue(value)?FxSpecs[f.type][parameter].unit:"STEP LOCK";
+            unit = (f.type==Reel || f.type==Pond) && lockValue(value)?FxSpecs[f.type][parameter].unit:"STEP LOCK";
           }
           if (value == Inherit)
             strcpy(b, "--");
@@ -360,6 +360,8 @@ inline void draw(lab::Canvas &c, const App &a) {
             const char *n[] = {"1/16", "1/8", "3/16", "1/4",
                                "3/8",  "1/2", "3/4",  "1 BAR"};
             snprintf(b, sizeof(b), "%s", n[value]);
+          } else if(f.type==Pond && parameter==1) {
+            snprintf(b,sizeof(b),"%.1f",pondSeconds(value));
           } else if(f.type==Drive && parameter==4) {
             snprintf(b,sizeof(b),"%s",driveCurveName(value));
           } else if(f.type==Orbit && parameter==4 && value==0) {

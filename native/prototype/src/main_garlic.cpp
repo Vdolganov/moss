@@ -325,8 +325,14 @@ int main(int argc, char **argv) {
     app.seedProjects();
   else {
     if(profileKind==21) {
-      for(auto &track:app.project.tracks)for(auto &step:track.steps)
+      for(auto &track:app.project.tracks)for(auto &step:track.steps){
         for(int i=0;i<16;++i)step.fxLocks[Reel][i]=track.fx.values[Reel][i];
+        for(int i=0;i<8;++i)step.fxLocks[Pond][i]=track.fx.values[Pond][i];
+        // Constant longest grains reach all eight voices; separate changing-
+        // lock profiles cover size variation and jitter without hiding load.
+        step.grainLocks[16]=50;step.grainLocks[17]=100;
+        step.grainLocks[18]=step.grainLocks[19]=0;
+      }
     }
     if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) {
       void *memory = malloc(sizeof(SongBank));

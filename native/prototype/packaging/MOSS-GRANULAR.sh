@@ -4,7 +4,7 @@ cd "$MOSS_BASE/MOSS-GRANULAR" || exit 1
 mkdir -p projects reports || exit 1
 MOSS_STAMP=$(date +%Y%m%d-%H%M%S)
 exec >>"reports/startup-$MOSS_STAMP-$$.log" 2>&1
-echo "MOSS 0.7.0 / REEL + GRANULAR / original RG35XX"
+echo "MOSS 0.8.0-dev / AMBIENT + POND + REEL / original RG35XX"
 date
 uname -a
 chmod 755 ./moss 2>/dev/null

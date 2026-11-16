@@ -69,7 +69,7 @@ static void controls() {
   app.page=Mix;app.mixTab=1;app.project.fx.select(Reel);app.voicePicker=4;app.voiceChoice=2;tap(lab::A);
   for(int i=0;i<16;++i)assert(app.project.fx.values[Reel][i]==ReelPresets[2][i]);
   assert(app.project.tracks[0].fx.values[Reel][ReelDrive]==1);
-  puts("PASS REEL: four pages / physical fine-coarse / all lock pages / MS13 roundtrip / atomic master preset");
+  puts("PASS REEL: four pages / physical fine-coarse / all lock pages / MS14 roundtrip / atomic master preset");
 }
 static void captureAlignment() {
   static SampleBuffer sample;static int16_t block[2048];

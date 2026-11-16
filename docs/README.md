@@ -4,7 +4,7 @@
 
 **Русский** · [English](README.en.md)
 
-Стабильная версия приложения — **0.5.2**; отдельно развивается экспериментальная **0.6.6-dev / GRANULAR**. Выбирайте нативное руководство для RG35XX и Windows; браузерный прототип — отдельная реализация без звука с другой раскладкой и ограничениями.
+Стабильная версия приложения — **0.5.2**; отдельно развивается экспериментальная **0.8.0-dev / GRANULAR**. Выбирайте нативное руководство для RG35XX и Windows; браузерный прототип — отдельная реализация без звука с другой раскладкой и ограничениями.
 
 | Документ | Русский | English |
 |---|---|---|
@@ -29,6 +29,8 @@
 | REEL: чистый тракт и WOW/FLUTTER, аудиокандидат | [Реализация и проверка](REEL-MOTION-v1.md) | [Implementation and verification](REEL-MOTION-v1.en.md) |
 | REEL: насыщение, окраска и оптимизация | [Реализация и проверка](REEL-COLOR-v1.md) | [Implementation and verification](REEL-COLOR-v1.en.md) |
 | Elektron: разбор прошивок, памяти и DSP | [Разбор](ELEKTRON-FIRMWARE-ANALYSIS.md) | [Analysis](ELEKTRON-FIRMWARE-ANALYSIS.en.md) |
+
+- [Ambient GRANULAR + POND / 0.8.0-dev](AMBIENT-RESEARCH-v08.md)
 
 ## Технические контракты
 

@@ -12,7 +12,8 @@ struct Key {
 };
 struct Step {
   int16_t grainLocks[GranularParameterCount] = {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
-                            Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit};
+                            Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
+                            Inherit, Inherit, Inherit, Inherit};
   int note = 48;
   int16_t synthLocks[3][8] = {
       {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit, Inherit},

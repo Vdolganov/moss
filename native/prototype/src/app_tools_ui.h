@@ -39,16 +39,17 @@ inline void drawTools(lab::Canvas &c, const App &a) {
     snprintf(b, sizeof(b), "%s / %s", fxName(f.type),
              f.enabled ? "ON" : "BYPASS");
     text(c, 18, 137, b, TEXT, 3);
-    text(c, 18, 173,
+    if(f.type!=Reel)text(c, 18, 173,
          a.page == Mix ? "ALL TRACKS > MASTER EFFECT > OUTPUT"
                        : "VOICE > TRACK EFFECT > MIX",
          DIM);
     for(int bank=0;bank<fxBanks(f.type);++bank) {
       int x=18+bank*155;
-      text(c,x,198,fxBankName(bank,f.type),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
-      if(bank==clamp(a.fxBank,0,fxBanks(f.type)-1)) c.rect(x,214,130,1,TEXT);
+      int y=f.type==Reel?326:198;
+      text(c,x,y,fxBankName(bank,f.type),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
+      if(bank==clamp(a.fxBank,0,fxBanks(f.type)-1)) c.rect(x,y+16,130,1,TEXT);
     }
-    c.rect(18, 220, 604, 98, PANEL);
+    if(f.type!=Reel)c.rect(18, 220, 604, 98, PANEL);
     if(f.type!=Reel)c.rect(34, 299, 572, 1, LINE);
     if (f.type == 0) {
       float level = 1;
@@ -63,11 +64,10 @@ inline void drawTools(lab::Canvas &c, const App &a) {
                p[1]);
     } else if (f.type == 1) {
       for (int i = 0; i < 140; i++) {
-        int h = int(67 * expf(-float(i) / (15 + p[1])));
+        int h = int(67 * expf(-6.907755f*float(i)/140));
         c.rect(36 + i * 4, 299 - h, 2, h, TEXT);
       }
-      snprintf(b, sizeof(b), "DECAY ENVELOPE / DAMP %d%% / SIZE %d%%", p[2],
-               p[0]);
+      snprintf(b, sizeof(b), "TAIL %.1f S / PRE %d MS / DESIGN ENVELOPE",pondSeconds(p[1]),p[4]);
     } else if (f.type == 2) {
       c.rect(320, 228, 1, 78, LINE);
       for (int i = 0; i < 280; i++) {
@@ -89,8 +89,7 @@ inline void drawTools(lab::Canvas &c, const App &a) {
       snprintf(b,sizeof(b),"%s / TRANSFER CURVE / OUTPUT %d%%",driveCurveName(p[4]),p[2]);
     } else {
       drawReel(c,a,f);
-      auto view=a.engine->reelView[a.page==Mix?Tracks:a.track].read();
-      snprintf(b,sizeof(b),"DROP %d%% / L1+R1 PRESETS + UNDO",100-view.drop/10);
+      return;
     }
     text(c, 18, 328, b, DIM, 2, 50);
   }

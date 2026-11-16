@@ -2,9 +2,9 @@
 
 ## Область / Scope
 
-RU: REEL продолжает существующую систему MOSS: плоский графит, логический экран 640×480, bitmap-глифы 5×7, нейтральные навигация и фокус. Это расширение поверхности, без новых токенов. `DESIGN.md` и `.impeccable/design.json` сохранены. Исторический REEL с подписью SPEED MODEL относится к прежней реализации.
+RU: Актуальная поверхность от 16 ноября 2026 следует [ambient-контракту](../../design/current/native-ambient-v08.md). REEL продолжает систему MOSS: плоский графит, экран 640×480, bitmap-глифы 5×7, нейтральные навигация и фокус. Новых токенов нет. Общий обзор GRANULAR / POND — [native-ambient-v08](native-ambient-v08.md).
 
-EN: REEL extends the existing MOSS system: flat graphite, a logical 640×480 canvas, 5×7 bitmap glyphs, and neutral navigation and focus. This is a surface extension with no new tokens. `DESIGN.md` and `.impeccable/design.json` are preserved. The historical REEL labelled SPEED MODEL describes the earlier implementation.
+EN: The current surface, dated 16 November 2026, follows the [ambient contract](../../design/current/native-ambient-v08.md). REEL continues the MOSS system: flat graphite, a 640×480 canvas, 5×7 bitmap glyphs, and neutral navigation and focus. There are no new tokens. GRANULAR / POND are covered in [native-ambient-v08](native-ambient-v08.md).
 
 ## Четыре страницы / Four pages
 
@@ -15,28 +15,27 @@ EN: REEL extends the existing MOSS system: flat graphite, a logical 640×480 can
 | LIFE | DRIFT · % | STEREO · % | LOSS · % | DROP · % |
 | OUTPUT | HISS · dBFS | HISS TONE · % | FOLLOW · % | OUTPUT · dB |
 
-RU: В деталях эффекта L1/R1 выбирают страницу; все четыре названия видны, текущая страница подчёркнута. Четыре нижних поля используют прежнюю геометрию и цвета физических Y/B/A/X. Значение и единица остаются видны. В FX LOCKS вложенные L1+влево/вправо выбирают эффект, L1+вверх/вниз — его страницу; заголовок показывает REEL / страницу и её номер. Числовые локи сохраняют физические единицы; `--` и `RESET` показывают STEP LOCK. L1+R1 открывает контекст с пресетами и отменой; список пресетов использует обычную нейтральную рамку выбора.
+RU: В деталях эффекта L1/R1 выбирают страницу. Все четыре вкладки стоят **под катушками**, сразу над полями Y/B/A/X; текущая подчёркнута. Нижние поля сохраняют прежнюю геометрию, цвета физических кнопок, число и единицу. В FX LOCKS L1+влево/вправо выбирают эффект, L1+вверх/вниз — его страницу; заголовок показывает REEL / страницу и её номер. Числовые локи сохраняют физические единицы; `--` и `RESET` показывают STEP LOCK. L1+R1 открывает контекст с пресетами и отменой.
 
-EN: In effect detail, L1/R1 selects the page; all four names remain visible and the current page is underlined. The four lower fields retain the existing geometry and physical Y/B/A/X colors. Values and units remain visible. Within FX LOCKS, L1+left/right selects the effect and L1+up/down selects its page; the heading identifies REEL, the page, and its number. Numeric locks retain physical units; `--` and `RESET` use STEP LOCK. L1+R1 opens the context containing presets and undo; the preset list uses the ordinary neutral selection outline.
+EN: In effect detail, L1/R1 selects the page. All four tabs sit **below the reels**, directly above the Y/B/A/X fields; the current tab is underlined. The lower fields retain their geometry, physical button colors, value, and unit. Within FX LOCKS, L1+left/right selects the effect and L1+up/down selects its page; the heading identifies REEL, the page, and its number. Numeric locks retain physical units; `--` and `RESET` use STEP LOCK. L1+R1 opens the context containing presets and undo.
 
-## Измеренная графика / Measured display
+## Катушки и состояние / Reels and state
 
-RU: Две катушки и путь ленты размещены в существующей панели. Полоски вдоль ленты показывают историю пиков фактического выхода REEL, с отдельным приглушённым вкладом шума и явной подписью OUTPUT / X4. Это история амплитуды, а не осциллограмма отдельных отсчётов. Фаза катушек получает медленную составляющую реального смещения головки; быстрая модуляция не изображается искусственно медленным вращением. SPEED / CENTS показывает измеренные минимумы и максимумы аудиоблоков в истории и текущую числовую пару. DROP показывает текущее ослабление. Снимок передаётся из аудиопотока; UI не читает живые фильтры или звуковой буфер.
+RU: Главная графика — две крупные контурные катушки с широкими трёхлопастными ступицами, неглубокая провисающая дуга ленты и маленький квадрат в центре. Композиция приближена к референсу GrainBrick из текущего контракта. Отдельные история амплитуды, график SPEED / CENTS и подпись OUTPUT / X4 удалены. Над катушками остаётся одна строка `RUN / SPEED … TO … CENTS` с минимумом и максимумом скорости из снимка движка.
 
-EN: Two reels and the tape path occupy the existing panel. Marks along the tape show the history of actual REEL output peaks, with a separate dim noise contribution and the explicit OUTPUT / X4 label. This is amplitude history, not a sample-by-sample waveform. Reel phase follows the slow component of actual read-head displacement; fast modulation is not depicted as artificially slow rotation. SPEED / CENTS shows measured audio-block minima and maxima as history and a current numeric pair. DROP shows current attenuation. The audio thread publishes a snapshot; the UI does not read live filters or the audio buffer.
+EN: The main graphic consists of two large reel outlines with broad three-blade hubs, a shallow suspended tape arc, and a small central square. The composition follows the GrainBrick reference recorded in the current contract. The separate amplitude history, SPEED / CENTS chart, and OUTPUT / X4 label are removed. One line above the reels, `RUN / SPEED … TO … CENTS`, retains the speed minimum and maximum from the engine snapshot.
 
-RU: TAPE RUN / TAPE STOP / TAPE BYPASS и REEL / ON либо BYPASS явно называют состояние. STOP и BYPASS не продвигают фазу катушек; BYPASS приглушает графику. Один неподвижный кадр подтверждает компоновку и подписи, но не доказывает ход анимации или производительность.
+RU: Поворот катушек следует фазе снимка, а небольшое отклонение дуги ограничено измеренной огибающей; случайного движения нет. Строка состояния явно меняется на STOP или BYPASS, заголовок — REEL / ON либо REEL / BYPASS. По контракту STOP и BYPASS останавливают фазу; BYPASS также приглушает графику. Статичные кадры подтверждают компоновку и подписи, но не ход анимации.
 
-EN: TAPE RUN / TAPE STOP / TAPE BYPASS and REEL / ON or BYPASS explicitly identify state. STOP and BYPASS do not advance reel phase; BYPASS dims the graphics. A still capture establishes layout and labels, but does not prove animation behavior or performance.
+EN: Reel rotation follows the snapshot phase, while the measured envelope bounds the small tape displacement; there is no random motion. The status line explicitly changes to STOP or BYPASS, and the heading reads REEL / ON or REEL / BYPASS. The contract freezes phase on STOP and BYPASS; BYPASS also dims the graphic. Still captures establish layout and labels, not animation behavior.
 
 ## Проверенные источники / Checked evidence
 
 - System: `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`.
-- Rendering and interaction: `native/prototype/src/app_reel_ui.h`, `app_tools_ui.h`, `app_ui.h`, `parameter_ui.h`, `effect_defs.h`, and `hardware lab/src/lab_ui.h`.
-- Measured snapshot and phase: `native/prototype/src/reel_dsp.h`.
-- Current captures: `.impeccable/review/native-reel/reel-color.png`, `reel-motion.png`, `reel-life.png`, `reel-output.png`, `reel-stop.png`, `reel-bypass.png`, `reel-locks.png`, `reel-motion-locks.png`, `reel-presets.png`.
-- Incumbent comparison: `.impeccable/review/native-v051/reel.png`.
+- Current UI: `native/prototype/src/app_reel_ui.h`, `app_tools_ui.h`, `app_ui.h`, `effect_defs.h`.
+- Current captures: `.impeccable/review/ambient-v08/reel-0.png`, `reel-1-stop.png`, `reel-2-bypass.png`.
+- Historical only: `.impeccable/review/native-reel/` contains the superseded waveform/speed-chart composition; `.impeccable/review/native-v051/reel.png` contains the earlier SPEED MODEL.
 
-RU: Проверка документации не меняет старые разделы системы или её sidecar и не является новой проверкой сборки, звука либо устройства.
+RU: Финальный визуальный review — SHIP, без существенных дефектов компоновки в просмотренных кадрах. Проверка статическая; она не подтверждает звук, производительность или работу на устройстве. `DESIGN.md`, sidecar и исторические правила системы не изменены.
 
-EN: This documentation pass does not revise historical system sections or the sidecar, and is not a new build, audio, or device validation.
+EN: The final visual review returned SHIP, with no material layout defects in the inspected captures. Verification is static; it does not establish audio quality, performance, or device behavior. `DESIGN.md`, the sidecar, and historical system rules are unchanged.

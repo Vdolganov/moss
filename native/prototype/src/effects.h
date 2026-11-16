@@ -3,6 +3,7 @@
 #include "effect_defs.h"
 #include "fx_character.h"
 #include "reel_dsp.h"
+#include "pond_dsp.h"
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -11,16 +12,8 @@ struct FxState {
   static constexpr unsigned Delay = 384001;
   float delay[Delay][2] = {};
   unsigned cursor = 0;
-  // Avoid placing all eight POND histories on identical L1 cache sets.
-  static constexpr unsigned CombStride=8192+16;
-
-  float comb[2][4][CombStride] = {}, filter[2][4] = {}, allpass[2][2][1024] = {};
-  unsigned combPos[4] = {}, apPos[2] = {}, heldAt = 0;
-  // Independent channel cursors avoid runtime integer division in the sample
-  // loop (Cortex-A9 implements integer division in software).
-  unsigned combIndex[2][4] = {}, apIndex[2][2] = {}, combLength[2][4] = {};
-  unsigned pondRate = 0;
-  int pondSize = -1;
+  unsigned heldAt=0;
+  PondDSP pond;
   float held[2] = {}, wetness[EffectTypes] = {}, delayTime = 1;
   bool lastEnabled[EffectTypes] = {};
   struct Coefficients {
@@ -46,9 +39,7 @@ struct FxState {
       if (type == 0) {
         orbit.prepare(p, rate, bpm, Delay);
       } else if (type == 1) {
-        preparePond(p[0], rate);
-        c.feedback = .45f + p[1] * .005f;
-        c.damp = .05f + p[2] * .009f;
+        pond.prepare(p,rate);
       } else if (type == 2) {
         c.drive = 1 + p[0] * .15f;
         c.levels = float(1 << (p[1] - 1));
@@ -83,26 +74,6 @@ struct FxState {
     memset(this, 0, sizeof(*this));
     delayTime = 1;
     tape.resetReel(AudioRate);
-    pondSize = -1;
-  }
-  void preparePond(int sizeValue, unsigned rate) {
-    if (pondSize == sizeValue && pondRate == rate)
-      return;
-    pondSize = sizeValue;
-    pondRate = rate;
-    static constexpr int lengths[] = {1557, 1617, 1491, 1422};
-    float size = .45f + sizeValue * .013f;
-    for (int k = 0; k < 4; k++) {
-      unsigned len = unsigned(lengths[k] * size * rate / 44100.f);
-      if (len > 8100)
-        len = 8100;
-      if (len < 1)
-        len = 1;
-      for (int ch = 0; ch < 2; ch++) {
-        combLength[ch][k] = len + unsigned(ch * 23);
-        combIndex[ch][k] = combPos[k] % combLength[ch][k];
-      }
-    }
   }
   static float bound(float v) { return v > 1 ? 1 : v < -1 ? -1 : v; }
   static float clean(float v) { return fabsf(v) < 1e-15f ? 0 : v; }
@@ -141,13 +112,7 @@ struct FxState {
         orbit.start();
       }
       if (type == Drive) drive.start();
-      if (type == 1) {
-        memset(combPos, 0, sizeof(combPos));
-        memset(apPos, 0, sizeof(apPos));
-        memset(filter, 0, sizeof(filter));
-        memset(combIndex, 0, sizeof(combIndex));
-        memset(apIndex, 0, sizeof(apIndex));
-      }
+      if (type == Pond) pond.start();
       if (type == 2) {
         heldAt = 0;
         held[0] = held[1] = 0;
@@ -164,36 +129,8 @@ struct FxState {
     float dry[2] = {left, right}, signal[2] = {};
     if (type == 0) {
       orbit.process(dry, signal, delay, cursor, delayWritten);
-    } else if (type == 1) {
-      float feedback = coeff.feedback, damp = coeff.damp;
-      for (int k = 0; k < 4; k++) {
-        for (int ch = 0; ch < 2; ch++) {
-          unsigned channelLen = combLength[ch][k];
-          unsigned at = combIndex[ch][k];
-          float v = combPos[k] < channelLen ? 0 : comb[ch][k][at];
-          filter[ch][k] = clean(v * (1 - damp) + filter[ch][k] * damp);
-          comb[ch][k][at] = bound(dry[ch] * .25f + filter[ch][k] * feedback);
-          signal[ch] += v * .25f;
-          if (++combIndex[ch][k] == channelLen)
-            combIndex[ch][k] = 0;
-        }
-        if (++combPos[k] == 0)
-          combIndex[0][k] = combIndex[1][k] = 0;
-      }
-      const unsigned apLength[] = {225, 556};
-      for (int k = 0; k < 2; k++) {
-        for (int ch = 0; ch < 2; ch++) {
-          unsigned len = apLength[k] + unsigned(ch * 11), at = apIndex[ch][k];
-          float old = apPos[k] < len ? 0 : allpass[ch][k][at];
-          float v = signal[ch];
-          signal[ch] = old - v;
-          allpass[ch][k][at] = clean(v + old * .5f);
-          if (++apIndex[ch][k] == len)
-            apIndex[ch][k] = 0;
-        }
-        if (++apPos[k] == 0)
-          apIndex[0][k] = apIndex[1][k] = 0;
-      }
+    } else if (type == Pond) {
+      pond.process(dry,signal);
     } else if (type == 2) {
       if (!heldAt) {
         for (int ch = 0; ch < 2; ch++) {

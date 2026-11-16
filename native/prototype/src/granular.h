@@ -10,6 +10,7 @@ struct GranularParameters {
   float position = 0, start = 0, end = 1, scatter = 0;
   float spread = 0, irregularity = 0, cutoff = 12000, level = 1;
   float jump = 0; // Scan-head displacement; independent from per-grain scatter.
+  float reverse = 0, detune = 0, sizeVariation = 0;
   float grainIn = .5f, grainOut = .5f, attackMs = 100, releaseMs = 100;
   bool freeze = false;
 };
@@ -95,6 +96,7 @@ struct GranularVoice {
     unsigned attackFrames = 1, releaseStart = 1;
     float attackStep = 0, releaseStep = 0;
     float origin = 0, sourceSpan = 0, panLeft = 1, panRight = 1;
+    bool reverse = false;
   } grains[MaxGrains];
   struct Statistics {
     uint64_t attempts = 0, spawned = 0, skipped = 0;
@@ -105,16 +107,15 @@ struct GranularVoice {
   GranularParameters parameters;
   GranularFilter filter;
   unsigned rate = 32000, capacity = NativeGrains, count = 0, grainFrames = 3200;
-  unsigned control = 0;
   uint32_t randomState = 1, jumpRandomState = 1;
+  uint32_t cloudRandomState = 1;
   unsigned jumpCountdown = 0;
   float effectiveDensity = 0;
   int64_t head = 0, scanFirst = 0, scanLast = 0, scanStep = 0;
   float readStep = 1, note = 0, velocity = 1, envelope = 0, attackStep = 1, releaseStep = 1;
   float outputGain = 0, gainTarget = 1, gainSmoothing = .001f;
   float currentVelocity = 0;
-  float scheduler = 0, schedulerStep = 0, noise = 0, noiseTarget = 0;
-  float noiseStep = 0, noiseClock = 1;
+  float scheduler = 0, schedulerStep = 0;
   bool gate = false, running = false;
 
   static float bounded(float v, float lo, float hi, float fallback) {
@@ -153,6 +154,8 @@ struct GranularVoice {
     gainSmoothing = 1.f - expf(-1.f / (rate * .02f));
     capacity = limit;
     randomState = seed ? seed : 1;
+    cloudRandomState = randomState ^ 0x9e3779b9u;
+    if(!cloudRandomState)cloudRandomState=1;
     jumpRandomState = randomState ^ 0xa511e9b3u;
     if (!jumpRandomState) jumpRandomState = 1;
     resetJumpClock();
@@ -176,6 +179,9 @@ struct GranularVoice {
     p.spread = bounded(p.spread, 0, 1, 0);
     p.irregularity = bounded(p.irregularity, 0, 1, 0);
     p.jump = bounded(p.jump, 0, 1, 0);
+    p.reverse = bounded(p.reverse, 0, 1, 0);
+    p.detune = bounded(p.detune, 0, 100, 0);
+    p.sizeVariation = bounded(p.sizeVariation, 0, .75f, 0);
     p.cutoff = bounded(p.cutoff, 20, rate * .4375f, rate * .375f);
     p.level = bounded(p.level, 0, 2, 1);
     p.grainIn = bounded(p.grainIn, 0, 1, .5f);
@@ -195,7 +201,9 @@ struct GranularVoice {
     // Spread long grains through time instead of filling the pool in a burst
     // and then dropping births until the entire burst expires. At most eight
     // voices; no allocation, stealing, or larger PCM buffers.
-    effectiveDensity = fminf(p.density, float(capacity) * rate / grainFrames);
+    float longest=fminf(rate*8.f,grainFrames*(1+p.sizeVariation));
+    effectiveDensity = fminf(p.density, float(capacity) * rate / longest);
+    schedulerStep=effectiveDensity/rate;
     float overlap = bounded(effectiveDensity * grainFrames / rate, 1, float(capacity), 1);
     float windowEnergy = 1 - .625f * (p.grainIn + p.grainOut);
     gainTarget = p.level * NominalGain / sqrtf(fmaxf(1, overlap * windowEnergy));
@@ -218,8 +226,7 @@ struct GranularVoice {
       if (seekChanged)
         seek(p.position);
     }
-    // Preserve event/noise phases across edits and render-block boundaries.
-    control = 0;
+    // Preserve the birth phase and living grains across edits.
   }
   void seek(float normalized) {
     if (!sample)
@@ -279,11 +286,17 @@ struct GranularVoice {
       else if (position >= last) position -= span;
     }
     Grain &g = grains[count++];
+    g.reverse=parameters.reverse>=1 || (parameters.reverse>0 &&
+      (randomBipolar(cloudRandomState)+1)*.5f<parameters.reverse);
+    float grainStep=readStep;
+    if(parameters.detune>0)grainStep*=tables->densityFactor(randomBipolar(cloudRandomState)*parameters.detune/1200.f);
+    g.length=grainFrames;
+    if(parameters.sizeVariation>0)g.length=unsigned(bounded(grainFrames*(1+parameters.sizeVariation*randomBipolar(cloudRandomState)),2,rate*8.f,grainFrames));
     g.index = unsigned(position);
     g.fraction = float(position - g.index);
     g.first = first; g.last = last; g.zone = zone;
     g.origin = float(position / sample->frames);
-    g.sourceSpan = readStep * grainFrames / sample->frames;
+    g.sourceSpan = grainStep * g.length / sample->frames;
     uint32_t lanes = 0;
     for (unsigned i=0;i+1<count;++i) lanes |= 1u << grains[i].lane;
     g.lane = 0;
@@ -291,10 +304,15 @@ struct GranularVoice {
     float balance = randomBipolar() * parameters.spread;
     g.panLeft = sqrtf(1 - balance); g.panRight = sqrtf(1 + balance);
     // Tiny sources are valid. Reduce the integer stride once at birth.
-    g.stepWhole = unsigned(readStep) % span;
-    g.stepFraction = readStep - unsigned(readStep);
+    g.stepWhole = unsigned(grainStep) % span;
+    g.stepFraction = grainStep - unsigned(grainStep);
+    // Reverse is a modular positive stride: identical sample loop, no signed
+    // remainder or extra per-grain branch on the Cortex-A9 audio path.
+    if(g.reverse) {
+      g.stepWhole=(span-g.stepWhole-(g.stepFraction>0?1:0))%span;
+      if(g.stepFraction>0)g.stepFraction=1-g.stepFraction;
+    }
     g.age = 0;
-    g.length = grainFrames;
     g.attackFrames = unsigned((g.length - 1) * parameters.grainIn);
     unsigned releaseFrames = unsigned((g.length - 1) * parameters.grainOut);
     if (!g.attackFrames) g.attackFrames = 1;
@@ -346,23 +364,9 @@ struct GranularVoice {
         head += scanLast - scanFirst;
       if (parameters.jump > 0 && !--jumpCountdown) jumpHead();
     }
-    if (!control) {
-      control = 32;
-      float controlPeriod = 32.f / rate;
-      noiseClock += effectiveDensity * controlPeriod;
-      if (noiseClock >= 1) {
-        noiseClock -= floorf(noiseClock);
-        noiseTarget = randomBipolar();
-        noiseStep = (noiseTarget - noise) * effectiveDensity * controlPeriod;
-      }
-      noise = bounded(noise + noiseStep, -1, 1, 0);
-      schedulerStep =
-          effectiveDensity / rate * tables->densityFactor(noise * parameters.irregularity);
-    }
-    --control;
     if (parameters.density > 0) {
       if (scheduler >= 1) {
-        scheduler -= 1;
+        scheduler -= 1 + .35f*parameters.irregularity*randomBipolar(cloudRandomState);
         spawn();
       }
       scheduler += schedulerStep;

@@ -1,0 +1,13 @@
+{
+  "remote": "/mnt/mmc/MOSS-Reel-Release-v11",
+  "sha256": "53577c75a347b91d0e4e019b9f3ccec82cfea10839c5c5eff4c196a990ee6413",
+  "profiles": [
+    [
+      "pond-compact",
+      "21",
+      "10",
+      "20"
+    ]
+  ],
+  "checks": false
+}

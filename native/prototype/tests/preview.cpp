@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
       if(!strcmp(argv[3],"grainfrozen")) tr.granular.freeze=1;
       if(!strcmp(argv[3],"grainrange")) { tr.granular.values[5]=200;tr.granular.values[6]=780;tr.granular.values[2]=8000;app.synthBank=1; }
       if(!strcmp(argv[3],"graintexture")) tr.granular.values[9]=80;
+      if(!strcmp(argv[3],"graincloud"))app.synthBank=4;
       engine.init(app.project,samples,AudioRate);engine.handle({Op::Audition,0});
       engine.grainPreview[0]=AudioRate*20; // Mature cloud in this visual fixture.
       int16_t audio[2048];for(int n=0;n<220;++n) engine.render(audio,1024);
@@ -382,6 +383,10 @@ int main(int argc, char **argv) {
     t.steps[4].shift=-15;
     if(!strcmp(argv[3],"swing")) { t.instrument=GranularInstrument; t.steps[4].on=LockEvent; t.steps[4].repeat=32; }
     else { t.instrument=SampleInstrument; t.hits[0][4].on=NoteEvent; }
+  }
+  if(argc==4 && !strncmp(argv[3],"pond-",5)){
+    app.project=makeSynthDemo();app.page=Space;app.track=1;app.fxDetail=true;app.fxBank=atoi(argv[3]+5);
+    auto &f=app.project.tracks[1].fx;f.select(Pond);f.enable(true);engine.init(app.project,samples,32000,3);
   }
   if(argc==4 && !strncmp(argv[3],"reel-",5)) {
     app.project=makeSynthDemo();app.page=Space;app.track=1;app.fxDetail=true;

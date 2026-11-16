@@ -1,0 +1,6 @@
+PASS cloud: reverse fractional/wrap/tiny sources; mixed 27/58; length 23058..53639; edits preserve living grains
+PASS MS14 round trip and real MS13 field layout; no invented cloud or POND locks
+PASS POND 8000 Hz: stereo tail, energy 0.21637, peak 0.04352, rapid locks, logical reset
+PASS POND 32000 Hz: stereo tail, energy 0.15310, peak 0.03525, rapid locks, logical reset
+PASS POND 44100 Hz: stereo tail, energy 0.11715, peak 0.02932, rapid locks, logical reset
+PASS POND 96000 Hz: stereo tail, energy 0.05862, peak 0.01672, rapid locks, logical reset

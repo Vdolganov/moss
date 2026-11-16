@@ -31,7 +31,7 @@ static void setup() {
 static void codecAndProtection() {
   setup(); project.tracks[0].granular.freeze=1;
   for(int i=0;i<GranularParameterCount;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
-  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MS13",4));
+  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MS14",4));
   assert(codec.decode(restored,codec.cursor));
   unsigned storedSize=codec.cursor; uint32_t storedHash=codec.hash(storedSize);
   assert(codec.encode(restored)); assert(codec.cursor==storedSize && codec.hash(codec.cursor)==storedHash);
@@ -107,6 +107,9 @@ static void controls() {
   gesture(lab::Y,lab::Up);
   assert(app.project.tracks[0].granular.values[12]==60 && app.project.tracks[0].granular.values[13]==40);
   gesture(lab::X,lab::Up); assert(app.project.tracks[0].granular.values[15]==120);
+  tap(lab::R1); assert(app.synthBank==4);
+  int reverse=app.project.tracks[0].granular.values[16];gesture(lab::Y,lab::Right);
+  assert(app.project.tracks[0].granular.values[16]==reverse+1);
   tap(lab::R1); assert(app.synthBank==0);
   app.page=Pattern; app.bank=1; app.synthBank=2; app.step=0;
   gesture(lab::B,lab::Right); assert(app.project.tracks[0].steps[0].grainLocks[9]==46);

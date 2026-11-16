@@ -71,16 +71,21 @@ inline void drawGranular(lab::Canvas &c, const App &a) {
       float at=g.position/65536.f, origin=g.origin/65536.f;
       float radius=27+g.lane*4;
       uint32_t ink=g.gain>12000 ? TEXT : DIM;
-      lens.grainArc(c,origin,g.span/65536.f,g.first/65536.f,g.last/65536.f,radius,ink);
+      float arcOrigin=origin,span=g.span/65536.f,range=(g.last-g.first)/65536.f;
+      if(g.reverse && range>0){arcOrigin-=fminf(span,range);if(arcOrigin<g.first/65536.f)arcOrigin+=range;}
+      lens.grainArc(c,arcOrigin,span,g.first/65536.f,g.last/65536.f,radius,ink);
       lens.radial(c,origin,radius-1,radius+1,DIM);
       int x,y; lens.point(at,radius,x,y);
       c.rect(x-2,y-2,5,5,BG); c.rect(x-1,y-1,3,3,TEXT);
+      int ax,ay;lens.point(at+(g.reverse?-.012f:.012f),radius,ax,ay);grainLine(c,x,y,ax,ay,TEXT);
       looped|=g.loops>0;
     }
     int hx,hy; lens.point(head,80,hx,hy); c.box(hx-2,hy-2,5,5,TEXT);
     snprintf(b,sizeof(b),"%.2f S",double(sample.frames)/sample.rate); text(c,18,204,"SOURCE",DIM); text(c,18,225,b,TEXT);
     text(c,478,204,looped?"LOOP GRAINS":"GRAINS",DIM);
+    unsigned reverse=0;for(unsigned i=0;i<view.count && i<8;++i)reverse+=view.grains[i].reverse;
     snprintf(b,sizeof(b),"%u / 8",view.count); text(c,478,225,b,TEXT);
+    snprintf(b,sizeof(b),"%u F / %u R",view.count-reverse,reverse);text(c,478,245,b,DIM);
     text(c,478,264,p.freeze?"HEAD HELD":"HEAD",DIM);
     snprintf(b,sizeof(b),"%.1f%%",head*100); text(c,478,285,b,TEXT);
     snprintf(b,sizeof(b),"%.1f-%.1f%%",first*100,last*100); text(c,18,264,b,DIM);
@@ -91,8 +96,7 @@ inline void drawGranular(lab::Canvas &c, const App &a) {
     text(c,202,259,"A ASSIGN SAMPLE",DIM);
   }
   for(int i=0;i<GranularBankCount;++i) {
-    int x=18+i*112; text(c,x,326,GranularBanks[i],i==a.synthBank?TEXT:DIM);
+    int x=18+i*120; text(c,x,326,GranularBanks[i],i==a.synthBank?TEXT:DIM);
     if(i==a.synthBank) c.rect(x,343,100,1,TEXT);
   }
-  text(c,478,326,"L1/R1 BANK",DIM);
 }

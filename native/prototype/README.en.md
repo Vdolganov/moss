@@ -1,6 +1,6 @@
 # MOSS 0.5.2 — user guide
 
-**Working branch 0.7.0:** complete [REEL](../../docs/REEL-v1.en.md), 16 controls and locks, five presets and actual telemetry. New saves use MS13; MOS5…MS12 remain readable. Legacy REEL is approximately adapted. Back up original projects before upgrading.
+**Working branch 0.8.0-dev:** [ambient GRANULAR + updated POND](../../docs/AMBIENT-RESEARCH-v08.en.md), CLOUD with reverse, eight reverb controls and the revised REEL visual. MS14 saves; reads MOS5…MS13. POND sounds different; preserve original projects before upgrading.
 
 0.6.6 adds track SWING and per-step SHIFT on TIMING 2/2, reached with L1 + arrows. New saves use MS12. [Controls and verification](../../docs/SWING-v1.en.md).
 
@@ -10,11 +10,11 @@ A native groovebox for the original **Anbernic RG35XX**: up to **32 sequences wi
 
 The build has been tested on **GarlicOS 1.4.9 over ADB**. GarlicOS 1.3.9 remains a compatibility target; this 0.5.2 binary has not been retested there. Current results are in the [0.5.2 verification report](../../docs/NATIVE-VERIFICATION-052.en.md); the previous version's longer tests are in the [0.5.1 performance report](../../docs/NATIVE-PERFORMANCE-051.en.md). MOSS LAB and browser prototype v0.6 are separate applications; their limits and controls do not replace this guide.
 
-## Development 0.7.0 · GRANULAR
+## Development 0.8.0-dev · GRANULAR
 
-The development build adds a fifth instrument, **GRANULAR**, with the selected **LENS** view, one prepared sample up to 1 MiB and eight grains per track. PLAY / SCAN / TEXTURE / ENVELOPE expose 16 parameters and their locks; A auditions or assigns the source, and short X toggles FREEZE. See the [GRANULAR guide](../../docs/GRANULAR-INSTRUMENT.en.md) for controls, import and limits.
+The development build adds a fifth instrument, **GRANULAR**, with the selected **LENS** view, one prepared sample up to 1 MiB and eight grains per track. PLAY / SCAN / TEXTURE / ENVELOPE / CLOUD expose 20 parameters and their locks; A auditions or assigns the source, and short X toggles FREEZE. See the [GRANULAR guide](../../docs/GRANULAR-INSTRUMENT.en.md) for controls, import and limits.
 
-The branch reads MOS5…MS12 but saves **MS13**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS. Version 0.6.4 adds the **LENS DRIFT** demo, preserving existing user projects and the library. The rest of this guide remains the **0.5.2 / MOS6** contract.
+The branch reads MOS5…MS13 but saves **MS14**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS. Version 0.6.4 adds the **LENS DRIFT** demo, preserving existing user projects and the library. The rest of this guide remains the **0.5.2 / MOS6** contract.
 
 In 0.6.4 SIZE reaches 8 seconds, with grain births staggered across the unchanged eight-voice pool. **TEXTURE → JUMP** controls random head jumps between normal SPEED movement. LENS shows the source waveform, excluded range, actual grain arcs and read positions. [Changes and hardware load verification](../../docs/AMBIENT-LENS-v1.en.md).
 

@@ -34,6 +34,8 @@ inline void stressProject(Project &p, int tracks, int instrument,
     for(int i=0;i<16;++i)fx.values[Reel][i]=tape[i];
     fx.values[0][1] = 95;
     fx.values[1][1] = 100;
+    fx.values[Pond][0]=100;fx.values[Pond][4]=200;fx.values[Pond][5]=100;
+    fx.values[Pond][6]=100;fx.values[Pond][7]=1000;
     fx.values[2][2] =
         1; // CRUSH's most expensive rate: recalculate every frame.
   };
@@ -97,7 +99,7 @@ inline void stressGranular(Project &p, unsigned mask, int mode = 0) {
       const int size=mode==5?8000:mode==6?(i%4?8000:1):mode==2?1:mode==3&&(i%4==0)?1:500;
       const int values[]={i%2?300:-300,24,size,128,
                            (i*13)%1000,0,1000,100,100,100,i%2?14000:20,200,
-                           i%2?90:10,i%2?10:90,20,20};
+                           i%2?90:10,i%2?10:90,20,20,i%3*50,100,75,100};
       for(int k=0;k<GranularParameterCount;++k) s.grainLocks[k]=int16_t(values[k]);
       if(mode==4) s.fxLocks[Drive][4]=int16_t(i%3); // 64 curve changes/second.
     }

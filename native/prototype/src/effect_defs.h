@@ -7,19 +7,20 @@ enum ReelParameter { ReelDrive, ReelTone, ReelBump, ReelAmount,
   ReelWow, ReelWowRate, ReelFlutter, ReelFlutterRate,
   ReelDrift, ReelStereo, ReelLoss, ReelDrop,
   ReelHiss, ReelHissTone, ReelFollow, ReelOutput };
-inline constexpr int FxCounts[]={8,4,4,16,8}, FxOffsets[]={0,8,12,16,32}, FxLockCount=40;
+inline constexpr int FxCounts[]={8,8,4,16,8}, FxOffsets[]={0,8,16,20,36}, FxLockCount=44;
 struct FxLocks {
   int16_t data[FxLockCount];
   FxLocks(){for(auto &v:data)v=Inherit;}
   int16_t *operator[](int type){return data+FxOffsets[type];}
   const int16_t *operator[](int type)const{return data+FxOffsets[type];}
 };
-static_assert(sizeof(FxLocks)==80,"FX locks must stay at 80 bytes per step");
+static_assert(sizeof(FxLocks)==88,"Compact FX lock storage");
 struct EffectSpec { const char *label; int low, high, coarse; const char *unit; };
 inline constexpr EffectSpec FxSpecs[EffectTypes][EffectParameters] = {
   {{"TIME",0,7,1,"SYNC"},{"FEEDBACK",0,95,10,"%"},{"WIDTH",0,100,10,"%"},{"MIX",0,100,10,"%"},
    {"LOW CUT",0,2000,100,"HZ"},{"HIGH CUT",500,14000,1000,"HZ"},{"DRIVE",0,100,10,"%"},{"MOTION",0,100,10,"%"}},
-  {{"SIZE",0,100,10,"%"},{"DECAY",0,100,10,"%"},{"DAMP",0,100,10,"%"},{"MIX",0,100,10,"%"}},
+  {{"SIZE",0,100,10,"%"},{"DECAY",0,100,10,"SEC"},{"DAMP",0,100,10,"%"},{"MIX",0,100,10,"%"},
+   {"PREDELAY",0,200,10,"MS"},{"DIFFUSE",0,100,10,"%"},{"MOTION",0,100,10,"%"},{"LOW CUT",0,1000,100,"HZ"}},
   {{"DRIVE",0,100,10,"%"},{"BITS",2,16,2,"BIT"},{"RATE",1,32,4,"HOLD"},{"MIX",0,100,10,"%"}},
   {{"DRIVE",0,100,10,"%"},{"TONE",-60,60,10,"dB"},{"BUMP",0,60,10,"dB"},{"AMOUNT",0,100,10,"%"},
    {"WOW",0,150,10,"CENTS"},{"WOW RATE",10,400,10,"Hz"},
@@ -33,7 +34,7 @@ inline int fxBanks(int type) { return FxCounts[type]/ParametersPerPage; }
 inline int fxParameters(int type) { return fxBanks(type)*ParametersPerPage; }
 inline const char *fxBankName(int bank,int type=Orbit) {
   const char *reel[]={"COLOR","MOTION","LIFE","OUTPUT"};
-  return type==Reel?reel[bank]:bank?"CHARACTER":"CORE";
+  return type==Reel?reel[bank]:type==Pond?(bank?"SPACE":"TAIL"):bank?"CHARACTER":"CORE";
 }
 inline const char *driveCurveName(int curve) {
   const char *names[]={"ROUND","BITE","EDGE"}; return names[curve];
@@ -57,7 +58,7 @@ inline constexpr int ReelPresets[ReelPresetCount][16]={
 struct Effect {
   int type=0,enabled=0;
   int values[EffectTypes][EffectParameters] = {
-    {3,35,60,25,0,9000,15,0}, {60,60,45,25}, {20,12,2,25},
+    {3,35,60,25,0,9000,15,0}, {60,60,45,25,20,75,20,0}, {20,12,2,25},
     {0,0,0,100,0,30,0,60,0,0,0,0,0,0,100,0},
     {30,50,100,100,0,0,50,0}};
   int enabledTypes[EffectTypes]={},order[EffectTypes]={0,1,2,3,4};
