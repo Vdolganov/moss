@@ -3,6 +3,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 work/
+media/
 native/tooling/
 hardware lab/build/
 hardware lab/reports/

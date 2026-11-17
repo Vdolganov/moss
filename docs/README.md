@@ -4,19 +4,19 @@
 
 **Русский** · [English](README.en.md)
 
-Стабильная версия приложения — **0.5.2**; отдельно развивается экспериментальная **0.9.0-dev / MONO + GRANULAR**. Выбирайте нативное руководство для RG35XX и Windows; браузерный прототип — отдельная реализация без звука с другой раскладкой и ограничениями.
+Текущее стабильное приложение — **MOSS 0.9.0**, включая GRANULAR. Одно приложение и основная ветка main. Для RG35XX/Windows выбирайте нативное руководство; браузерный прототип без звука остаётся отдельным исследованием.
 
 | Документ | Русский | English |
 |---|---|---|
 | Обзор, установка и сборка | [README](../README.md) | [README](../README.en.md) |
 | Нативное приложение: навигация по документации | [Native](../native/README.md) | [Native](../native/README.en.md) |
-| Полное руководство 0.5.2 | [Руководство](../native/prototype/README.md) | [User guide](../native/prototype/README.en.md) |
+| Полное руководство 0.9.0 | [Руководство](../native/prototype/README.md) | [User guide](../native/prototype/README.en.md) |
 | Проверка на устройстве 0.5.2 | [Отчёт](NATIVE-VERIFICATION-052.md) | [Verification](NATIVE-VERIFICATION-052.en.md) |
 | Производительность 0.5.1: история оптимизации | [Отчёт](NATIVE-PERFORMANCE-051.md) | [Performance](NATIVE-PERFORMANCE-051.en.md) |
 | Браузерный прототип v0.6 | [Руководство](<../visual prototype/README.md>) | [Guide](<../visual prototype/README.en.md>) |
 | Описание релиза 0.5.2 | [Релиз](../releases/0.5.2/RELEASE.md) | [Release notes](../releases/0.5.2/RELEASE.en.md) |
-| GRANULAR / LENS: экспериментальная 0.6.6-dev | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
-| MONO: 0.9.0-dev | [Звук, управление и исследование](MONO-v09.md) | [Sound, controls and research](MONO-v09.en.md) |
+| GRANULAR / LENS: MOSS 0.9.0 | [Инструмент](GRANULAR-INSTRUMENT.md) | [Instrument](GRANULAR-INSTRUMENT.en.md) |
+| MONO: 0.9.0 | [Звук, управление и исследование](MONO-v09.md) | [Sound, controls and research](MONO-v09.en.md) |
 | DRIVE / ORBIT: 0.6.2-dev | [Эффекты и проверка](FX-CHARACTER-v1.md) | [Effects and verification](FX-CHARACTER-v1.en.md) |
 | Ambient LENS: 0.6.4-dev | [Пэды, JUMP и проверка](AMBIENT-LENS-v1.md) | [Pads, JUMP and verification](AMBIENT-LENS-v1.en.md) |
 | WAV-каталог: 0.6.3-dev | [Изменения и проверка](CATALOG-v063.md) | [Changes and verification](CATALOG-v063.en.md) |
@@ -40,10 +40,12 @@
 Эти документы изначально написаны на английском; те же пользовательские сценарии по-русски описаны в полном руководстве:
 
 - [0.5.2: секвенции, SONG, точное/крупное изменение и страницы](../design/current/native-v052-interaction.md).
-- [0.5.1: ограничения, инструменты, сэмплер и общие взаимодействия](../design/current/native-v051-interaction.md). Контракт 0.5.2 имеет приоритет при расхождениях.
+- [0.5.1: ограничения, инструменты, сэмплер и общие взаимодействия](../design/current/native-v051-interaction.md). Приоритет имеет текущее руководство 0.9.0; эти контракты описывают прежние изменения.
 
 ## История и рабочие материалы
 
-[PRODUCT.md](../PRODUCT.md) и [DESIGN.md](../DESIGN.md) содержат текущие русские требования и историю решений. Старые ARM-планы, MOSS LAB, ранние сценарии, диаграммы и протоколы review сохранены на исходном языке как архив разработки. Они не заменяют актуальное руководство; их прежние лимиты и жесты могут отличаться от 0.5.2.
+[PRODUCT.md](../PRODUCT.md) и [DESIGN.md](../DESIGN.md) содержат текущие русские требования и историю решений. Старые ARM-планы, MOSS LAB, ранние сценарии, диаграммы и протоколы review сохранены на исходном языке как архив разработки. Они не заменяют актуальное руководство; их прежние лимиты и жесты могут отличаться от 0.9.0.
 
 Переводы документации обновляются на `main`. Тег `v0.5.2` и исходные установочные архивы фиксируют выпущенную сборку. Английское руководство добавлено к [релизу](https://github.com/Vdolganov/moss/releases/tag/v0.5.2) отдельным файлом, без замены бинарников.
+
+[Текущий релиз 0.9.0](../releases/0.9.0/RELEASE.md). Номера прежних версий выше обозначают исторические проверки, а не отдельные текущие приложения.

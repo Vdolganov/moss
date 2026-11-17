@@ -1,14 +1,14 @@
-# GRANULAR / LENS · 0.8.0-dev
+# GRANULAR / LENS · MOSS 0.9.0
 
-0.8.0 adds CLOUD: reverse, detune, size variation and birth jitter. MS14 saves. [Research, controls and verification](AMBIENT-RESEARCH-v08.en.md).
+Included in stable MOSS. CLOUD adds reverse, detune, size variation and jitter; saves use MS15. [Research](AMBIENT-RESEARCH-v08.en.md).
 
 [Русский](GRANULAR-INSTRUMENT.md) · **English**
 
-One prepared sample, up to eight simultaneous grains per track. Four tracks, two effects per track and two on the master. This separate **MOSS-GRANULAR** experiment leaves stable MOSS 0.5.2 separate.
+One prepared sample, up to eight simultaneous grains per track. Four tracks, two effects per track and two on the master. GRANULAR is one of the five MOSS instruments.
 
 ## First cloud
 
-Open APPS → MOSS-GRANULAR → LENS CLOUD → LENS → VOICE. START plays the sequence. To assign your own source, use L1+R1 → ASSIGN / REPLACE SAMPLE → a prepared sample or + IMPORT FROM DEVICE. Import reuses TAPE's manual range selection, naming and save; cancelling retains the old assignment.
+Open APPS → MOSS, create/open a sequence, add a GRANULAR track and enter VOICE. START plays the sequence. To assign your own source, use L1+R1 → ASSIGN / REPLACE SAMPLE → a prepared sample or + IMPORT FROM DEVICE. Import reuses TAPE's manual range selection, naming and save; cancelling retains the old assignment.
 
 GRANULAR has one assignment, independent of SAMPLER's four slots. Prepared PCM16 WAV files remain limited to **1 MiB**. VOICE bounds do not save memory; save a shorter file through TAPE for that.
 

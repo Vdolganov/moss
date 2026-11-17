@@ -1,6 +1,6 @@
 # Native FX extension · 0.6.2-dev
 
-Scope: experimental MOSS-GRANULAR. The 0.5.2 stable UI and silent browser study remain separate.
+Scope: native MOSS; this effect extension is integrated into stable 0.9.0. The 0.5.2 capture remains historical and the silent browser study is separate.
 
 Five named effects in one chain list: ORBIT / POND / CRUSH / REEL / DRIVE. All rows fit at 640×480; the same list serves TRACK and MASTER. Two active inserts per rack. A edits, X toggles, Y+up/down reorders. Disabled settings and locks survive reorder and bypass.
 

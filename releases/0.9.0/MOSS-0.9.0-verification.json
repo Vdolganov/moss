@@ -1,0 +1,230 @@
+{
+  "file": "moss",
+  "size": 5250612,
+  "type": 2,
+  "machine": 40,
+  "entry": "0x2a1d8",
+  "flags": "0x5000200",
+  "interpreter": "/lib/ld-uClibc.so.0",
+  "needed": [
+    "libSDL-1.2.so.0",
+    "libc.so.0"
+  ],
+  "executable_stack": false,
+  "load_memory_bytes": 77873380,
+  "version": "0.9.0",
+  "sha256": "f56568ab3a2e6171d9fcb6dc62f6670b80e9b58482bf59007d31505904fd3339",
+  "tests": {
+    "version": "0.9.0",
+    "desktop_exe": "MOSS.exe",
+    "music": "passed",
+    "interaction": "passed",
+    "features": "passed",
+    "synth": "passed",
+    "workflow": "passed",
+    "v05": "passed",
+    "v051": "passed",
+    "v052": "passed",
+    "granularUnit": "passed",
+    "granularAmbient": "passed",
+    "triglessRepeat": "passed",
+    "swing": "passed",
+    "granularIntegration": "passed",
+    "fxCharacter": "passed",
+    "reelMotion": "passed",
+    "reelColor": "passed",
+    "reelRelease": "passed",
+    "reelEngine": "passed",
+    "ambientUpdate": "passed",
+    "monoUpdate": "passed",
+    "previews": 7,
+    "synthPreviews": 6,
+    "sha256": "f56568ab3a2e6171d9fcb6dc62f6670b80e9b58482bf59007d31505904fd3339",
+    "device": "passed: exact binary, 85 seconds / 6 profiles plus unified launcher smoke"
+  },
+  "abi": "ARMv7 Cortex-A9 softfp uClibc; SDK exports resolved",
+  "device": {
+    "release_sha256": "f56568ab3a2e6171d9fcb6dc62f6670b80e9b58482bf59007d31505904fd3339",
+    "device": "Original RG35XX / GarlicOS 1.4.9 / stock 1.008 GHz",
+    "release_smoke": {
+      "build": "MOSS 0.9.0",
+      "completed": true,
+      "rate": 32000,
+      "buffer": 1024,
+      "callbacks": 470,
+      "callback_max_us": 27744,
+      "over_budget": 0,
+      "late_intervals": 0,
+      "frames": 481280,
+      "triggers": [
+        963,
+        963,
+        963,
+        963
+      ],
+      "grain_peaks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "lock_events": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "repeat_events": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "track_count": 4,
+      "stream_underruns": 0,
+      "project_saved": true,
+      "pcm_bytes": 33554432,
+      "assets": 32,
+      "fx_seen_mask": 10,
+      "capture_started": 2,
+      "capture_finished": 2,
+      "instruments_seen_mask": 2,
+      "callback_mean_us": 24081,
+      "reserved_objects_bytes": 73348336,
+      "callback_p99_upper_us": 25750,
+      "ui_frame_max_us": 11874,
+      "ui_slow_frames": 0,
+      "profile_kind": 24,
+      "profile_effect_mask": 10,
+      "profile_target_seconds": 15,
+      "elapsed_seconds": 15,
+      "audio_realtime_error": 0,
+      "audio_priority": 10,
+      "timing_events": [
+        963,
+        963,
+        963,
+        963
+      ],
+      "schedule_overflows": 0,
+      "profile_passed": true
+    },
+    "song_stress": {
+      "build": "MOSS 0.9.0",
+      "completed": true,
+      "rate": 32000,
+      "buffer": 1024,
+      "callbacks": 471,
+      "callback_max_us": 28549,
+      "over_budget": 0,
+      "late_intervals": 0,
+      "frames": 482304,
+      "triggers": [
+        51,
+        51,
+        51,
+        51
+      ],
+      "grain_peaks": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "lock_events": [
+        2111,
+        2184,
+        2184,
+        2184
+      ],
+      "repeat_events": [
+        61,
+        76,
+        76,
+        76
+      ],
+      "track_count": 4,
+      "stream_underruns": 0,
+      "project_saved": true,
+      "pcm_bytes": 33554432,
+      "assets": 32,
+      "fx_seen_mask": 31,
+      "capture_started": 2,
+      "capture_finished": 2,
+      "instruments_seen_mask": 31,
+      "callback_mean_us": 19308,
+      "reserved_objects_bytes": 73348336,
+      "callback_p99_upper_us": 26250,
+      "ui_frame_max_us": 8586,
+      "ui_slow_frames": 0,
+      "profile_kind": 20,
+      "profile_effect_mask": 10,
+      "profile_target_seconds": 15,
+      "elapsed_seconds": 15,
+      "audio_realtime_error": 0,
+      "audio_priority": 10,
+      "timing_events": [
+        932,
+        965,
+        965,
+        965
+      ],
+      "schedule_overflows": 0,
+      "profile_passed": true
+    },
+    "profiles": {
+      "remote": "/mnt/mmc/MOSS-Reel-Release-v16",
+      "sha256": "f56568ab3a2e6171d9fcb6dc62f6670b80e9b58482bf59007d31505904fd3339",
+      "profiles": [
+        [
+          "mono-max",
+          "24",
+          "10",
+          "15"
+        ],
+        [
+          "mono-locks",
+          "22",
+          "10",
+          "15"
+        ],
+        [
+          "mono-orbit",
+          "22",
+          "9",
+          "10"
+        ],
+        [
+          "mixed",
+          "23",
+          "10",
+          "10"
+        ],
+        [
+          "granular",
+          "21",
+          "10",
+          "20"
+        ],
+        [
+          "song",
+          "20",
+          "10",
+          "15"
+        ]
+      ],
+      "checks": false,
+      "qualified": true,
+      "callbacks": 2666,
+      "max_us": 29337,
+      "seconds": 85
+    },
+    "normal_launcher_check": {
+      "passed": true,
+      "version_seen": "0.9.0",
+      "exit_code": 0,
+      "installed_on_user_device": false,
+      "launcher_sha256": "284ef084ec6356f51dc792de01592ddf95c530d4ccab9d42f77bac9068341561"
+    }
+  }
+}

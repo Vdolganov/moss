@@ -1,28 +1,12 @@
-# MOSS 0.5.2 — user guide
-
-**Working branch 0.9.0-dev:** [rebuilt MONO](../../docs/MONO-v09.en.md): twenty controls, five banks, deeper filter body and a real pre-FX scope. Includes ambient GRANULAR, updated POND and REEL. MS15 saves; reads MOS5…MS14. Preserve originals: MONO/POND sound differs from older builds.
-
-0.6.6 adds track SWING and per-step SHIFT on TIMING 2/2, reached with L1 + arrows. New saves use MS12. [Controls and verification](../../docs/SWING-v1.en.md).
+# MOSS 0.9.0 — user guide
 
 [Русский](README.md) · **English**
 
-A native groovebox for the original **Anbernic RG35XX**: up to **32 sequences with four tracks each**, plus **32 SONGs with 64 slots each**, SAMPLER / MONO / ORGANISM / FM, independent cycles, parameter locks, a WAV library and internal resampling. Each SAMPLER has **four slots of its own**. Each track and the master can run up to two effects from ORBIT / POND / CRUSH / REEL simultaneously. Display: 640×480. Audio: **32000 Hz, 1024 stereo frames per buffer**.
+MOSS 0.9.0 is the single stable application for original RG35XX and Windows. GRANULAR is included; the separate MOSS-GRANULAR application is retired. Four tracks, 32 sequences, 32 SONGs with 64 slots, 32 kHz audio and 1024 stereo frames. Prepared samples remain limited to 32 × 1 MiB.
 
-The build has been tested on **GarlicOS 1.4.9 over ADB**. GarlicOS 1.3.9 remains a compatibility target; this 0.5.2 binary has not been retested there. Current results are in the [0.5.2 verification report](../../docs/NATIVE-VERIFICATION-052.en.md); the previous version's longer tests are in the [0.5.1 performance report](../../docs/NATIVE-PERFORMANCE-051.en.md). MOSS LAB and browser prototype v0.6 are separate applications; their limits and controls do not replace this guide.
+MONO has five banks and twenty controls; GRANULAR has PLAY / SCAN / TEXTURE / ENVELOPE / CLOUD with eight grains per track. All five effects are available, two active per track and two on master. Current detail: [MONO](../../docs/MONO-v09.en.md), [GRANULAR](../../docs/GRANULAR-INSTRUMENT.en.md), [REEL](../../docs/REEL-v1.en.md), [POND](../../docs/AMBIENT-RESEARCH-v08.en.md), [DRIVE/ORBIT](../../docs/FX-CHARACTER-v1.en.md), [LOCK ONLY/REPEAT](../../docs/TRIGLESS-LOCKS-PLAN.en.md), [SWING/SHIFT](../../docs/SWING-v1.en.md).
 
-## Development 0.9.0-dev · MONO / GRANULAR
-
-The development build adds a fifth instrument, **GRANULAR**, with the selected **LENS** view, one prepared sample up to 1 MiB and eight grains per track. PLAY / SCAN / TEXTURE / ENVELOPE / CLOUD expose 20 parameters and their locks; A auditions or assigns the source, and short X toggles FREEZE. See the [GRANULAR guide](../../docs/GRANULAR-INSTRUMENT.en.md) for controls, import and limits.
-
-The branch reads MOS5…MS14 but saves **MS15**, which stable 0.5.2 cannot open. **MOSS GRANULAR** is installed separately alongside stable MOSS. Version 0.6.4 adds the **LENS DRIFT** demo, preserving existing user projects and the library. The rest of this guide remains the **0.5.2 / MOS6** contract.
-
-In 0.6.4 SIZE reaches 8 seconds, with grain births staggered across the unchanged eight-voice pool. **TEXTURE → JUMP** controls random head jumps between normal SPEED movement. LENS shows the source waveform, excluded range, actual grain arcs and read positions. [Changes and hardware load verification](../../docs/AMBIENT-LENS-v1.en.md).
-
-New DRIVE and ORBIT expose CORE/CHARACTER, eight controls and locks. See [FX 0.6.2](../../docs/FX-CHARACTER-v1.en.md) for controls and verification. The DRIVE ORBIT demo needs no samples.
-
-In 0.6.3 the source WAV catalog grows from 128 to 2048 files; R1+←/→ advances by seven visible rows. Subfolders still appear in one flat list. [Changes and targeted verification](../../docs/CATALOG-v063.en.md).
-
-Version 0.6.5 adds LOCK ONLY, persistent per-parameter events with explicit RESET, and pre-FX audio REPEAT at 1/8–1/64. PATTERN → TIMING exposes REPEAT and event TYPE. [Controls and LOCK STUDY demo](../../docs/TRIGLESS-LOCKS-PLAN.en.md).
+Saves use MS15 and read MOS5…MS14; SONG remains SON1. Back up original data: older binaries cannot read MS15, and updated MONO/POND change patch sound. [Release and hardware evidence](../../releases/0.9.0/RELEASE.en.md). Browser prototype and hardware lab are separate tools.
 
 ## Launching and updating
 
@@ -30,7 +14,7 @@ Open Consoles → APPS → MOSS. On first initialization of an empty project lib
 
 To make your own sequence: ATLAS / SEQUENCES → **+ NEW SEQUENCE** → EMPTY, or an existing sequence to copy independently → enter a name → START. Then GRID → **+ ADD TRACK** → choose an instrument → A. EMPTY creates an empty sequence at 120 BPM; a copy retains its source settings. The add row remains visible at four tracks, but explains that the limit has been reached.
 
-The current version saves projects as **MOS6**. Loading MOS5 retains the first four tracks, the first four assigned slots per track compacted in their original order, and the first two active effects in each chain's processing order. Remaining effects are bypassed, with their settings retained. Loading alone never overwrites an old file; a subsequent save writes MOS6. MOS3/MOS4 are not converted.
+New saves use MS15. MOS5…MS14 can be read without rewriting the source until you save. Old MOS5 data is limited to the first four tracks, four sampler slots and two active effects per chain. MOS3/MOS4 are not supported. For migration from MOSS-GRANULAR, preserve the complete project/library set as described in the [installation guide](../../README.en.md).
 
 Before updating, back up original projects and user files. Update the application while preserving `projects/`, `samples/`, sample names, `imports/` and `captures/`. Test WAVs from a clean package must not overwrite your own bank. Deleting a project does not delete its WAVs.
 
@@ -83,7 +67,7 @@ L1/R1 selects a bank. The four fields always follow **Y / B / A / X**:
 | SAMPLER STEP | VELOCITY 0–127 | FADE IN 0–5000 ms | LENGTH: FULL or finite duration | PROB 0–100% |
 | Synth STEP | NOTE C1–C7 | VELOCITY 0–127 | LENGTH in steps | PROB 0–100% |
 | SAMPLER VOICE LOCKS | PITCH ±24 semitones | START % | END % | LEVEL % |
-| CYCLE | CYCLE: number of cells | STEP: 1/8, 1/16, 1/32, 1/64 | — | — |
+| TIMING 1/2 | CYCLE: number of cells | STEP: 1/8, 1/16, 1/32, 1/64 | REPEAT | TYPE |
 
 Each SAMPLER has **four independent hit patterns**. Named slots 1–4 (C3–D#3) remain visible above the grid. **L1+arrows** selects a slot; the grid shows that slot's hits. Empty slots are selectable, but require a sound assignment in VOICE before enabling a hit. Several slots may trigger together. Retriggering a slot smoothly replaces its own voice while the others continue.
 
@@ -91,7 +75,7 @@ Each SAMPLER has **four independent hit patterns**. Named slots 1–4 (C3–D#3)
 
 CYCLE changes musical duration while preserving hidden events beyond the new end. STEP changes only resolution: 15 cells at 1/8 become 30 at 1/16, 60 at 1/32 and 120 at 1/64. Event times, finite durations and BPM stay unchanged. The limit is **512 ticks at 1/64**, equivalent to 64 eighth notes. Events between coarse grid lines still play and are marked in the cell; switch back to a finer grid to edit them. A partial final cell is labelled LAST CELL.
 
-Synth VOICE LOCKS mirrors CORE/CHARACTER; L1+arrows changes the nested bank. FX LOCKS contains the selected effect's four fields; L1+arrows selects the FX target. `--` means use the base value. Locks from a successful trigger persist through rests until the next successful trigger; a trigger without a lock restores the base value.
+VOICE LOCKS uses the instrument banks (five for MONO/GRANULAR, two for ORGANISM/FM); L1+arrows selects the nested bank. FX LOCKS supports every bank of the selected effect. `--` inherits; RESET returns to the base value. LOCK ONLY changes a sounding voice without retriggering. TIMING includes TYPE, REPEAT and CYCLE/STEP, plus SWING/SHIFT on its second page; see the linked timing guides.
 
 FX locks affect the **shared track bus**, through which all its slots pass, and remain attached to the effect's identity when the chain is reordered. The effect must be enabled. OPTIONS offers LENGTH TO CYCLE END on STEP, and CLEAR CURRENT LOCK BANK only when that bank contains locks.
 
@@ -111,38 +95,19 @@ B/SELECT in the name editor returns to the same EDIT state. B in the file list c
 
 ## VOICE: synthesizers
 
-OPTIONS → CHOOSE INSTRUMENT selects SAMPLER / MONO / ORGANISM / FM. Switching instruments retains their separate settings, patterns and locks; the previous voice is faded out. A synth has one musical voice per track. Four internal oscillators/operators do not provide chord polyphony.
+OPTIONS → CHOOSE INSTRUMENT selects SAMPLER / MONO / ORGANISM / FM / GRANULAR. Switching instruments retains their separate settings, patterns and locks; the previous voice is faded out. A synth has one musical voice per track. Four internal oscillators/operators do not provide chord polyphony.
 
-L1/R1 selects CORE / CHARACTER. Field order is **Y / B / A / X**:
-
-| Instrument | CORE | CHARACTER | CHANGE MODE |
-|---|---|---|---|
-| MONO | CUTOFF / RESONANCE / ATTACK / RELEASE | ENV AMT / SUB / NOISE / DRIVE | SAW / PULSE |
-| ORGANISM | TENSION / DRIFT / CHAOS / DENSITY | COLOR / GRAIN / ATTACK / RELEASE | PAIRS / RING |
-| FM | INDEX / RATIO / FEEDBACK / DECAY | DETUNE / NOISE / ATTACK / BODY | PAIRS / STACK |
-
-MONO combines saw/pulse waves with a resonant filter, sub-oscillator, noise and drive. ORGANISM has four coupled oscillators with drift; adjacent triggers retain phase and envelope continuity. FM has four operators arranged as two pairs or a chain. These are original compact engines, without a claim of exact emulation of other instruments. DX7 import is not supported.
-
-MONO CUTOFF: 20–12000 Hz. ATTACK: 0–5000 ms; RELEASE: 0–10000 ms. FM DECAY: 50–10000 ms; RATIO: 0.5/1/1.5/2/3/4/5/7 relative to the carrier. Other fields range from 0 to 100. For Hz/ms, ←/→ changes 1 and ↑/↓ changes 100; holding accelerates repetition.
-
-Without a modifier, ←/→ changes the audition note by a semitone and ↑/↓ by an octave. A plays it for two seconds plus its release tail, without editing a step. CHOOSE PRESET offers four sounds and replaces the eight base parameters while retaining mode and locks; manual editing displays CUSTOM. Step LENGTH controls sustain duration, followed by envelope release. FM also decays while held. MODEL graphs illustrate base settings, not measured audio.
+MONO has CORE / COLOR / OSC / ENV / MOTION, with all twenty controls described in the [MONO guide](../../docs/MONO-v09.en.md). ORGANISM and FM retain CORE / CHARACTER (eight controls). L1/R1 switches banks; Y/B/A/X edits the four fields. Mode and presets are in L1+R1 options. Presets replace all base controls for that instrument while retaining mode and locks. MONO displays actual pre-effect audio and envelopes; ORGANISM/FM diagrams remain illustrative. A auditions; arrows without a modifier choose the audition note.
 
 ## SPACE and MIX
 
-The chain contains ORBIT / POND / CRUSH / REEL, once per type. **Up to two effects may be active per track, and two on the master**, for a maximum of ten across four tracks. To enable a third, first put one of the active effects into BYPASS.
+The chain contains ORBIT / POND / DRIVE / CRUSH / REEL, once per type. **Up to two effects may be active per track, and two on the master**, for a maximum of ten across four tracks. To enable a third, first put one of the active effects into BYPASS.
 
 Arrows select a row, A opens its parameters, X enables/BYPASSes it, and **Y+↑/↓** moves it in the chain. Processing runs from top to bottom. Inside the parameter editor, L1+arrows selects an effect and B returns to the chain. Order, settings and locks persist regardless of BYPASS.
 
-| Effect | Y / B / A / X |
-|---|---|
-| ORBIT: stereo delay | TIME / FEEDBACK / MIX / SPREAD |
-| POND: reverb | SIZE / DECAY / DAMP / MIX |
-| CRUSH: distortion/redux | DRIVE / BITS / RATE / MIX |
-| REEL: tape | WOBBLE / WEAR / NOISE / MIX |
+ORBIT and DRIVE expose CORE/CHARACTER; POND exposes TAIL/SPACE; REEL exposes COLOR/MOTION/LIFE/OUTPUT; CRUSH has one bank. L1/R1 changes the bank. Every parameter has a matching track lock. REEL separates saturation, tone/body, wow/flutter depth and rate, drift, wear, dropouts and hiss. Delay/reverb tails continue through empty steps.
 
-REEL is original processing for speed fluctuations, wear and noise. Delay and reverb tails continue through empty steps.
-
-In MIX / LEVELS, select a track with the arrows. Fields are LEVEL / PAN / MASTER / MUTE; short A toggles mute. L1/R1 opens MASTER FX. Mute smoothly silences the track together with its SPACE output. **+35%** monitoring gain with peak limiting also applies to auditioning. Internal capture is taken before that gain, so repeated resampling does not accumulate amplification.
+In MIX / LEVELS, select a track with the arrows. Fields are LEVEL / PAN / MASTER / MUTE; short A toggles mute. L1/R1 opens MASTER FX. Mute smoothly silences the track together with its SPACE output. **180%** monitoring gain with peak limiting also applies to auditioning. Internal capture is taken before that gain, so repeated resampling does not accumulate amplification.
 
 ## TAPE: files, ranges and the library
 
@@ -188,18 +153,14 @@ A on a row opens its sequence; B from that sequence's GRID or short SELECT saves
 
 During SONG playback, you can browse the list and change common BPM; stop with START before structural edits. All required sequences are loaded and checked for missing files/samples before playback. No card reads occur at a slot boundary. Corresponding track effects retain their tails; old notes end, and a short transition limits clicks when routes change. One engine is used, without overlapping two complete sequences.
 
-SONGs are stored separately as `projects/song-N.moss` (SON1); existing MOS6 sequences are not converted. Deleting a slot/SONG does not delete sequences or WAVs. A sequence referenced by a SONG or its Undo cannot be deleted. Save errors retain edits for retry. Changing a track cycle later does not automatically change an existing slot's duration.
+SONGs are stored separately as `projects/song-N.moss` (SON1); existing sequence references are preserved. Deleting a slot/SONG does not delete sequences or WAVs. A sequence referenced by a SONG or its Undo cannot be deleted. Save errors retain edits for retry. Changing a track cycle later does not automatically change an existing slot's duration.
 
 To exit, hold MENU for two seconds or open **ATLAS → OPTIONS → EXIT MOSS**. A save failure leaves the application open. Projects and WAVs use temporary-file writes followed by replacement; losing power during a write can still damage the filesystem.
 
 The native application does not yet support scenes, A–D pattern banks, key/scale metadata, or JSON transfer from the browser prototype.
 
-## Building and verification
+## Build and verification
 
-From this folder, `node scripts/build.cjs` builds ARM and Windows, runs music / interaction / features / synth / workflow / v05 / v051 / v052, and generates previews. `node scripts/benchmark.cjs` builds ARM/Windows measurement workloads; `scripts/package.py` prepares packages with binary checks and SHA256. Compiler and SDK versions are pinned under `native/tooling`.
+Run `node scripts/build.cjs` for ARM/Windows and the complete native suite. `scripts/package.py` checks binaries, ABI and exact hardware evidence. Garlic uses SDL 1.2/evdev, Windows GDI/waveOut. Rendering performs no file I/O or memory allocation; reports are written asynchronously. `late_intervals` is an interval diagnostic, not an exact audible-glitch count.
 
-Garlic uses SDL 1.2 + evdev; Windows uses GDI + waveOut. Model, audio and controls are shared. Audio rendering performs no file operations or memory allocation. Reports are written asynchronously to `reports/`. `stream_underruns` counts streaming-audition starvation episodes; `late_intervals` is not an exact count of audible dropouts.
-
-The previous 0.5.1 visual review concluded SHIP; captures are in `.impeccable/review/native-v051/` from the repository root. This is UI evidence. The final ten-minute four-ORGANISM run with full load, background recording and audio-thread priority had no registered audio overruns or slow UI frames. Its conditions and limitations are recorded in the [0.5.1 performance report](../../docs/NATIVE-PERFORMANCE-051.en.md).
-
-Current 0.5.2 contract: [structure and controls](../../design/current/native-v052-interaction.md). Current SONG and build tests: [0.5.2 verification](../../docs/NATIVE-VERIFICATION-052.en.md).
+See the [0.9.0 release](../../releases/0.9.0/RELEASE.en.md) for current evidence. Dated 0.5.x–0.9.0-dev reports remain historical and retain their original hashes.

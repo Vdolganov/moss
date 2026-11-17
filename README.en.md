@@ -1,98 +1,70 @@
 # MOSS
 
-[Русский](README.md) · **English**
+[Русский](README.md) · **English** · [Documentation](docs/README.en.md)
 
-[Documentation RU / EN](docs/README.en.md)
+A standalone groovebox for the original **Anbernic RG35XX**, operated with its buttons and no extra boards. The shared C++17 engine also runs on Windows.
 
-A standalone groovebox for the **original Anbernic RG35XX**: a sequencer, synthesizers, sampler, effects and internal resampling. Controlled with the handheld's buttons, with no additional hardware. The shared C++17 engine also runs on Windows.
-
-**Stable snapshot: [v0.5.2](https://github.com/Vdolganov/moss/releases/tag/v0.5.2).** Tested on the original RG35XX with **GarlicOS 1.4.9**, including hardware stress tests and user-confirmed everyday operation. This is an early version of the application; measured results and limitations are documented in the [0.5.2 verification report](docs/NATIVE-VERIFICATION-052.en.md).
-
-RG35XX Plus/H/2024/SP and other models have not been tested for this release. GarlicOS 1.3.9 remains a compatibility target, but this particular 0.5.2 build has not been retested on it.
-
-
-Current development branch **0.9.0-dev** adds [rebuilt MONO](docs/MONO-v09.en.md) with twenty controls and a live scope, [ambient GRANULAR and updated POND](docs/AMBIENT-RESEARCH-v08.en.md), plus the larger REEL visual. Saves use MS15; the published stable 0.5.2 snapshot remains a separate release.
+**Current stable version: [MOSS 0.9.0](https://github.com/Vdolganov/moss/releases/tag/v0.9.0).** GRANULAR is now a standard MOSS instrument. There is one application, MOSS, and one primary branch, `main`. The historical 0.5.2 release remains available.
 
 ## Features
 
-- Up to four tracks per sequence: **MONO, ORGANISM, FM and SAMPLER**.
-- Independent track cycles; 1/8, 1/16, 1/32 and 1/64 resolution; probability, note length and parameter locks. The model stores up to 512 ticks at 1/64 resolution per track; each grid page displays 16 cells.
-- Four assignable samples in each SAMPLER instance, with one-shot playback, manual trimming and per-hit settings.
-- **ORBIT** delay, **POND** reverb, **CRUSH** distortion/redux and **REEL** tape processing; up to two active effects on each track and on the master.
-- **TAPE**: streaming audition of long WAV files, manual slicing, naming, a shared library, and track or master resampling.
-- Up to 32 sequences and 32 **SONGs** with 64 slots each: a shared BPM, repeats, slot duration in bars and independent sequence copies.
-- A flat 640×480 interface, SD-card storage and undo for the last edit.
+- Up to four tracks using **MONO, ORGANISM, FM, SAMPLER or GRANULAR**.
+- MONO: twenty controls across five banks, a saturating resonant filter, sub/noise, detune, glide, drift, PWM, LFO and measured waveform/envelopes.
+- GRANULAR / LENS: eight grains per track, up to eight-second grains, scatter, reverse, random jumps, envelopes, detune and freeze.
+- SAMPLER: four assignments and hit patterns per instance, one-shots, pitch, manual start/end, length and locks.
+- Independent cycles up to 512 ticks at 1/64; 1/8–1/64 resolution, probability, SWING/SHIFT, note and **LOCK ONLY** events, and REPEAT audio fragments.
+- **ORBIT, POND, DRIVE, CRUSH and REEL**; two active effects per track and two on the master. REEL includes saturation, colour, wow/flutter and tape defects.
+- TAPE: WAV import, streaming preview of long sources, manual slices, naming and internal resampling.
+- Up to 32 sequences and 32 SONGs with 64 slots each, shared song BPM, repeats, bars and independent variations.
+- 640×480 display, physical Y/B/A/X parameter order, Undo and an onscreen name editor.
 
-The prepared sample library holds up to 32 assets, each up to 1 MiB of PCM16. Audio output is 32 kHz with a 1024-stereo-frame buffer. The application targets the stock 1.008 GHz clock, without overclocking.
+Prepared library: 32 samples, each up to 1 MiB PCM16. Source catalog: 2048 WAV files. Audio: 32 kHz / 1024 stereo frames, stock 1.008 GHz without overclocking. Sequence format: **MS15**, reading MOS5…MS14; SONG format: SON1.
 
-## Download and run
+## Download and install
 
-Ready-to-use packages are available in the [v0.5.2 release](https://github.com/Vdolganov/moss/releases/tag/v0.5.2):
+[Release 0.9.0: downloads and checksums](https://github.com/Vdolganov/moss/releases/tag/v0.9.0). This is an application, not a GarlicOS image. The measured platform is the original RG35XX / GarlicOS 1.4.9. Other RG35XX variants and GarlicOS 1.3.9 are not verified for this release; see the release's test conditions and limits.
 
-- **MOSS-0.5.2-GarlicOS.zip** — the application for the original RG35XX.
-- **MOSS-0.5.2-Windows.zip** — the desktop version with the same engine.
-- **MOSS-0.5.2-verification.json** and **SHA256SUMS.txt** — verification data and checksums.
-- **MOSS-0.5.2-README-EN.md** — the English user guide, supplied separately for the original release packages.
+**GarlicOS:** copy the archive's `Roms` folder onto the card. Launch **Consoles → APPS → MOSS**. Paths: `Roms/APPS/MOSS.sh` and `Roms/APPS/MOSS/`.
 
-### GarlicOS
+**Windows:** unpack the complete archive into a writable folder and run `MOSS.exe`, keeping `samples/` alongside it. It uses the console engine; desktop speed is not RG35XX performance evidence.
 
-1. Back up your existing MOSS folder and switch off the handheld before transferring files.
-2. For a new installation, copy the archive's `Roms` contents into `Roms` on the card. You should have `Roms/APPS/MOSS.sh` and `Roms/APPS/MOSS/`.
-3. When updating, replace the application and launcher while preserving your `projects/`, `samples/`, `library/`, `imports/` and `captures/`. Do not overwrite your own samples with identically named demo WAVs from the archive.
-4. Safely eject the card, insert it into the handheld and open **Consoles → APPS → MOSS**. An empty project library is initialized with **SLOW SIGNAL**; open it with A, then press START.
+Back up the full installed folder before updating. Preserve `projects/`, `samples/`, `library/`, `imports/` and `captures/`; do not replace personal WAV files with demo files of the same name.
 
-The archive contains an application, not a firmware image. See the [user guide](native/prototype/README.en.md) for installation, format and update details.
+**Migrating from MOSS-GRANULAR:** back up both previous installations. Use the complete current MOSS-GRANULAR data set as the new MOSS folder, then replace its executable and launcher. Do not merge individual files from unrelated project/library sets: sequence and sample IDs can collide. After verification, move the old MOSS folder and separate MOSS-GRANULAR launcher to a backup outside APPS. See the [guide](native/prototype/README.en.md).
 
-### Windows
+Older versions cannot read MS15. Rollback requires the old executable **and original data**. Updated MONO/POND can change older patches' sound.
 
-Extract the entire archive into a writable folder and run `MOSS.exe`. Keep `samples/` beside the executable. Data is stored locally. The Windows version lets you test music and controls; it does not emulate RG35XX performance.
+## Controls
 
-## Main controls
-
-| RG35XX | Windows keyboard | Action |
+| RG35XX | Windows | Action |
 |---|---|---|
-| D-pad | Arrow keys | Navigate |
-| Y / B / A / X + arrows | Z / X / C / V + arrows | Four parameters, left to right: ←/→ fine, ↑/↓ coarse |
+| D-pad | Arrows | Navigation |
+| Y/B/A/X + arrows | Z/X/C/V + arrows | Four fields: horizontal fine, vertical coarse |
 | A / B | C / X | Confirm / back |
-| L1 / R1 | Q / E | Parameter banks and nested pages |
-| L2 / R2 | [ / ] | Main tabs |
-| R1 + ←/→ | E + ←/→ | Jump to another grid or list page |
-| L1 + R1 | Q + E | Context menu |
+| L1/R1 | Q/E | Parameter banks |
+| L2/R2 | [ / ] | Main tabs |
+| L1 + arrows | Q + arrows | Nested bank, slot or effect |
+| R1 + left/right | E + left/right | Grid/list page |
+| L1+R1 | Q+E | Context options |
 | START | Space | Play / stop |
-| SELECT + arrows | Tab + arrows | Global tempo |
-| Hold MENU for 2 seconds | Hold Esc for 2 seconds | Save and exit |
+| SELECT + arrows | Tab + arrows | Tempo |
+| MENU, two seconds | Esc, two seconds | Save and exit |
 
-Full controls and workflows: [0.5.2 user guide](native/prototype/README.en.md), [interaction contract](design/current/native-v052-interaction.md).
+## Build
 
-## Build from source
-
-The supported build host is **Windows x64**, with Node.js 18+ and Python 3.9+. The setup script installs local copies of Zig 0.14.1 and a pinned uClibc SDK, verifying their SHA256 hashes. Docker/WSL is not required. The compiler and SDK are not included in the repository.
-
-From the cloned repository's root:
+Windows x64, Node.js 18+, Python 3.9+. Setup installs pinned Zig 0.14.1 and a uClibc SDK with SHA256 checks. Docker/WSL are not required.
 
 ```powershell
 node "hardware lab/scripts/setup.cjs"
 node native/prototype/scripts/build.cjs
 ```
 
-If Python is not detected automatically, set `MOSS_PYTHON` to the full path of `python.exe` before the first command. The build uses the original demo WAVs in `hardware lab/samples/`.
+Set `MOSS_PYTHON` to a full Python path when needed. Build produces ARM/Windows binaries and runs engine, persistence, interaction and effect checks. `scripts/package.py` checks ABI, tests and exact-binary hardware evidence before producing the GarlicOS package.
 
-The second command builds ARM and Windows, runs eight native test suites and creates previews in `native/prototype/build/`. The Garlic backend uses SDL 1.2 and evdev; Windows uses GDI and waveOut. The shared model, UI, sequencer and DSP are in `native/prototype/src/`.
+## Project navigation
 
-`node native/prototype/scripts/benchmark.cjs` builds the stress-test programs. Desktop results do not replace hardware testing. The packager, `native/prototype/scripts/package.py`, additionally requires a local `build/device-verification.json` matching the exact ARM binary hash. An old release's report must not be substituted for an untested new build.
-
-## Repository layout
-
-| Folder | Contents |
-|---|---|
-| `native/prototype/` | Current application, tests, build scripts and launcher |
-| `hardware lab/` | Hardware diagnostics, shared input/drawing code and SDK setup |
-| `native/perf-baseline-v050/` | Historical engine used for performance comparisons |
-| `visual prototype/` | Browser interaction prototype without an audio engine |
-| `design/current/` | Current diagrams and interaction contracts |
-| `docs/` | Decisions, development history and verification reports |
-| `releases/0.5.2/` | Recorded information about the published build |
-
-Run the browser prototype through `visual prototype/START.cmd` or `index.html`. Some features and controls differ from the native application. For 0.5.2, the native user guide and current interaction contract take precedence. Older documents are retained as development history.
-
-The repository includes only three original test sounds generated by `hardware lab/scripts/make_samples.py`. Personal sequences, recordings and third-party sample packs are not distributed. A granular instrument is being discussed separately and is not part of 0.5.2.
+- [Native guide RU/EN](native/prototype/README.en.md), [MONO](docs/MONO-v09.en.md), [GRANULAR](docs/GRANULAR-INSTRUMENT.en.md), [REEL](docs/REEL-v1.en.md).
+- `native/prototype/`: current app, tests and build. `hardware lab/`: diagnostics and SDK setup.
+- `visual prototype/`: historical silent browser interaction prototype; launch `START.cmd` or `index.html`.
+- `docs/` and `design/current/`: guides, decisions and dated evidence. Old measurements are not attributed to new binaries.
+- `releases/`: release records. No personal projects, recordings or third-party packs are published. Three original test WAVs are generated by `hardware lab/scripts/make_samples.py`.
