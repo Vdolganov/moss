@@ -33,6 +33,7 @@ for k in ('exports','undefined','strong_undefined','soname','arm_attributes_hex'
 result.update(version=version,sha256=tests['sha256'],tests=tests,abi='ARMv7 Cortex-A9 softfp uClibc; SDK exports resolved',device=device)
 verification=json.dumps(result,indent=2).encode();(out/f'MOSS-{version}-verification.json').write_bytes(verification)
 readme=(root/'README.md').read_bytes();readme_en=(root/'README.en.md').read_bytes()
+license_files={name:(project/name).read_bytes() for name in ('LICENSE','THIRD-PARTY-NOTICES.txt','licenses/LGPL-2.1.txt')}
 def portable_manual(data):
  def link(match):
   target=match.group(1)
@@ -53,13 +54,15 @@ def archive(name,files):
  with zipfile.ZipFile(target) as z:assert z.testzip() is None
  print(name,target.stat().st_size)
 files={'Roms/APPS/MOSS.sh':(root/'packaging/MOSS.sh').read_bytes().replace(b'\r\n',b'\n'),'Roms/APPS/MOSS/moss':binary.read_bytes(),'Roms/APPS/MOSS/README-RU.md':readme,'Roms/APPS/MOSS/README-EN.md':readme_en,'Roms/APPS/MOSS/verification.json':verification}
+files.update({'Roms/APPS/MOSS/'+name:data for name,data in license_files.items()})
 for p in (root/'samples').glob('*.wav'):files['Roms/APPS/MOSS/samples/'+p.name]=p.read_bytes()
 files['Roms/APPS/MOSS/cpu-performance.sh']=(root/'packaging/cpu-performance.sh').read_bytes().replace(b'\r\n',b'\n')
 archive(f'MOSS-{version}-GarlicOS.zip',files)
 files={'MOSS.exe':(root/'build'/tests['desktop_exe']).read_bytes(),'README-RU.md':readme,'README-EN.md':readme_en}
+files.update(license_files)
 for p in (root/'samples').glob('*.wav'):files['samples/'+p.name]=p.read_bytes()
 archive(f'MOSS-{version}-Windows.zip',files)
-files={}
+files={'MOSS/'+name:data for name,data in license_files.items()}
 for sub in ('src','scripts','tests','packaging','samples'):
  for p in (root/sub).rglob('*'):
   if p.is_file() and '__pycache__' not in p.parts:files['MOSS/native/prototype/'+p.relative_to(root).as_posix()]=p.read_bytes()

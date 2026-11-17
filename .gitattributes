@@ -15,3 +15,6 @@
 *.png binary
 *.bmp binary
 *.zip binary
+LICENSE text eol=lf
+THIRD-PARTY-NOTICES.txt text eol=lf
+licenses/*.txt text eol=lf

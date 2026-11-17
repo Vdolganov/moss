@@ -1,0 +1,50 @@
+MOSS — license scope and external components
+English / Русский
+
+English
+
+The root LICENSE grants the MIT License for the original MOSS source code,
+documentation and project-created assets, including the original generated
+demo WAVs. This also covers the original MOSS code in the v0.9.0 release.
+It does not relicense third-party software, firmware, quotations, referenced
+materials or samples imported by users.
+
+The GarlicOS application dynamically links to SDL 1.2 (libSDL-1.2.so.0)
+and uClibc system libraries (libc.so.0 and libm.so.0). These libraries are
+provided by the device's operating system, not bundled in MOSS packages.
+SDL 1.2 and uClibc retain their upstream LGPL terms; individual files may
+carry additional upstream notices. A copy of LGPL 2.1 is supplied in
+licenses/LGPL-2.1.txt for reference. MOSS's MIT License does not replace
+those terms.
+
+SDL licensing: https://www.libsdl.org/license.php
+SDL 1.2 source: https://github.com/libsdl-org/SDL-1.2
+uClibc licensing: https://uclibc.org/FAQ.html
+uClibc source: https://uclibc.org/downloads/
+LGPL 2.1: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+The Windows build uses operating-system APIs. Compilers, SDKs and other
+external build/runtime components retain their own licenses. Research links
+to other synthesizers and firmware do not grant rights to those projects.
+Third-party sample packs and private recordings are not part of this license
+grant or the published MOSS repository.
+
+Русский
+
+Корневой LICENSE распространяет MIT на оригинальный код MOSS, документацию
+и созданные для проекта материалы, включая исходные сгенерированные
+демо-WAV. Это относится и к оригинальному коду MOSS в релизе v0.9.0.
+Лицензия не меняет условия стороннего ПО, прошивок, цитат, материалов
+по внешним ссылкам и сэмплов, которые импортируют пользователи.
+
+Версия для GarlicOS динамически использует системные SDL 1.2
+(libSDL-1.2.so.0) и uClibc (libc.so.0, libm.so.0). Эти библиотеки поставляет
+ОС устройства; архивы MOSS их не содержат. Для SDL 1.2 и uClibc сохраняются
+условия LGPL и уведомления соответствующих исходных файлов. Копия LGPL 2.1
+приложена в licenses/LGPL-2.1.txt. MIT для MOSS не заменяет эти условия.
+
+Windows-сборка использует API операционной системы. Компиляторы, SDK и
+другие внешние компоненты сохраняют собственные лицензии. Ссылки на
+исследования других синтезаторов и прошивок не предоставляют прав на них.
+Сторонние сэмпл-паки и личные записи не входят в эту лицензию и публичный
+репозиторий MOSS.

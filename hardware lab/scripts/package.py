@@ -4,6 +4,7 @@ out=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv)>1 else lab/'build'
 out.mkdir(parents=True,exist_ok=True)
 subprocess.run([sys.executable,str(lab/'scripts/verify.py')],check=True)
 verification=json.loads((lab/'build/verification.json').read_text())
+license_files={name:(lab.parent/name).read_bytes() for name in ('LICENSE','THIRD-PARTY-NOTICES.txt','licenses/LGPL-2.1.txt')}
 app='Roms/APPS/MOSS-LAB/'
 files={
  'Roms/APPS/MOSS-LAB.sh':(lab/'packaging/MOSS-LAB.sh').read_bytes().replace(b'\r\n',b'\n'),
@@ -14,6 +15,7 @@ files={
 }
 assert files['Roms/APPS/MOSS-LAB.sh'].startswith(b'#!/bin/sh\n')
 assert b'\r' not in files['Roms/APPS/MOSS-LAB.sh']
+files.update({app+name:data for name,data in license_files.items()})
 for p in sorted((lab/'samples').glob('*.wav')): files[app+'samples/'+p.name]=p.read_bytes()
 hashes=''.join(hashlib.sha256(data).hexdigest()+'  '+name+'\n' for name,data in files.items())
 files['SHA256SUMS.txt']=hashes.encode()
@@ -30,6 +32,7 @@ with zipfile.ZipFile(package) as z:
  assert hashlib.sha256(z.read(app+'moss-lab')).hexdigest()==verification['sha256']
 source=out/'MOSS-LAB-0.1.3-source.zip'
 with zipfile.ZipFile(source,'w',zipfile.ZIP_DEFLATED) as z:
+ for name,data in license_files.items():z.writestr(name,data)
  for directory in ('src','tests','scripts','packaging','samples'):
   for p in sorted((lab/directory).rglob('*')):
    if p.is_file() and '__pycache__' not in p.parts:z.write(p,'hardware lab/'+p.relative_to(lab).as_posix())
