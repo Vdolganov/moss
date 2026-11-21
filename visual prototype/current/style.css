@@ -11,6 +11,7 @@ h1 span{font-size:var(--font-body);letter-spacing:0;font-weight:400;margin-left:
 .edition{font-size:var(--font-small);color:#606165;white-space:nowrap}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin:var(--space-4) 0;font-size:var(--font-small)}
 .toolbar>div{display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end}
+.live-entry{font-size:var(--font-small);margin:var(--space-4) 0}.live-entry a{color:inherit;text-underline-offset:var(--space-1)}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:hover{background:#dededb}
 button:focus-visible,summary:focus-visible{outline:2px solid #77797e;outline-offset:var(--space-1)}

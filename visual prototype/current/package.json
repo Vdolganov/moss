@@ -17,7 +17,9 @@
     "test:notes": "node --test tests/note-timing.test.mjs",
     "test:duration": "node tests/note-duration.mjs",
     "capture": "node tests/capture.mjs",
-    "test:ux": "node tests/ux-reliability.mjs"
+    "test:ux": "node tests/ux-reliability.mjs",
+    "test:live": "node --test tests/live-model.test.mjs",
+    "test:live-browser": "node tests/live-browser.mjs"
   },
   "devDependencies": {
     "playwright": "^1.58.2"

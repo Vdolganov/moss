@@ -2,7 +2,7 @@
 p1_count: 4
 max_score: 40
 target: "MOSS Interface Lab: управление, визуальные состояния и сценарии"
-na_heuristics: 
+na_heuristics:
 total_score: 22
 p0_count: 0
 target_identity: "file:C:\\Users\\machine_owner\\Documents\\MOSS\\visual prototype\\current\\src\\app.js"

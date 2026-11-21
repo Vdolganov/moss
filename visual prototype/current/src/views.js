@@ -120,7 +120,7 @@ function pattern(a){
  const e=sampler?getHit(t,u.key,at):getStep(t,at),continued=continuationAt(spans,at);let detail=`${String(u.cell+1).padStart(2,'0')} / ${n}   ${sampler?noteName(48+u.key):noteName(e.note)}   1/${t.division}`;
  if(continued){const length=+(continued.length/stride(t)).toFixed(1);detail=`${noteName(continued.note)} / FROM ${Math.floor(continued.origin/stride(t))+1} / ${length} stps${e.type===2||sampler&&getStep(t,at).type===2?' / LOCK':''}`;}
  if(u.bank===1)detail=`STEP ${u.cell+1} / ${sampler?'SLOT '+noteName(48+u.key):'TRACK'} / ${a.C.instruments[t.instrument].banks[u.voiceBank]||'SAMPLE'}`;
- 
+
  if(u.bank===3)detail=`TIMING ${u.timingBank+1}/2   SWING ${t.swing}%`;
  if(g.pageSize===64){
   const selectedNote=sampler?noteName(48+u.key):noteName(continued?.note??e.note);

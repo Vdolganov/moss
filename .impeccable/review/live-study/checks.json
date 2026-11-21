@@ -1,0 +1,21 @@
+{
+  "keyboard": true,
+  "recording": true,
+  "rawTiming": true,
+  "undo": true,
+  "octave": true,
+  "heldOctave": true,
+  "recordedPitchRows": true,
+  "autoPages64": true,
+  "partialPage": true,
+  "pageWrap": true,
+  "metronome": true,
+  "metronomeDoesNotTranspose": true,
+  "focusEscape": true,
+  "variants": 3,
+  "quantize": true,
+  "pentatonic": true,
+  "responsive": true,
+  "focusLoss": true,
+  "pageErrors": []
+}

@@ -130,3 +130,9 @@ Run `npm ci` for test tools, `npm test` for model checks, `npm run test:browser`
 ### English
 
 This browser update implements audit U01–U13: reliable undo/save, persistent slicing drafts, explicit kit versus single-slot assignment, scoped clearing, individual lock SET/CLEAR/RESET, consistent navigation, remembered positions, complete recovery menus and truthful footer actions. It also adds physical lock units, clearer empty states, fine/coarse hints, explicit desktop name typing and readable 1× narrow-window scrolling. Run `npm run test:ux`. It remains a silent UI prototype, separate from the native app.
+
+## LIVE: три варианта исполнения
+
+[Открыть LIVE](live.html) после запуска сервера. Пульт / Партитура / Петля используют один эскиз с записью живого тайминга, длительностью, отменой и квантизацией. Второй вариант открывается по умолчанию: пользователь предпочёл его, затем попросил цельную крестовину и круглые кнопки в расположении RG35XX. Выбор для нативной реализации ещё обсуждается.
+
+[Русское руководство](../../docs/LIVE-STUDY.md) · [English guide](../../docs/LIVE-STUDY.en.md). Это отдельный дизайн-эксперимент без аудиодвижка; он не меняет нативную версию и существующие проекты браузерного прототипа.

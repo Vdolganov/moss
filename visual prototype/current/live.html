@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOSS · LIVE — три варианта</title><link rel="stylesheet" href="live.css"></head>
+<body><main>
+  <header><h1>MOSS <span>LIVE</span></h1><a href="index.html">Основной прототип</a></header>
+  <div class="intro"><p>Один инструмент. Восемь клавиш. Живая запись.</p><span>Демо-секвенция · без звука</span></div>
+  <nav class="variants" aria-label="Вариант экрана">
+    <button data-variant="console" aria-pressed="false">Пульт</button>
+    <button data-variant="score" aria-pressed="true">Партитура</button>
+    <button data-variant="orbit" aria-pressed="false">Петля</button>
+  </nav>
+  <p id="variant-description">Восемь нотных строк — точнее видны длительности и живые смещения.</p>
+  <div class="page-options"><span>Шагов на странице</span><button data-grid-size="16" aria-pressed="false">16</button><button data-grid-size="64" aria-pressed="true">до 64</button><button id="long-example">Пример 76 шагов</button><span>Страница следует за воспроизведением</span></div>
+  <div id="viewport"><div id="live-device" tabindex="0" role="application" aria-label="MOSS LIVE. Стрелки и Z X C V — ноты. Tab и Space — запись. Shift Tab — выйти из управления." aria-describedby="keyboard-help"><svg id="live-screen" viewBox="0 0 640 480" aria-hidden="true"></svg></div></div>
+  <div class="transport"><button id="play">Старт / стоп</button><button id="record">Запись</button><button id="metronome" aria-pressed="false">Метроном: выкл</button><button id="undo">Отменить дубль</button><span id="status" role="status">Кликни по экрану и играй</span></div>
+  <div class="hardware" aria-label="Кнопки консоли"><button data-control="L2">L2 · дорожка</button><button data-control="L1">L1 · октава</button><button data-control="R1">R1 · октава</button><button data-control="R2">R2 · дорожка</button></div>
+  <details id="setup"><summary>Подготовка секвенции и квантизация</summary>
+    <p>Эти настройки находятся вне LIVE. В основном приложении они будут в настройках секвенции и редакторе паттерна.</p>
+    <div class="settings">
+      <label>Тоника<select id="root"></select></label>
+      <label>Скейл<select id="scale"><option>MINOR</option><option>MAJOR</option><option>DORIAN</option><option>PENTATONIC</option></select></label>
+      <label>BPM<input id="bpm" type="number" min="30" max="240" value="84"></label>
+      <label>Шагов на дорожке<select id="length"><option value="60">15</option><option value="64">16</option><option value="128">32</option><option value="256">64</option><option value="304">76</option><option value="512">128</option></select></label>
+      <label>Сетка<select id="quantum"><option value="8">1/8</option><option value="16" selected>1/16</option><option value="32">1/32</option><option value="64">1/64</option></select></label>
+      <label>Квантизация<select id="strength"><option value="0.5">50%</option><option value="1" selected>100%</option></select></label>
+    </div>
+    <div class="actions"><button id="quantize">Квантизировать дорожку</button><button id="seed">Пример с живым таймингом</button><button id="clear">Очистить дорожку</button><button id="export">Сохранить эскиз JSON</button></div>
+    <p>Квантизация выравнивает начало нот. Длительности остаются живыми; исходный тайминг сохраняется. Изменения можно отменить.</p>
+  </details>
+  <details open id="keyboard-help"><summary>Как попробовать</summary>
+    <div class="instructions">
+      <p><b>← ↓ → ↑ + Z X C V</b> — восемь нот. Раскладка повторяет D-pad и Y B A X. Можно играть и при остановленном транспорте.</p>
+      <p><b>Space</b> — запуск / стоп. <b>Tab + Space</b> — включить или выключить запись. Со стопа запускает цикл сразу с записью.</p>
+      <p><b>[ / ]</b> — дорожка. <b>Q / E</b> — октава. <b>Q + E</b> — отменить дубль после записи. <b>Shift + Tab</b> — вернуть клавиатуру браузеру.</p>
+      <p><b>Tab + E</b> — метроном (SELECT + R1). В этом прототипе он визуальный: четыре доли, первая отмечена крупнее. Звук добавим в приложении.</p>
+      <p>Удержание задаёт длительность ноты. Повторный проход добавляет исполнение. Все три варианта показывают один и тот же эскиз; переключение не сбрасывает его.</p>
+    </div>
+  </details>
+  <footer>640 × 480 · графит / монохром · мелодическая дорожка: один голос · эскиз сохраняется отдельно от проектов MOSS</footer>
+</main><script type="module" src="src/live.js"></script></body></html>

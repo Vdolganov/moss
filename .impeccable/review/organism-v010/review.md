@@ -34,4 +34,3 @@ None. No required corrections for this visual scope.
 ## keep
 
 Preserve the telemetry-driven neutral contours, explicit GROW / FADE / REST states, persistent numeric units, five visible banks and familiar Y/B/A/X controls; keep listening and hardware verification separate from this visual ship verdict.
-

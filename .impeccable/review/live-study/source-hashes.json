@@ -1,0 +1,8 @@
+{
+  "visual prototype/current/live.html": "4075a5a8e3f856bea5715bbf0acf1c041a88c37b4d388d1e4b8d44b1bf1f71bb",
+  "visual prototype/current/live.css": "fbec2b5d35f89f6103d868caab64e93e4c32ffd4871159057f97d6a8d9ca15b2",
+  "visual prototype/current/src/live.js": "11d7ac4dc945d065e69f98f128bbb5d971f7f5cad3f68e12b94459c0e46a02a0",
+  "visual prototype/current/src/live-model.js": "c8107d3b8dbf046e76797338ddd5d58d00b3c28dabe1c545ccedefeb28575f29",
+  "visual prototype/current/tests/live-model.test.mjs": "9ff54eb6e6678a3911d76d5b800fc86bff352adef2467b312bec5d5e7b959744",
+  "visual prototype/current/tests/live-browser.mjs": "dd8b2a23978eba54f77e34323891296cf32e2f1b035f209f22559c6a9dd2b2d4"
+}

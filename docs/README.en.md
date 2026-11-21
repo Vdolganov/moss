@@ -11,6 +11,7 @@ Current version on `main`: **MOSS 0.13.1**, including GRANULAR and the new monoc
 
 | Document | Русский | English |
 |---|---|---|
+| LIVE: дизайн-эскизы / design study (not native yet) | [Прототип и управление](LIVE-STUDY.md) | [Study and controls](LIVE-STUDY.en.md) |
 | Levels 0.13.1: sampler / granular / mixer | [Громкость](LEVELS-v0131.md) | [Levels](LEVELS-v0131.en.md) |
 | UI 0.13: монохром, навигация, перенос / native UI | [Управление](UI-v013.md) | [Controls](UI-v013.en.md) |
 | Папки и четыре части / folders and four-part slicing: 0.11 | [Управление](SAMPLE-FOLDERS.md) | [Controls](SAMPLE-FOLDERS.en.md) |
