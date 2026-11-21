@@ -4,10 +4,26 @@ namespace moss {
 using lab::little16;
 using lab::little32;
 constexpr unsigned SampleBudget = 1024 * 1024;
-struct SampleBuffer {
-  int16_t pcm[SampleBudget / 2] = {};
+constexpr int CatalogAssets = 256, ResidentAssets = 32;
+// Lightweight, immutable while audio runs. PCM ownership stays in the library.
+struct SampleView {
+  int16_t *pcm = nullptr;
   unsigned rate = 0, channels = 0, frames = 0, bytes = 0;
   int peaks[64] = {};
+};
+struct SampleBuffer : SampleView {
+  int16_t storage[SampleBudget / 2] = {};
+  SampleBuffer() { pcm = storage; }
+  SampleBuffer(const SampleBuffer &other) { *this = other; }
+  SampleBuffer &operator=(const SampleBuffer &other) {
+    if (this != &other) {
+      static_cast<SampleView &>(*this) = other;
+      memcpy(storage, other.storage, sizeof(storage));
+      memcpy(error, other.error, sizeof(error));
+    }
+    pcm = storage;
+    return *this;
+  }
   char error[128] = {};
   bool load(const char *path) {
     rate = channels = frames = bytes = 0;

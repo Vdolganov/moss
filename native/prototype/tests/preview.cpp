@@ -33,6 +33,32 @@ int main(int argc, char **argv) {
   app.projectTracks[0] = 3;
   app.projectTempos[0] = 70;
   if (argc == 4) {
+    if(!strncmp(argv[3],"fm-v12-",7)){
+      app.project=Project{};app.project.trackCount=1;app.track=0;app.page=Sampler;
+      strcpy(app.project.name,"ELASTIC MATTER");auto &tr=app.project.tracks[0];strcpy(tr.name,"FM RESONATOR");tr.instrument=FmInstrument;tr.audition=33;
+      int preset=atoi(argv[3]+7);if(strstr(argv[3],"bank")||strstr(argv[3],"held")||strstr(argv[3],"release"))preset=7;if(preset<0||preset>=FmPresetCount)preset=0;
+      memcpy(tr.synthParams[2],FmPresets[preset],sizeof(tr.synthParams[2]));tr.synthMode[2]=FmPresetModes[preset];tr.synthPreset[2]=preset;
+      app.synthBank=preset%5;engine.init(app.project,nullptr,AudioRate,0);engine.handle({Op::Audition,0});engine.synth[0].previewFrames=0;
+      int16_t sound[2048];for(int i=0;i<(preset>=6?70:3);++i)engine.render(sound,1024);
+      if(strstr(argv[3],"bank"))app.synthBank=atoi(argv[3]+11);
+      if(strstr(argv[3],"held"))app.buttons.held=lab::bit(lab::Y);
+      if(strstr(argv[3],"release")){engine.synth[0].off();for(int i=0;i<8;++i)engine.render(sound,1024);}
+      if(!strcmp(argv[3],"fm-v12-lockedratio")){int values[FmParameters];memcpy(values,tr.synthParams[2],sizeof(values));values[FmRatio]=1;engine.synth[0].setTarget(values,0,FmParameters);for(int i=0;i<2048;++i){int l=0,r=0;engine.synth[0].render(l,r,engine.tables);}engine.fmView[0].publish(engine.synth[0].fmVoice,true);app.synthBank=0;}
+      if(!strcmp(argv[3],"fm-v12-accent")){tr.synthParams[2][FmPunch]=48;tr.synthParams[2][FmDynamics]=100;engine.project=app.project;engine.synth[0]=SynthVoice{};engine.synth[0].on(FmInstrument,33,55,24,64,tr.synthParams[2],0,AudioRate,17,FmParameters);engine.render(sound,32);app.synthBank=2;}
+      if(!strcmp(argv[3],"fm-v12-idle")){engine.handle({Op::Stop});engine.render(sound,1024);app.synthBank=0;}
+      if(!strcmp(argv[3],"fm-v12-presets")){app.voicePicker=2;app.voiceChoice=7;}
+      if(!strcmp(argv[3],"fm-v12-locks")){app.page=Pattern;app.bank=1;app.synthBank=2;app.step=8;tr.steps[8].on=LockEvent;tr.steps[8].synthLocks[2][FmPunch]=19;}
+    }
+    if(!strncmp(argv[3],"organism-v10-",13)){
+      app.project=Project{};app.project.trackCount=1;app.track=0;app.page=Sampler;
+      strcpy(app.project.name,"LIVING MATTER");auto &tr=app.project.tracks[0];strcpy(tr.name,"ROOT SYSTEM");tr.instrument=OrganismInstrument;tr.audition=33;
+      memcpy(tr.synthParams[1],OrganismPresets[0],sizeof(tr.synthParams[1]));
+      app.synthBank=atoi(argv[3]+13);engine.init(app.project,nullptr,AudioRate,0);engine.handle({Op::Audition,0});engine.synth[0].previewFrames=0;
+      int16_t sound[2048];for(int i=0;i<160;++i)engine.render(sound,1024);
+      if(!strcmp(argv[3],"organism-v10-idle")){engine.handle({Op::Stop});engine.render(sound,1024);app.synthBank=0;}
+      if(!strcmp(argv[3],"organism-v10-release")){engine.synth[0].off();engine.render(sound,1024);app.synthBank=4;}
+      if(!strcmp(argv[3],"organism-v10-locks")){app.page=Pattern;app.bank=1;app.synthBank=2;app.step=8;tr.steps[8].on=LockEvent;tr.steps[8].synthLocks[1][OrgRate]=17;}
+    }
     if(!strncmp(argv[3],"mono-v09-",9)){
       app.project=Project{};app.project.trackCount=1;app.track=0;app.page=Sampler;
       strcpy(app.project.name,"MONO STUDY");auto &tr=app.project.tracks[0];strcpy(tr.name,"DEEP SIGNAL");tr.instrument=MonoInstrument;tr.audition=33;

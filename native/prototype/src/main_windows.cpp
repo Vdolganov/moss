@@ -99,7 +99,7 @@ static LRESULT CALLBACK proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         app.open(app.requestedSlot);
         app.requestedSlot = -1;
       } else
-        engine.init(app.project, library.pcm, AudioRate, Assets);
+        app.resetSamples();
       app.reload = false;
       waveOutRestart(audioDevice);
       LeaveCriticalSection(&engineLock);
@@ -135,7 +135,7 @@ static LRESULT CALLBACK proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
       app.say("SAVING CAPTURE / CLOSE AGAIN WHEN SAVED");
       return 0;
     }
-    if ((app.dirty && !app.save()) || (app.songDirty && !app.saveArrangement()))
+    if (!app.saveSliceDraft() || (app.dirty && !app.save()) || (app.songDirty && !app.saveArrangement()))
       return 0;
     DestroyWindow(hwnd);
     return 0;
@@ -159,7 +159,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
   app.library = &library;
   app.captureStore = &captureStore;
   InitializeCriticalSection(&engineLock);
-  engine.init(app.project, library.pcm, AudioRate, Assets);
+  library.prepare(app.project); engine.init(app.project, library.views, AudioRate, CatalogAssets);
   app.engine = &engine;
   app.seedProjects();
   WNDCLASSA wc = {};

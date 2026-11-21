@@ -41,7 +41,7 @@ static void codecAndInput() {
   p.tracks[1].steps[3].note = 97;
   assert(!valid(p));
   p.tracks[1].steps[3].note = 60;
-  p.tracks[2].steps[3].synthLocks[2][1] = 8;
+  p.tracks[2].steps[3].synthLocks[2][1] = 16;
   assert(!valid(p));
   app.project = makeSynthDemo();
   app.engine = &a;
@@ -114,6 +114,7 @@ static void musical() {
     p.bpm = 120;
     auto &t = p.tracks[0];
     t.instrument = kind;
+    t.synthParams[1][OrgRelease]=2000;
     t.cycle = 256;
     t.steps[0].on = 1;
     t.steps[0].length = 64;
@@ -169,18 +170,18 @@ static void boundsAndPitch() {
     for (int kind = 1; kind <= 3; kind++)
       for (int mode = 0; mode < 2; mode++)
         for (int high = 0; high < 2; high++) {
-          int p[8];
-          for (int i = 0; i < 8; i++)
+          int p[SynthParameterCount];
+          for (int i = 0; i < synthCount(kind); i++)
             p[i] = high ? synthMax(kind, i) : synthMin(kind, i);
           SynthVoice v;
           v.on(kind, high ? 96 : 24, tables.frequency[high ? 96 : 24], 127, 64,
-               p, mode, rate, 17);
+               p, mode, rate, 17,synthCount(kind));
           for (unsigned n = 0; n < rate / 2; n++) {
             int l = 0, r = 0;
             v.render(l, r, tables);
-            assert(isfinite(v.env) && isfinite(v.dcOut) &&
+            assert(isfinite(v.env) && isfinite(v.fmVoice.dcOut[0]) && isfinite(v.organismVoice.dcOut[0]) &&
                    isfinite(v.monoVoice.state[3]));
-            assert(l == r && abs(l) < 32113);
+            assert((kind!=MonoInstrument || l==r) && abs(l)<32113 && abs(r)<32113);
           }
           v.stop();
           for (int n = 0; n < 129; n++) {

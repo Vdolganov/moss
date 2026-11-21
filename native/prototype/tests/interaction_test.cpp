@@ -10,6 +10,7 @@ static void reset(Page page) {
   app = App{};
   app.engine = &engine;
   app.page = page;
+  app.gridPageSize = 16; // This legacy test exercises the 16-cell view.
   app.step = 44;
   app.track = 1;
   engine.init(app.project, samples, 44100);

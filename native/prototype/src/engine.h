@@ -7,6 +7,8 @@
 #include "stream_preview.h"
 #include "synth.h"
 #include "mono_view.h"
+#include "organism_view.h"
+#include "fm_view.h"
 #include "granular.h"
 #include "repeat.h"
 #include "sequencer_timing.h"
@@ -19,7 +21,8 @@ struct Engine {
     return whole * gain + (value - whole * 10000) * gain / 10000;
   }
   static int monitor(int value) {
-    int64_t scaled = int64_t(value) * MonitorGainPercent / 100;
+    // Unity below the existing soft safety knee. No hidden makeup gain.
+    int64_t scaled = value;
     int sign = scaled < 0 ? -1 : 1;
     int64_t magnitude = scaled * sign;
     constexpr int knee = 27852, headroom = 4915;
@@ -34,7 +37,8 @@ struct Engine {
   }
   Project project;
   Queue commands;
-  const moss::SampleBuffer *samples = nullptr;
+  SampleView sampleViews[CatalogAssets];
+  const SampleView *samples = sampleViews;
   Voice voices[Tracks], tails[Tracks], preview;
   Voice extraVoices[Tracks][Keys - 1], extraTails[Tracks][Keys - 1];
   int previewDelay[8192][2]={};
@@ -51,8 +55,10 @@ struct Engine {
   SynthTables tables;
   SynthVoice synth[Tracks], synthTails[Tracks];
   MonoMailbox monoView[Tracks];
+  OrganismMailbox organismView[Tracks];
+  FmMailbox fmView[Tracks];
   float muteGain[Tracks] = {1, 1, 1};
-  uint64_t rates[32][49] = {};
+  uint64_t rates[CatalogAssets][49] = {};
   unsigned rate = 44100;
   unsigned seenFxMask = 0;
   unsigned seenInstrumentMask = 0;
@@ -64,6 +70,7 @@ struct Engine {
   int activeFxStep[Tracks] = {-1, -1, -1};
   int activeVoiceStep[Tracks] = {-1, -1, -1};
   uint32_t shownStep[Tracks] = {};
+  uint32_t shownSampleKeys[Tracks] = {};
   uint64_t clock = 0, frame = 0, tick = 0;
   bool playing = false, first = true;
   uint32_t shownTick = 0, shownPlaying = 0, shownPeak[Tracks] = {},
@@ -72,7 +79,10 @@ struct Engine {
 #include "engine_events.h"
 #include "song_engine.h"
 #include "engine_timing.h"
-  void init(const Project &p, const moss::SampleBuffer *buffers, unsigned hz,
+  void init(const Project &p, decltype(nullptr), unsigned hz, int count = 0) {
+    init(p, static_cast<const SampleView *>(nullptr), hz, count);
+  }
+  template<class Buffer> void init(const Project &p, const Buffer *buffers, unsigned hz,
             int count = 3) {
     songBank = nullptr;
     transitionFrames = 0;
@@ -84,7 +94,10 @@ struct Engine {
     resetSchedule();
     scheduleOverflows=0;
     for(auto &count:timingEventCount) count=0;
-    samples = buffers;
+    count = buffers ? clamp(count, 0, CatalogAssets) : 0;
+    for (int i=0; i<count; ++i) sampleViews[i] = buffers[i];
+    for (int i=count; i<CatalogAssets; ++i) sampleViews[i] = SampleView{};
+    samples = sampleViews;
     rate = hz;
     tables.init();
     grainTables.init();
@@ -116,11 +129,13 @@ struct Engine {
       bindGranular(t);
       grainView[t].publish(granular[t]);
       monoView[t].publish(synth[t].monoVoice,project.tracks[t].instrument==MonoInstrument);
+      organismView[t].publish(synth[t].organismVoice,project.tracks[t].instrument==OrganismInstrument);
+      fmView[t].publish(synth[t].fmVoice,project.tracks[t].instrument==FmInstrument);
     }
     for (int s = 0; s < sampleCount; s++)
       for (int pitch = -24; pitch <= 24; pitch++)
-        rates[s][pitch + 24] = uint64_t(double(samples[s].rate) / rate *
-                                        pow(2.0, pitch / 12.0) * 4294967296.0);
+        rates[s][pitch + 24] = samples[s].frames ? uint64_t(double(samples[s].rate) / rate *
+                                        pow(2.0, pitch / 12.0) * 4294967296.0) : 0;
     __atomic_store_n(&shownPlaying, 0, __ATOMIC_RELEASE);
     __atomic_store_n(&shownTick, 0, __ATOMIC_RELEASE);
   }
@@ -280,7 +295,7 @@ struct Engine {
     dispatchScheduled();
     __atomic_store_n(&shownTick,uint32_t(tick),__ATOMIC_RELEASE);
   }
-  void auditionBuffer(const SampleBuffer &s) {
+  void auditionBuffer(const SampleView &s) {
     preview = Voice{};
     if (!s.frames)
       return;
@@ -288,8 +303,8 @@ struct Engine {
     preview.active = true;
     preview.end = s.frames;
     preview.increment = uint64_t(double(s.rate) / rate * 4294967296.0);
-    preview.velocity = 100;
-    preview.level = 75;
+    preview.velocity = 127;
+    preview.level = 100;
     preview.amplitude =
         float(preview.velocity * preview.level) / (128 * 127 * 100);
   }
@@ -353,6 +368,7 @@ struct Engine {
       clearGates(c.track);
       Step s;
       s.on = 1;
+      s.velocity = 127; // Audition the voice at unity; sequenced events keep their own velocity.
       s.key = c.index;
       s.note = project.tracks[c.track].audition;
       s.length = project.tracks[c.track].instrument ? 1 : 0;
@@ -376,7 +392,7 @@ struct Engine {
       apply(project, c);
       liveEventEdit(c);
       if((c.op==Op::Track && (c.field==0 || c.field==4 || c.field==TrackSwingField)) ||
-         (c.op==Op::Step && c.field==StepShiftField) || c.op==Op::ClearEvent)
+         (c.op==Op::Step && c.field==StepShiftField) || c.op==Op::ClearEvent || c.op==Op::ClearTrackLocks || c.op==Op::ClearAllAtStep || c.op==Op::ClearPattern)
         retimePending(c.track);
       if (c.op == Op::Instrument || c.op == Op::GranularSource) {
         bindGranular(c.track);
@@ -496,12 +512,13 @@ struct Engine {
       }
       for(unsigned i=0;i<span;++i,++frame) {
         int *mix=mixed[i];
-        mix[0] = clamp(mix[0] * project.master / 300, -32768, 32767);
-        mix[1] = clamp(mix[1] * project.master / 300, -32768, 32767);
+        // 100% means unity, independent of the number of tracks. Each track's
+        // FX output is bounded to +/-8 FS, so four summed tracks * 100 fit int32.
+        // Preserve bus headroom through master inserts; protect only at output.
+        mix[0] = mix[0] * project.master / 100;
+        mix[1] = mix[1] * project.master / 100;
         fx[Tracks].processChain(mix[0], mix[1], project.fx, params[Tracks], rate,
                                 project.bpm);
-        if (capture.source < 0)
-          capture.append(clamp(mix[0], -32768, 32767), clamp(mix[1], -32768, 32767));
         int pl = 0, pr = 0;
         preview.render(pl, pr);
         stream.render(pl, pr);
@@ -512,14 +529,18 @@ struct Engine {
         pr=previewWritten>=distance?previewDelay[delayed][1]:0;
         if(previewWritten<8192)++previewWritten;
         previewHead=(previewHead+1)&8191;
-        int out[2] = {monitor(mix[0] + pl / 2), monitor(mix[1] + pr / 2)};
+        // A master take records the same gain/protection as the audible master.
+        // File auditions have unity gain and bypass project/monitor attenuation.
+        int out[2] = {monitor(mix[0]), monitor(mix[1])};
         for (int ch = 0; ch < 2; ++ch) {
           if (transitionFrames)
             out[ch] = (out[ch] * int(128 - transitionFrames) +
                        transitionFrom[ch] * int(transitionFrames)) /
                       128;
-          previousOutput[ch] = output[(n+i) * 2 + ch] = int16_t(out[ch]);
+          previousOutput[ch] = out[ch];
+          output[(n+i) * 2 + ch] = int16_t(clamp(out[ch]+(ch?pr:pl),-32768,32767));
         }
+        if(capture.source<0)capture.append(out[0],out[1]);
         if (transitionFrames)
           --transitionFrames;
         if (playing) {
@@ -534,8 +555,12 @@ struct Engine {
     __atomic_store_n(&capture.shownFrames, capture.frames, __ATOMIC_RELEASE);
     for (int t = 0; t < Tracks; t++) {
       __atomic_store_n(&shownPeak[t], peaks[t], __ATOMIC_RELEASE);
+      unsigned sampleKeys=0;for(int k=0;k<Keys;++k)if(voice(t,k).active)sampleKeys|=1u<<k;
+      __atomic_store_n(&shownSampleKeys[t],sampleKeys,__ATOMIC_RELEASE);
       grainView[t].publish(granular[t]);
       monoView[t].publish(synth[t].monoVoice,project.tracks[t].instrument==MonoInstrument);
+      organismView[t].publish(synth[t].organismVoice,project.tracks[t].instrument==OrganismInstrument);
+      fmView[t].publish(synth[t].fmVoice,project.tracks[t].instrument==FmInstrument);
     }
   }
 };

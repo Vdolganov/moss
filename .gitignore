@@ -24,3 +24,7 @@ releases/**/*.zip
 !.env.example
 *.pem
 *.key
+
+# Local document rendering intermediates and redundant raw screenshots.
+/tmp/
+.impeccable/review/**/*.bmp

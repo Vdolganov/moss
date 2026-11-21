@@ -305,6 +305,7 @@ void commitName() {
     say("SONG RENAMED");
     return;
   }
+  if(nameTarget==8){if(renameSelectedKit(nameEdit))naming=false;return;}
   if (nameTarget == 4 || nameTarget == 5) {
     snprintf(saveLabel, sizeof(saveLabel), "%s", nameEdit);
     naming = false;

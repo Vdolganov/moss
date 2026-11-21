@@ -162,9 +162,9 @@ int main() {
   assert(voice.init(sample,tables,32000));
   GranularParameters loud; loud.sizeMs=500; loud.density=128;
   voice.setParameters(loud);
-  assert(voice.gainTarget>.42f && voice.gainTarget<.44f); // old fixed gain was .125
+  assert(voice.gainTarget>.57f && voice.gainTarget<.58f); // 8 Hann grains: mean-square sum = 3.
   loud.sizeMs=100; loud.density=2; voice.setParameters(loud);
-  assert(fabsf(voice.gainTarget-.75f)<1e-6f);
+  assert(fabsf(voice.gainTarget-1.f)<1e-6f);
   loud.level=0; voice.setParameters(loud); assert(voice.gainTarget==0);
   puts("PASS granular envelopes: independent in/out shapes, zero endpoints, latched windows, sparse/dense level compensation");
   assert(voice.init(sample, tables, 32000));

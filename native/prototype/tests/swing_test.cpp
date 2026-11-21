@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 #include <stdlib.h>
@@ -135,7 +136,7 @@ int main() {
     app.button(face,true,now);app.button(arrow,true,now+10000);
     app.button(arrow,false,now+20000);app.button(face,false,now+30000);
   };
-  gesture(lab::L1,lab::Right,1000000);assert(app.timingBank==1 && app.bank==3 && app.step==8);
+  gesture(lab::L1,lab::Down,1000000);assert(app.timingBank==1 && app.bank==3 && app.step==8);
   gesture(lab::Y,lab::Right,2000000);assert(app.project.tracks[0].swing==51);
   gesture(lab::Y,lab::Up,3000000);assert(app.project.tracks[0].swing==61);
   gesture(lab::B,lab::Left,4000000);assert(app.project.tracks[0].steps[8].shift==-1);
@@ -143,9 +144,9 @@ int main() {
   assert(app.project.tracks[0].steps[8].on==EmptyEvent); // Timing metadata creates no voice or phantom lock.
   app.option=app.optionIndex(4);assert(app.option>=0);app.chooseOption();assert(app.project.tracks[0].steps[8].shift==Inherit);
   app.project.tracks[0].steps[8].shift=37;
-  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS15",4) && codec.decode(restored,codec.cursor));
+  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS18",4) && codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].swing==61 && restored.tracks[0].steps[8].shift==37);
-  codec.cursor=16;codec.ok=true;codec.fields(project,true,11);memcpy(codec.bytes,"MS11",4);codec.word(4,11);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
+  codec.cursor=16;codec.ok=true;legacyFields(codec,project,11);memcpy(codec.bytes,"MS11",4);codec.word(4,11);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor) && restored.tracks[0].swing==50 && restored.tracks[0].steps[0].shift==Inherit);
   restored.tracks[0].swing=76;assert(!valid(restored));restored.tracks[0].swing=50;
   restored.tracks[0].steps[0].shift=-51;assert(!valid(restored));

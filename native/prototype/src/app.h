@@ -7,6 +7,8 @@
 #include "parameter_ui.h"
 #include "song_storage.h"
 #include "stream_reader.h"
+#include "sample_slice.h"
+#include "sample_waveform.h"
 #ifdef _WIN32
 #include <new>
 #else
@@ -15,7 +17,7 @@ inline void *operator new(size_t, void *ptr) noexcept { return ptr; }
 namespace moss {
 enum Page { Atlas, Grid, Mix, Tape, Pattern, Sampler, Space, SongPage };
 struct App {
-  Project project = makeProject(true), undoProject;
+  Project project = makeProject(true), undoProject, editCandidate;
   Engine *engine = nullptr;
   lab::Buttons buttons;
   lab::HoldStats holds;
@@ -25,8 +27,16 @@ struct App {
   Page page = Atlas;
   int slot = 0, track = 0, step = 0, key = 0, bank = 0, option = 0;
   int timingBank = 0;
+  int gridPageSize = 64;
+  struct TrackView { int step=0,key=0,bank=0,synth=0,timing=0; };
+  TrackView trackViews[Tracks];
+  int viewTrack=0;
+  int effectBanks[Tracks+1][2][EffectTypes]={};
+  bool menuConsumed=false;
+  int lockMenu=-1, lockAction=0;
   int synthBank = 0, fxBank = 0;
   int effectPageMemory[EffectTypes]={};
+  int fxCursor[Tracks+1]={-1,-1,-1,-1,-1},lockFx[Tracks]={-1,-1,-1,-1};
   bool fxDetail = false, nestedUsed = false, nestedTail = false;
   lab::ParameterGesture nestedRepeat;
   int voicePicker = 0, voiceChoice = 0; // 1 instrument, 2 synth preset, 3 add track, 4 REEL preset
@@ -52,14 +62,13 @@ struct App {
   WavSource source;
   StreamReader streamReader;
   bool previewWhole = false;
-  struct Slice {
-    int start = 0, end = 1, fadeIn = 0, fadeOut = 0;
-  };
+  using Slice=SampleSlice;
   Slice slices[16];
+  SampleWaveform waveform,detailWaveform;
   int sliceIndex = 0, sliceCount = 0;
   int tapeTab = 0, mixTab = 0, captureSource = 0, captureBars = 1, asset = 0,
       fileCursor = 0;
-  bool importAssign = false;
+  bool importAssign = false, saveKitAssign=false;
   int importTrack = 0, importKey = 0;
   char saveLabel[25] = {};
   bool filePicker = false, assignMode = false, capturePending = false,
@@ -67,7 +76,7 @@ struct App {
   bool naming = false, confirmDelete = false;
   int nameCursor = 0, nameKey = 0;
   bool nameSelected = false;
-  uint32_t savedAssetMasks[Projects + 1] = {};
+  AssetMask savedAssetMasks[Projects + 1] = {};
   char nameEdit[25] = {};
   enum Job {
     NoJob,
@@ -80,11 +89,13 @@ struct App {
     PreviewSource,
     PreviewFile,
     StopPreview,
-    StartSong
+    StartSong, LoadKit, AssignAsset
   };
 #include "app_song.h"
   Job job = NoJob;
   char pendingPath[512] = {};
+#include "app_sample_folders.h"
+#include "app_slice_draft.h"
   unsigned captureState() const {
     return __atomic_load_n(&engine->capture.state, __ATOMIC_ACQUIRE);
   }
@@ -93,6 +104,7 @@ struct App {
   }
   bool fxPage() const { return page == Space || (page == Mix && mixTab == 1); }
   const char *assetName(int id) const {
+    if(library && library->has(id)) return library->names[id];
     if (id < 0 || id >= engine->sampleCount)
       return "UNASSIGNED";
     if (!engine->samples[id].frames)
@@ -102,12 +114,12 @@ struct App {
                     : "SAMPLE";
   }
   bool available(int id) const {
-    return id >= 0 && id < engine->sampleCount && engine->samples[id].frames;
+    return library ? library->has(id) : id >= 0 && id < engine->sampleCount && engine->samples[id].frames;
   }
   bool granularTrack() const { return project.tracks[track].instrument == GranularInstrument; }
   int voiceBanks() const { return granularTrack() ? GranularBankCount : synthBanks(project.tracks[track].instrument); }
-  void assignSample(int id) {
-    change(granularTrack() ? Command{Op::GranularSource, track, 0, 0, id}
+  bool assignSample(int id) {
+    return change(granularTrack() ? Command{Op::GranularSource, track, 0, 0, id}
                            : Command{Op::Key, track, key, 0, id});
   }
   int assignedKey(int n, int d) const {
@@ -123,7 +135,7 @@ struct App {
     page = Tape;
     tapeTab = 2;
     importAssign = false;
-    asset = -1; // IMPORT precedes prepared assets.
+    asset = -1; libraryFolder=-1; // IMPORT precedes prepared assets.
   }
   void nameSlice(bool all = false) {
     if (!sliceCount || !library)
@@ -151,12 +163,10 @@ struct App {
     return sliceEnd(s) - sliceStart(s);
   }
   unsigned sliceStart(const Slice &s) const {
-    return unsigned(uint64_t(s.start) * source.rate / 1000);
+    return s.first(source.rate);
   }
   unsigned sliceEnd(const Slice &s) const {
-    return s.end == durationMs()
-               ? source.frames
-               : unsigned(uint64_t(s.end) * source.rate / 1000);
+    return s.last(source.rate,source.frames);
   }
   void limitSlice(Slice &s, int movedEdge) {
     if (!source.rate || !source.channels)
@@ -165,15 +175,15 @@ struct App {
     if (sliceFrames(s) > maximum) {
       if (movedEdge == 1) {
         unsigned first = sliceEnd(s) - maximum;
-        s.start = int((uint64_t(first) * 1000 + source.rate - 1) / source.rate);
+        s.setFirst(first,source.rate);
       } else {
         uint64_t last = uint64_t(sliceStart(s)) + maximum;
-        s.end = last >= source.frames ? durationMs()
-                                      : int(last * 1000 / source.rate);
+        s.setLast(unsigned(sampleMin(last,uint64_t(source.frames))),source.rate,source.frames);
       }
     }
-    s.fadeIn = clamp(s.fadeIn, 0, s.end - s.start);
-    s.fadeOut = clamp(s.fadeOut, 0, s.end - s.start - s.fadeIn);
+    int length=int(uint64_t(sliceFrames(s))*1000/source.rate);
+    s.fadeIn = clamp(s.fadeIn, 0, length);
+    s.fadeOut = clamp(s.fadeOut, 0, length - s.fadeIn);
   }
   bool previewing() const {
     return __atomic_load_n(&engine->stream.state, __ATOMIC_ACQUIRE) == 1;
@@ -194,6 +204,7 @@ struct App {
       say(streamReader.source.error);
       streamReader.failed = false;
     }
+    pumpWaveform();
   }
   bool assetUsed(int id) {
     auto uses = [&](const Project &p) {
@@ -244,9 +255,7 @@ struct App {
           say("FINISH CAPTURE FIRST");
           return;
         }
-        library->refresh();
-        fileCursor = 0;
-        filePicker = true;
+        browseSources();
         return;
       }
       if (b == lab::A) {
@@ -270,24 +279,24 @@ struct App {
         nameSlice();
       if (b == lab::X)
         previewToggle(PreviewSlice);
-    } else if (tapeTab == 2 && asset < 0) {
+    } else if(tapeTab==2 && asset<=-2) {
+      if(b==lab::A) {
+        if(asset==-2){asset=-10-libraryFolder;libraryFolder=-1;}
+        else {libraryFolder=-10-asset;asset=library->kits[libraryFolder].ids[0];}
+      }
+    } else if (tapeTab == 2 && asset == -1) {
       if (b == lab::A) {
         importAssign = assignMode;
         importTrack = track;
         importKey = key;
-        library->refresh();
-        fileCursor = 0;
-        filePicker = true;
+        browseSources();
       }
-    } else if (tapeTab == 2 && library->pcm[asset].frames) {
+    } else if (tapeTab == 2 && library->has(asset)) {
       if (b == lab::X)
         job = PreviewAsset;
       if (b == lab::A) {
         if (assignMode) {
-          assignSample(asset);
-          assignMode = false;
-          page = Sampler;
-          say(granularTrack() ? "SAMPLE ASSIGNED TO CLOUD" : "SAMPLE ASSIGNED TO KEY");
+          job=AssignAsset;
         } else {
           char p[128];
           library->assetPath(p, sizeof(p), asset);
@@ -355,6 +364,7 @@ struct App {
   }
   void finishCaptureSave() {
     __atomic_store_n(&engine->capture.state, 0, __ATOMIC_RELEASE);
+    fourSlices=false; sliceBank=0;
     sliceCount = 1;
     sliceIndex = 0;
     slices[0] = {0, durationMs(), 0, 0};
@@ -388,13 +398,21 @@ struct App {
       say("FINISH CAPTURE FIRST");
       return;
     }
-    engine->init(project, library->pcm, engine->rate, Assets);
+    resetSamples();
+    if(current==LoadKit){loadKit();return;}
+    if(current==AssignAsset) {
+      AssetMask needed=projectAssets(project);needed.add(asset);
+      if(!library->prepare(needed)){say(library->error);return;}
+      if(!assignSample(asset)){resetSamples();return;}resetSamples();assignMode=false;page=Sampler;say("SAMPLE ASSIGNED");return;
+    }
     if (current == PreviewSlice || current == PreviewSource ||
         current == PreviewFile) {
       bool whole = current != PreviewSlice;
-      const char *file = current == PreviewFile
-                             ? library->sourcePaths[fileCursor]
-                             : source.path;
+      char filePath[512];
+      if(current==PreviewFile) {
+        if(!browser.count || browser.entries[fileCursor].folder || !browser.fullPath(fileCursor,filePath,sizeof(filePath)))return;
+      } else snprintf(filePath,sizeof(filePath),"%s",source.path);
+      const char *file=filePath;
       unsigned first = whole ? 0 : sliceStart(slices[sliceIndex]),
                last = whole ? 0 : sliceEnd(slices[sliceIndex]);
       int in = whole ? 0 : slices[sliceIndex].fadeIn,
@@ -403,8 +421,10 @@ struct App {
                               in, out))
         say(streamReader.source.error);
       else {
-        previewWhole = whole;
-        say(whole ? "SOURCE AUDITION / X STOP" : "SLICE AUDITION / X STOP");
+        previewWhole = whole;previewSliceIndex=whole?-1:sliceIndex;
+        if(!whole && fourSlices) {
+          char message[80];snprintf(message,sizeof(message),"PART %d PLAY / %s STOP",sliceIndex+1,lab::names[ParameterButtons[sliceIndex]]);say(message);
+        } else say(whole ? "SOURCE AUDITION / X STOP" : "SLICE AUDITION / X STOP");
       }
       return;
     }
@@ -414,19 +434,25 @@ struct App {
         say(candidate.error);
         return;
       }
+      if(!saveSliceDraft())return;
       source = candidate;
       source.overview();
+      fourSlices=false;sliceBank=0;
       sliceCount = 1;
       sliceIndex = 0;
       slices[0] = {0, durationMs(), 0, 0};
       limitSlice(slices[0], 0);
+      restoreSliceDraft();
       page = Tape;
       tapeTab = 1;
       filePicker = false;
       assignMode = false;
       say("A SAVE SLICE / X AUDITION / L1/R1 BANK");
     } else if (current == PreviewAsset) {
-      engine->auditionBuffer(library->pcm[asset]);
+      AssetMask needed=projectAssets(project);needed.add(asset);
+      if(!library->prepare(needed)){say(library->error);return;}
+      engine->init(project,library->views,engine->rate,CatalogAssets);
+      engine->auditionBuffer(library->views[asset]);
     } else if (current == DeleteAsset) {
       if (assetUsed(asset)) {
         say("IN USE BY SEQUENCE OR UNDO / FILE KEPT");
@@ -441,11 +467,19 @@ struct App {
         n = library->next(asset, -1);
       asset = n;
       say("UNUSED SAMPLE DELETED");
+    } else if(current==SaveAll && fourSlices) {
+      int kit=library->saveKit(source,slices,saveLabel);
+      if(kit<0){say(library->error);return;}
+      libraryFolder=kit;asset=library->kits[kit].ids[0];
+      if(saveKitAssign) {
+        if(importAssign)track=importTrack;saveKitAssign=false;requestKit(kit);
+      } else {tapeTab=2;say("FOLDER SAVED / FOUR NUMBERED SAMPLES");}
+      return;
     } else if (sliceCount) {
       int first = current == SaveAll ? 0 : sliceIndex,
           last = current == SaveAll ? sliceCount - 1 : sliceIndex;
       if (current != PreviewSlice &&
-          Assets - library->count() < last - first + 1) {
+          CatalogAssets - library->count() < last - first + 1) {
         say("LIBRARY FULL / NOT ENOUGH EMPTY SLOTS");
         return;
       }
@@ -485,14 +519,14 @@ struct App {
         track = importTrack;
         key = importKey;
         editing = false;
-        assignSample(asset);
+        if(!assignSample(asset)){say("SAMPLE SAVED / ASSIGNMENT FAILED / RETRY IN LIBRARY");return;}
         importAssign = assignMode = false;
         page = Sampler;
-        engine->init(project, library->pcm, engine->rate, Assets);
+        resetSamples();
         say("NAMED SAMPLE SAVED AND ASSIGNED");
         return;
       }
-      engine->init(project, library->pcm, engine->rate, Assets);
+      resetSamples();
       char m[80];
       snprintf(m, sizeof(m), "%d SLICE SAVED / R1 LIBRARY / VOICE ASSIGN",
                savedCount);
@@ -507,7 +541,7 @@ struct App {
     scanSongs();
     deletedProjectAvailable = exists("projects/deleted.moss");
     projectCount = 0;
-    memset(savedAssetMasks, 0, sizeof(savedAssetMasks));
+    for(auto &mask:savedAssetMasks)mask=AssetMask{};
     if (deletedProjectAvailable) {
       Project deleted;
       if (loadProject("projects/deleted.moss", deleted))
@@ -539,6 +573,7 @@ struct App {
     return page == SongPage ? song.name : project.name;
   }
   void seedProjects() {
+    restoreLastDraft();
     scan();
     if (!exists("projects/initialized")) {
       if (!projectCount &&
@@ -587,6 +622,7 @@ struct App {
       return false;
     }
     project = temp;
+    for(auto &v:trackViews)v=TrackView{};for(auto &v:fxCursor)v=-1;for(auto &v:lockFx)v=-1;memset(effectBanks,0,sizeof(effectBanks));viewTrack=0;
     slot = index;
     page = Grid;
     track = step = key = bank = 0;
@@ -595,7 +631,7 @@ struct App {
     haveUndo = false;
     options = false;
     voicePicker = 0;
-    engine->init(project, engine->samples, engine->rate, engine->sampleCount);
+    resetSamples();
     say(adaptedReel?"LEGACY REEL ADAPTED / CHECK SOUND":"START PLAY / A OPEN TRACK / L1+R1 OPTIONS");
     return true;
   }
@@ -606,53 +642,74 @@ struct App {
     }
     return true;
   }
-  void change(Command c) {
-    if (c.op == Op::Fx && c.field == 1 && c.value) {
-      const auto &f =
-          c.track == Tracks ? project.fx : project.tracks[c.track].fx;
-      if (!f.enabled && f.count() >= ActiveEffects) {
-        say("2 FX MAX / BYPASS ONE TO ENABLE ANOTHER");
-        return;
-      }
-    }
-    if (!editing) {
-      undoProject = project;
-      haveUndo = true;
-      editing = true;
-    }
-    if (send(c)) {
-      apply(project, c);
-      dirty = true;
+#include "app_mutation.h"
+  bool change(Command c) {
+    if((c.op==Op::Fx||c.op==Op::FxEnable)&&c.field==1&&c.value){const auto &f=c.track==Tracks?project.fx:project.tracks[c.track].fx;
+      if(!(c.op==Op::FxEnable?f.active(c.index):f.enabled)&&f.count()>=ActiveEffects){say("2 FX MAX / BYPASS ONE TO ENABLE ANOTHER");return false;}}
+    if(!commandChanges(c))return true;
+    if(!send(c))return false;
+    if(!editing){undoProject=project;haveUndo=true;editing=true;}
+    apply(project,c);dirty=true;return true;
+  }
+#include "app_lock_controls.h"
+#include "app_management.h"
+  int effectType() const {
+    int context=page==Mix?Tracks:track;const auto &f=context==Tracks?project.fx:project.tracks[track].fx;
+    int selected=page==Pattern?lockFx[track]:fxCursor[context];return selected<0?f.type:selected;
+  }
+  Effect effectView() const {Effect f=page==Mix?project.fx:project.tracks[track].fx;f.select(effectType());return f;}
+  void nextEffect(int direction) {
+    auto f=effectView();int context=page==Mix?Tracks:track;
+    effectBanks[context][0][f.type]=clamp(fxBank,0,fxBanks(f.type)-1);
+    int at=0;while(at<EffectTypes-1&&f.order[at]!=f.type)++at;
+    fxCursor[context]=f.order[clamp(at+direction,0,EffectTypes-1)];
+    fxBank=effectBanks[context][0][effectType()];
+  }
+  int patternTabCount() const { return 3+project.tracks[track].fx.count(); }
+  int patternTabIndex() const {
+    if(bank<2)return bank;
+    const auto &f=project.tracks[track].fx;
+    if(bank==3)return patternTabCount()-1;
+    int index=2;for(int id:f.order)if(f.active(id)){if(id==effectType())return index;++index;}
+    return 0;
+  }
+  void choosePatternTab(int index) {
+    auto &f=project.tracks[track].fx;
+    if(bank==2)effectBanks[track][1][effectType()]=fxBank;
+    if(index<2){bank=index;return;}
+    if(index==patternTabCount()-1){bank=3;return;}
+    int at=2;for(int id:f.order)if(f.active(id)&&at++==index){
+      lockFx[track]=id;bank=2;fxBank=effectBanks[track][1][id];return;
     }
   }
-#include "app_management.h"
-  void nextEffect(int direction) {
-    auto &f = page == Mix ? project.fx : project.tracks[track].fx;
-    effectPageMemory[f.type]=clamp(fxBank,0,fxBanks(f.type)-1);
-    int at = 0;
-    while (at < EffectTypes-1 && f.order[at] != f.type)
-      at++;
-    Command c{Op::Fx, page == Mix ? Tracks : track, 0, 0,
-              f.order[clamp(at + direction, 0, EffectTypes-1)]};
-    if (send(c))
-      apply(project, c); // browsing a chain must not replace undo
-    fxBank = effectPageMemory[f.type];
+  void rememberFxContext(){if(page==Pattern&&bank==2)effectBanks[track][1][effectType()]=clamp(fxBank,0,fxBanks(effectType())-1);else if(fxPage())effectBanks[page==Mix?Tracks:track][0][effectType()]=clamp(fxBank,0,fxBanks(effectType())-1);}
+  void restoreFxContext(){
+    if(page==Pattern&&bank==2){if(!project.tracks[track].fx.active(effectType())){bank=0;return;}fxBank=effectBanks[track][1][effectType()];}
+    else if(fxPage())fxBank=effectBanks[page==Mix?Tracks:track][0][effectType()];
+    fxBank=clamp(fxBank,0,fxBanks(effectType())-1);
+  }
+  void rememberTrackView() {
+    rememberFxContext();
+    if(viewTrack>=0&&viewTrack<Tracks)trackViews[viewTrack]={step,key,bank,synthBank,timingBank};
+  }
+  void restoreTrackView() {
+    if(track<0||track>=project.trackCount)return;
+    viewTrack=track;auto &v=trackViews[track];step=clamp(v.step,0,project.tracks[track].cycle-1);key=v.key;bank=v.bank;synthBank=clamp(v.synth,0,voiceBanks()-1);timingBank=v.timing;
+    restoreFxContext();
   }
   void nested(int d) {
-    if (page == Pattern && bank == 3) timingBank=clamp(timingBank+d,0,1);
-    else if ((page == Pattern && bank == 2) || (fxPage() && fxDetail)) {
-      if(buttons.held & (lab::bit(lab::Up)|lab::bit(lab::Down))) {
-        const auto &f=page==Mix?project.fx:project.tracks[track].fx;
-        fxBank=clamp(fxBank+d,0,fxBanks(f.type)-1);
-      } else nextEffect(d);
+    bool vertical=buttons.held&(lab::bit(lab::Up)|lab::bit(lab::Down));
+    if(!vertical){
+      if((page==Pattern||page==Sampler)&&!project.tracks[track].instrument)key=clamp(key+d,0,Keys-1);
+      else if(page==Tape&&tapeTab==1&&sliceCount){if(previewing())job=StopPreview;sliceIndex=clamp(sliceIndex+d,0,sliceCount-1);resetFineView();}
+      return;
     }
-    else if ((page == Sampler || (page == Pattern && bank == 1)) &&
-             project.tracks[track].instrument)
-      synthBank = clamp(synthBank + d, 0, voiceBanks() - 1);
-    else if (page == Pattern && !project.tracks[track].instrument)
-      key = clamp(key + d, 0, Keys - 1);
-    else if (fxPage())
-      nextEffect(d);
+    if(page==Tape&&tapeTab==1&&fourSlices){sliceBank=(sliceBank+3+d)%3;resetFineView();return;}
+    if(page==Pattern&&bank==3)timingBank=(timingBank+2+d)%2;
+    else if((page==Pattern&&bank==2)||(fxPage()&&fxDetail)){
+      const auto f=effectView();
+      fxBank=(fxBank+fxBanks(f.type)+d)%fxBanks(f.type);
+    }else if((page==Sampler||(page==Pattern&&bank==1))&&project.tracks[track].instrument)synthBank=(synthBank+voiceBanks()+d)%voiceBanks();
   }
   int parameterDelta(int repeatAmount, int coarse = 10) const {
     return repeatAmount *
@@ -660,9 +717,7 @@ struct App {
                                                                        : 1);
   }
   int editLock(int value,int base,int low,int high,int direction,int delta) const {
-    if(value==ResetLock) return direction<0?Inherit:low;
-    if(value!=Inherit && value<=low && direction<0) return ResetLock;
-    return clamp((value==Inherit?base:value)+direction*delta,low,high);
+    return clamp((value==Inherit || value==ResetLock?base:value)+direction*delta,low,high);
   }
   void edit(int i, int d, int amount) {
     if (page == SongPage) {
@@ -733,7 +788,7 @@ struct App {
                     100);
         change({Op::Hit, track, step, hitField(key, HitLock0 + i), v});
       } else if (bank == 2) {
-        int type = t.fx.type;
+        int type = effectType();
         i += clamp(fxBank,0,fxBanks(type)-1)*4;
         amount = parameterDelta(repetitions, fxCoarseStep(type, i));
         change({Op::FxLock,track,step,type*EffectParameters+i,
@@ -795,14 +850,14 @@ struct App {
       if (!fxDetail) {
         if (i == parameterSlot(lab::Y))
           change({Op::Fx, page == Mix ? Tracks : track,
-                  (page == Mix ? project.fx : t.fx).type, FxMoveField,
+                  effectType(), FxMoveField,
                   (buttons.held & (lab::bit(lab::Up) | lab::bit(lab::Down)))
                       ? -d
                       : d});
         return;
       }
       int target = page == Mix ? Tracks : track;
-      auto &f = page == Mix ? project.fx : t.fx;
+      auto f = effectView();
       i += clamp(fxBank,0,fxBanks(f.type)-1)*4;
       amount = parameterDelta(repetitions, fxCoarseStep(f.type, i));
       change({Op::Fx, target, f.type, i + 2,
@@ -820,7 +875,10 @@ struct App {
               clamp(captureBars + d * parameterDelta(repetitions, 4), 1, 8);
       }
       if (tapeTab == 1 && sliceCount) {
+        if(fourSlices && sliceBank==0){moveSlice(i,d,repetitions);return;}
+        if(fourSlices && sliceBank==2){editFineSlice(i,d,repetitions);return;}
         auto &cut = slices[sliceIndex];
+        if(i<2){editSliceEdge(i,d*parameterDelta(repetitions,100),false);return;}
         int *vals[] = {&cut.start, &cut.end, &cut.fadeIn, &cut.fadeOut};
         int lo[] = {0, cut.start + 1, 0, 0},
             hi[] = {cut.end - 1, durationMs(),
@@ -858,6 +916,7 @@ struct App {
       say("FINISH CAPTURE FIRST");
       return;
     }
+    if(!saveSliceDraft())return;
     if (dirty && !save())
       return;
     if (songDirty && !saveArrangement())
@@ -874,10 +933,16 @@ struct App {
       say("FINISH CAPTURE BEFORE EXIT");
       return;
     }
+    if(!saveSliceDraft())return;
     if ((!dirty || save()) && (!songDirty || saveArrangement()))
       exit = true;
   }
   void action(int b) {
+    if(lockMenu>=0){
+      if(b==lab::B||b==lab::Select){lockMenu=-1;return;}
+      if(b==lab::A){if(lockMenu==4){int field=lockAction;lockMenu=-1;openLockMenu(field);}else{applyFieldLock(lockMenu,lockAction);lockMenu=-1;}}return;
+    }
+
     if (sequencePicker) {
       if (b == lab::B || b == lab::Select) {
         sequencePicker = 0;
@@ -889,8 +954,8 @@ struct App {
     if (voicePicker) {
       if (b == lab::B || b == lab::Select)
         voicePicker = 0;
-      synthBank = 0;
       if (b == lab::A) {
+        synthBank = 0;
         editing = false;
         if(voicePicker==4) {
           change({Op::ReelPreset,page==Mix?Tracks:track,0,0,voiceChoice});
@@ -935,6 +1000,10 @@ struct App {
           removeArrangement();
         else if (confirmTarget == 1)
           removeProject();
+        else if(confirmTarget==7){editing=false;change({Op::ClearAllAtStep,track,step,0,0});editing=false;}
+        else if(confirmTarget==8){editing=false;change({Op::ClearPattern,track,0,0,0});editing=false;}
+        else if(confirmTarget==9){job=LoadKit;}
+        else if(confirmTarget==10){deleteSelectedKit();}
         else if (confirmTarget == 2)
           removeTrack();
         else
@@ -943,15 +1012,9 @@ struct App {
       return;
     }
     if (filePicker) {
-      if (b == lab::B || b == lab::Select) {
-        filePicker = false;
-        if (previewing())
-          job = StopPreview;
-      }
-      if (b == lab::A && library && library->sourceCount)
-        openSource(library->sourcePaths[fileCursor]);
-      if (b == lab::X && library && library->sourceCount)
-        previewToggle(PreviewFile);
+      if(b==lab::B || b==lab::Select)browseBack();
+      if(b==lab::A)browseOpen();
+      if(b==lab::X && browser.count && !browser.entries[fileCursor].folder)previewToggle(PreviewFile);
       return;
     }
 
@@ -964,12 +1027,23 @@ struct App {
       }
       return;
     }
+    if(page==Tape && tapeTab==1 && fourSlices && b>=lab::A && b<=lab::Y) {
+      auditionSlice(parameterSlot(b));return;
+    }
+    if(page==Tape && tapeTab==2 && b==lab::Y) {
+      int kit=asset<=-10?-10-asset:libraryFolder;
+      if(kit>=0)requestKit(kit);return;
+    }
+    if(page==Tape && tapeTab==2 && b==lab::B && libraryFolder>=0) {
+      asset=-10-libraryFolder;libraryFolder=-1;return;
+    }
     if (page == SongPage) {
       songAction(b);
       return;
     }
     if (b == lab::Select) {
       if (importAssign || assignMode) {
+        if(fourSlices && tapeTab==1){importAssign=assignMode=false;page=Sampler;job=StopPreview;return;}
         action(lab::B);
         return;
       }
@@ -978,6 +1052,8 @@ struct App {
       return;
     }
     if (b == lab::B) {
+      if(page==Tape)saveSliceDraft();
+      if(page==Pattern||page==Sampler||page==Space)rememberTrackView();
       if (fxPage() && fxDetail) {
         fxDetail = false;
         return;
@@ -1023,8 +1099,8 @@ struct App {
       if (b == lab::A)
         fxDetail = true;
       else {
-        auto &f = page == Mix ? project.fx : project.tracks[track].fx;
-        change({Op::Fx, page == Mix ? Tracks : track, 0, 1, !f.enabled});
+        auto f = effectView();
+        change({Op::FxEnable, page == Mix ? Tracks : track, f.type, 1, !f.enabled});
       }
       return;
     }
@@ -1054,8 +1130,7 @@ struct App {
           return;
         }
         page = Pattern;
-        step = 0;
-        bank = 0;
+        restoreTrackView();
       } else if (page == Pattern) {
         auto &t = project.tracks[track];
         if (!t.instrument && !available(t.keys[key].asset)) {
@@ -1090,7 +1165,7 @@ struct App {
         job = StopPreview;
       fileCursor =
           clamp(fileCursor + direction, 0,
-                library && library->sourceCount ? library->sourceCount - 1 : 0);
+                browser.count ? browser.count - 1 : 0);
       return;
     }
     if (page == Tape) {
@@ -1101,10 +1176,7 @@ struct App {
             clamp(sliceIndex + direction, 0, sliceCount ? sliceCount - 1 : 0);
       }
       if (tapeTab == 2 && library) {
-        int next = library->next(asset, direction);
-        if (direction < 0 && next == asset)
-          next = -1;
-        asset = next;
+        libraryMove(direction);
       }
       return;
     }
@@ -1134,25 +1206,32 @@ struct App {
     }
     if (voicePicker || filePicker || confirmDelete || page == SongPage)
       return;
-    if (page == Atlas) {
-      atlasTab = 1 - atlasTab;
-      return;
-    }
+    if (page == Atlas) return;
     if (fxPage() && fxDetail) {
-      const auto &f=page==Mix?project.fx:project.tracks[track].fx;
+      const auto f=effectView();
       fxBank=(fxBank+fxBanks(f.type)+direction)%fxBanks(f.type);
     } else if (page == Pattern)
-      bank = (bank + 4 + direction) % 4;
+      choosePatternTab((patternTabIndex()+patternTabCount()+direction)%patternTabCount());
     else if (page == Sampler && project.tracks[track].instrument)
       synthBank = (synthBank + voiceBanks() + direction) % voiceBanks();
     else if (page == Sampler)
-      key = clamp(key + direction, 0, Keys - 1);
+      return;
     else if (page == Mix) {
       mixTab = 1 - mixTab;
       fxDetail = false;
     } else if (page == Space) {
-      nextEffect(direction);
+      return;
     } else if (page == Tape) {
+      if(fourSlices && (tapeTab==1 || (!importAssign && !assignMode))) {
+        if(captureBusy()){say("CAPTURE ACTIVE / A FINISH");return;}
+        if(importAssign){int tab=tapeTab==2?3:sliceBank;tab=(tab+4+direction)%4;tapeTab=tab==3?2:1;sliceBank=tab==3?0:tab;resetFineView();return;}
+        int tab=tapeTab==0?0:tapeTab==2?4:1+sliceBank;
+        tab=(tab+5+direction)%5;
+        tapeTab=tab==0?0:tab==4?2:1;
+        if(tapeTab==1)sliceBank=tab-1;
+        else if(previewing())job=StopPreview;
+        resetFineView();return;
+      }
       if (importAssign || assignMode)
         return;
       if (captureBusy()) {
@@ -1162,8 +1241,7 @@ struct App {
       if (previewing())
         job = StopPreview;
       tapeTab = (tapeTab + 3 + direction) % 3;
-    } else
-      object(direction);
+    }
   }
   void jumpPage(int direction) {
     if (sequencePicker) {
@@ -1171,7 +1249,7 @@ struct App {
       return;
     }
     if (options) {
-      option = clamp(option + direction * 8, 0, optionCount() - 1);
+      option = clamp(option + direction * 7, 0, optionCount() - 1);
       return;
     }
     if (page == SongPage) {
@@ -1185,21 +1263,23 @@ struct App {
     if (page == Pattern) {
       const auto &tr = project.tracks[track];
       int cell = step / tr.stride();
-      int next = clamp(cell / 16 + direction, 0, (tr.cells() - 1) / 16);
-      step = clamp(next * 16 + cell % 16, 0, tr.cells() - 1) * tr.stride();
+      int next = clamp(cell / gridPageSize + direction, 0, (tr.cells() - 1) / gridPageSize);
+      step = clamp(next * gridPageSize + cell % gridPageSize, 0, tr.cells() - 1) * tr.stride();
     } else if (options)
-      option = clamp(option + direction * 8, 0, optionCount() - 1);
+      option = clamp(option + direction * 7, 0, optionCount() - 1);
     else if (filePicker)
       fileCursor =
           clamp(fileCursor + direction * SourcePageRows, 0,
-                library && library->sourceCount ? library->sourceCount - 1 : 0);
+                browser.count ? browser.count - 1 : 0);
+    else if(page==Tape && tapeTab==2 && library) libraryMove(direction*5);
     else if (page == Atlas)
       projectCursor = clamp(projectCursor + direction * 5, 0, projectCount);
     else if (page == Mix && mixTab == 0)
-      track = clamp(track + direction * 3, 0,
+      track = clamp(track + direction * 4, 0,
                     project.trackCount ? project.trackCount - 1 : 0);
   }
   void navigate(int b) {
+    if(lockMenu>=0){lockAction=clamp(lockAction+((b==lab::Right||b==lab::Down)?1:-1),0,lockMenu==4?3:2);return;}
     int d = (b == lab::Right || b == lab::Down) ? 1 : -1;
     if (sequencePicker) {
       sequenceChoice = clamp(sequenceChoice + d, 0, projectCount);
@@ -1210,7 +1290,7 @@ struct App {
       return;
     }
     if (voicePicker) {
-      voiceChoice = clamp(voiceChoice + d, 0, voicePicker==4?ReelPresetCount-1:voicePicker == 2 ? 3 : InstrumentCount - 1);
+      voiceChoice = clamp(voiceChoice + d, 0, voicePicker==4?ReelPresetCount-1:voicePicker == 2 ? synthPresetCount(project.tracks[track].instrument)-1 : InstrumentCount - 1);
       return;
     }
     if (naming) {
@@ -1243,8 +1323,8 @@ struct App {
     } else if (page == Grid || page == Mix)
       object(d);
     else if (page == Pattern)
-      step = clamp(step + (b == lab::Down ? 8
-                           : b == lab::Up ? -8
+      step = clamp(step + (b == lab::Down ? (gridPageSize==64 && project.tracks[track].cells()>16?16:8)
+                           : b == lab::Up ? -(gridPageSize==64 && project.tracks[track].cells()>16?16:8)
                                           : d) *
                               project.tracks[track].stride(),
                    0,
@@ -1261,13 +1341,15 @@ struct App {
   }
   void tick(uint64_t now) {
     nowUs = now;
+    if(lockMenu>=0){if(buttons.held&15){int d=-1;for(int i=0;i<4;++i)if(buttons.held&lab::bit(i)){d=i;break;}if(nav!=d){nav=d;navigate(d);}}else nav=-1;return;}
     holds.update(buttons.held, now);
-    if ((buttons.held & lab::bit(lab::Menu)) &&
+    if (!menuConsumed && (buttons.held & lab::bit(lab::Menu)) &&
         lab::deadlineReached(now, pressed[lab::Menu], 2000000)) {
       if (captureBusy()) {
         say("FINISH CAPTURE BEFORE EXIT");
         return;
       }
+      if(!saveSliceDraft()){buttons.held&=~lab::bit(lab::Menu);return;}
       if ((page == Atlas || !dirty || save()) &&
           (!songDirty || saveArrangement()))
         exit = true;
@@ -1345,7 +1427,7 @@ struct App {
       if (buttons.held & 15)
         nestedUsed = nestedTail = true;
       if (nestedRepeat.tick((buttons.held & 15) | lab::bit(lab::A), now))
-        nested(nestedRepeat.direction);
+        nested((buttons.held&(lab::bit(lab::Up)|lab::bit(lab::Down)))?-nestedRepeat.direction:nestedRepeat.direction);
       return;
     }
     nestedRepeat = lab::ParameterGesture{};
@@ -1393,8 +1475,13 @@ struct App {
         bool(buttons.held & lab::bit(b)) == down)
       return;
     buttons.event(b, down);
+    if(lockMenu>=0&&down){pressed[b]=now;if(b>=lab::A&&b<=lab::Y)gestures[b-lab::A]=false;tick(now);return;}
     if (down) {
       pressed[b] = now;
+      if(b==lab::Menu)menuConsumed=false;
+      if((buttons.held&lab::bit(lab::Menu))&&(buttons.held&0xf0)&&!options&&!naming&&!confirmDelete&&!voicePicker&&!filePicker){
+        menuConsumed=true;for(int face=lab::A;face<=lab::Y;++face)if(buttons.held&lab::bit(face)){gestures[face-lab::A]=true;if(lockMenu<0)openLockMenu(parameterSlot(face));}
+      }
       if (b == lab::Select) {
         selectUsed = false;
         tempoTail = false;
@@ -1403,7 +1490,7 @@ struct App {
       if ((b == lab::L1 || b == lab::R1) &&
           (buttons.held & lab::bit(lab::Select)))
         chord = true;
-      if (b >= lab::A && b <= lab::Y)
+      if (b >= lab::A && b <= lab::Y && !(menuConsumed && (buttons.held & lab::bit(lab::Menu))))
         gestures[b - lab::A] = false;
       if ((buttons.held & (lab::bit(lab::L1) | lab::bit(lab::R1))) ==
           (lab::bit(lab::L1) | lab::bit(lab::R1))) {
@@ -1417,25 +1504,29 @@ struct App {
       }
       if ((b == lab::L2 || b == lab::R2) &&
           !(buttons.held & (0xf0 | lab::bit(lab::Select))) && !options &&
-          page != Atlas && page != SongPage && !sequencePicker &&
+          page != SongPage && !sequencePicker &&
           !voicePicker && !filePicker && !naming && !confirmDelete &&
           !importAssign && !assignMode) {
         if (previewing())
           job = StopPreview;
+        rememberFxContext();
         fxDetail = false;
         int dir = b == lab::R2 ? 1 : 2;
-        if (page >= Pattern)
+        if(page==Atlas)atlasTab=1-atlasTab;
+        else if (page >= Pattern)
           page = Page(Pattern + (page - Pattern + dir) % 3);
         else
           page = Page(Grid + (page - Grid + dir) % 3);
+        restoreFxContext();
       }
       if (b == lab::Start)
         action(b);
     }
     tick(now);
     if (!down) {
+      if(lockMenu>=0&&(b==lab::L1||b==lab::R1))return;
       if (b == lab::L1 || b == lab::R1) {
-        if (!chord && !nestedUsed && !pageUsed &&
+        if (!chord && !nestedUsed && !pageUsed && now-pressed[b]<350000 &&
             !(buttons.held & (0xf0 | lab::bit(lab::Select))) && !options &&
             !tempoTail)
           parameterPage(b == lab::R1 ? 1 : -1);

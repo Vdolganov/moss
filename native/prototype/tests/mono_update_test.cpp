@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 using namespace moss;
@@ -30,12 +31,12 @@ static void continuity(){
 static void persistence(){
   Project p;p.trackCount=1;p.tracks[0].instrument=MonoInstrument;
   for(int i=0;i<20;++i){p.tracks[0].synthParams[0][i]=synthMax(1,i);p.tracks[0].steps[3].synthLocks[0][i]=synthMin(1,i);}
-  assert(codec.encode(p)&&!memcmp(codec.bytes,"MS15",4)&&codec.decode(restored,codec.cursor));
+  assert(codec.encode(p)&&!memcmp(codec.bytes,"MS18",4)&&codec.decode(restored,codec.cursor));
   for(int i=0;i<20;++i)assert(restored.tracks[0].synthParams[0][i]==synthMax(1,i)&&restored.tracks[0].steps[3].synthLocks[0][i]==synthMin(1,i));
-  codec.cursor=16;codec.ok=true;codec.fields(p,true,14);memcpy(codec.bytes,"MS14",4);codec.word(4,14);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
+  codec.cursor=16;codec.ok=true;legacyFields(codec,p,14);memcpy(codec.bytes,"MS14",4);codec.word(4,14);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));assert(restored.tracks[0].synthParams[0][9]==0&&restored.tracks[0].synthParams[0][11]==0&&restored.tracks[0].synthParams[0][15]==0);
   for(int i=8;i<20;++i)assert(restored.tracks[0].steps[3].synthLocks[0][i]==Inherit);
-  puts("PASS MONO: twenty controls/locks MS15, real MS14 layout, neutral added modulation and inherited locks");
+  puts("PASS MONO: twenty controls/locks MS17, real MS14 layout, neutral added modulation and inherited locks");
 }
 static void controls(){
   app.project=Project{};app.project.trackCount=1;app.project.tracks[0].instrument=MonoInstrument;app.track=0;app.page=Sampler;

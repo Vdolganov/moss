@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
   profileMask = profiling ? unsigned(atoi(argv[3])) : 0;
   profileSeconds = profiling ? unsigned(atoi(argv[4])) : 0;
   if (profiling) {
-    if (profileKind < -1 || profileKind > 24 || profileMask >= (1u << EffectTypes) ||
+    if (profileKind < -1 || profileKind > 33 || profileMask >= (1u << EffectTypes) ||
         profileSeconds < 10 || profileSeconds > 1800)
       return 2;
     mkdir("perf", 0755);
@@ -311,7 +311,11 @@ int main(int argc, char **argv) {
       stressSample(sample);
       if (profileKind >= 5) sample.rate = 96000;
     }
-    if(profileKind>=22) stressProject(app.project,Tracks,profileKind==23?-1:MonoInstrument,profileMask);
+    if(profileKind==32)stressProject(app.project,Tracks,-1,profileMask);
+    else if(profileKind==33)stressGranular(app.project,profileMask,1);
+    else if(profileKind==31) stressGranular(app.project,profileMask,1);
+    else if(profileKind>=28) stressProject(app.project,Tracks,profileKind==30?-1:FmInstrument,profileMask);
+    else if(profileKind>=22) stressProject(app.project,Tracks,profileKind>=25?OrganismInstrument:profileKind==23?-1:MonoInstrument,profileMask);
     else if(profileKind>=17) stressSwing(app.project,profileMask,profileKind==18?1:profileKind==19?2:0);
     else if(profileKind>=13) stressEvents(app.project,profileMask,profileKind==14?1:profileKind==15?2:0);
     else if (profileKind >= 5)
@@ -323,6 +327,26 @@ int main(int argc, char **argv) {
         for(auto &step:track.steps){
           for(int i=0;i<synthCount(MonoInstrument);++i)step.synthLocks[0][i]=synthMax(MonoInstrument,i);
           step.synthLocks[0][2]=3;step.note=36;
+          for(int type=0;type<EffectTypes;++type)for(int i=0;i<fxParameters(type);++i)step.fxLocks[type][i]=track.fx.values[type][i];
+        }
+      }
+    }
+    if(profileKind==26 || profileKind==27) {
+      for(auto &track:app.project.tracks)for(int n=0;n<Steps;++n){auto &step=track.steps[n];
+        for(int i=0;i<OrganismParameters;++i)step.synthLocks[1][i]=synthMax(OrganismInstrument,i);
+        step.synthLocks[1][OrgAttack]=3;step.synthLocks[1][OrgGlide]=0;
+        step.note=36;step.on=profileKind==27&&n?LockEvent:NoteEvent;
+        if(profileKind==27){step.synthLocks[1][OrgShape]=n%101;step.synthLocks[1][OrgCouple]=n*7%101;}
+        for(int type=0;type<EffectTypes;++type)for(int i=0;i<fxParameters(type);++i)step.fxLocks[type][i]=track.fx.values[type][i];
+      }
+    }
+    if(profileKind==28 || profileKind==29){
+      for(auto &track:app.project.tracks){track.synthMode[2]=1;
+        for(int n=0;n<Steps;++n){auto &step=track.steps[n];step.note=36;
+          for(int i=0;i<FmParameters;++i)step.synthLocks[2][i]=synthMax(FmInstrument,i);
+          step.synthLocks[2][FmAttack]=1;step.synthLocks[2][FmGlide]=0;
+          step.on=profileKind==29&&n?LockEvent:NoteEvent;
+          if(profileKind==29){step.synthLocks[2][FmRatio]=n%16;step.synthLocks[2][FmIndex]=n*17%101;}
           for(int type=0;type<EffectTypes;++type)for(int i=0;i<fxParameters(type);++i)step.fxLocks[type][i]=track.fx.values[type][i];
         }
       }
@@ -339,7 +363,8 @@ int main(int argc, char **argv) {
     }
     app.page = Pattern;
   }
-  engine.init(app.project, library.pcm, got.freq, Assets);
+  if(profiling)library.catalogReady=false;
+  library.prepare(app.project); engine.init(app.project, library.views, got.freq, CatalogAssets);
   app.engine = &engine;
   if (!profiling)
     app.seedProjects();
@@ -391,7 +416,7 @@ int main(int argc, char **argv) {
     SDL_Event ev;
     while (SDL_PollEvent(&ev))
       if (ev.type == SDL_QUIT) {
-        if (!app.captureBusy() && (!app.dirty || app.save()) &&
+        if (!app.captureBusy() && app.saveSliceDraft() && (!app.dirty || app.save()) &&
             (!app.songDirty || app.saveArrangement()))
           app.exit = true;
       }
@@ -400,19 +425,26 @@ int main(int argc, char **argv) {
       unsigned seconds = unsigned((micros() - start) / 1000000);
       const Page pages[] = {Pattern, Sampler, Space, Mix, Grid, Tape};
       app.page = (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20)) ? SongPage : pages[(seconds / 2) % 6];
-      if (profileKind==11 || profileKind==13 || profileKind==17 || profileKind>=22) app.page=Sampler;
+      if (profileKind==11 || profileKind==13 || profileKind==17 || (profileKind>=22 && profileKind<=31)) app.page=Sampler;
       if (profileKind == 4 || profileKind == 7 || (profileKind==16 || profileKind==20))
         app.songRow = int(seconds % SongSlots);
       app.track = int((seconds / 3) % Tracks);
       app.bank = int((seconds / 2) % 4);
       app.synthBank = int((seconds / 2) % app.voiceBanks());
       app.fxDetail = (seconds / 3) % 2;
-      if(profileKind==21) {
+    if(profileKind==21) {
         app.page=Space;app.fxDetail=true;app.fxBank=int(seconds%4);
         // UI selection only: playback keeps the exact stress chain/order.
         app.project.tracks[app.track].fx.select(Reel);
       }
       app.step = int(seconds * 7 % Steps);
+      if(profileKind>=32){
+        app.gridPageSize=seconds%4<2?64:16;
+        app.fxCursor[app.track]=Reel;app.fxCursor[Tracks]=Reel;app.lockFx[app.track]=Reel;
+        app.fxBank=seconds%4;app.fxDetail=true;app.mixTab=(seconds/2)%2;
+        if(app.page==Pattern){app.bank=2;if(!app.project.tracks[app.track].fx.active(Reel))app.bank=1;}
+        if(seconds%3==0){app.editing=false;app.change({Op::Track,app.track,0,1,90+int(seconds%10)});}
+      }
       // Repeated capture writeback and real UI command dispatch under dense DSP load.
       if (profileKind>=5 && !app.captureBusy() && seconds % 10 == 0)
         app.capturePending=app.send({Op::CaptureStart,0,0,0,4});
@@ -433,7 +465,7 @@ int main(int argc, char **argv) {
         app.open(app.requestedSlot);
         app.requestedSlot = -1;
       } else
-        engine.init(app.project, library.pcm, got.freq, Assets);
+        app.resetSamples();
       app.reload = false;
       SDL_UnlockAudio();
       SDL_PauseAudio(0);

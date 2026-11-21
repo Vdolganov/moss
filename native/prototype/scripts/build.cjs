@@ -21,14 +21,26 @@ execFileSync(path.join(build,'granular_ambient_test.exe'),[],{stdio:'inherit',cw
 execFileSync(path.join(build,'trigless_repeat_test.exe'),[],{stdio:'inherit',cwd:root});
 execFileSync(path.join(build,'swing_test.exe'),[],{stdio:'inherit',cwd:root});
 execFileSync(path.join(build,'fx_character_test.exe'),[],{stdio:'inherit',cwd:root});
-for(const name of ['reel_motion_test','reel_color_test','reel_release_test','reel_color_engine_test','ambient_update_test','mono_update_test']) {
+for(const name of ['reel_motion_test','reel_color_test','reel_release_test','reel_color_engine_test','ambient_update_test','mono_update_test','organism_update_test','organism_quality_test','fm_update_test']) {
   run([...host,'-I'+path.join(root,'src'),path.join(root,'tests',name+'.cpp'),'-o',path.join(build,name+'.exe')]);
   execFileSync(path.join(build,name+'.exe'),[],{stdio:'inherit',cwd:root});
 }
 for(let i=0;i<7;i++)execFileSync(path.join(build,'preview.exe'),[String(i),path.join(build,'preview-'+i+'.bmp')],{stdio:'inherit',cwd:root});
+run([...host,'tests/sample_folders_test.cpp','-o',path.join(build,'sample_folders_test.exe')]);
+const folderFixture=path.join(build,'sample-folders-'+Date.now());
+fs.mkdirSync(folderFixture);
+execFileSync(path.join(build,'sample_folders_test.exe'),[folderFixture],{stdio:'inherit',cwd:root});
+run([...host,'tests/sample_edit_audio_test.cpp','-o',path.join(build,'sample_edit_audio_test.exe')]);
+execFileSync(path.join(build,'sample_edit_audio_test.exe'),[folderFixture],{stdio:'inherit',cwd:root});
+run([...host,'tests/ui_port_test.cpp','-o',path.join(build,'ui_port_test.exe')]);
+const uiFixture=path.join(build,'ui-port-'+Date.now());
+fs.mkdirSync(uiFixture);
+execFileSync(path.join(build,'ui_port_test.exe'),[uiFixture],{stdio:'inherit',cwd:root});
+run([...host,'tests/levels_test.cpp','-o',path.join(build,'levels_test.exe')]);
+execFileSync(path.join(build,'levels_test.exe'),[],{stdio:'inherit',cwd:root});
 for(const mode of ['mono','organism','fm','synthlocks','synthgrid','instrument'])execFileSync(path.join(build,'preview.exe'),['5',path.join(build,mode+'.bmp'),mode],{stdio:'inherit',cwd:root});
 run([...host,path.join(root,'src/main_windows.cpp'),'-Wl,/subsystem:windows','-lwinmm','-lgdi32','-o',path.join(build,process.env.MOSS_DESKTOP_NAME||'MOSS.exe')]);
 fs.mkdirSync(path.join(build,'samples'),{recursive:true});for(const n of ['chime','air','dust'])fs.copyFileSync(path.join(root,'samples',n+'.wav'),path.join(build,'samples',n+'.wav'));
 const version=fs.readFileSync(path.join(root,'src/config.h'),'utf8').match(/Version\[\] = "([^"]+)"/)[1];
-fs.writeFileSync(path.join(build,'tests.json'),JSON.stringify({version,desktop_exe:process.env.MOSS_DESKTOP_NAME||'MOSS.exe',music:'passed',interaction:'passed',features:'passed',synth:'passed',workflow:'passed',v05:'passed',v051:'passed',v052:'passed',granularUnit:'passed',granularAmbient:'passed',triglessRepeat:'passed',swing:'passed',granularIntegration:'passed',fxCharacter:'passed',reelMotion:'passed',reelColor:'passed',reelRelease:'passed',reelEngine:'passed',ambientUpdate:'passed',monoUpdate:'passed',previews:7,synthPreviews:6,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(build,'moss'))).digest('hex'),device:'pending'},null,2));
+fs.writeFileSync(path.join(build,'tests.json'),JSON.stringify({version,desktop_exe:process.env.MOSS_DESKTOP_NAME||'MOSS.exe',music:'passed',interaction:'passed',features:'passed',synth:'passed',workflow:'passed',v05:'passed',v051:'passed',v052:'passed',granularUnit:'passed',granularAmbient:'passed',triglessRepeat:'passed',swing:'passed',granularIntegration:'passed',fxCharacter:'passed',reelMotion:'passed',reelColor:'passed',reelRelease:'passed',reelEngine:'passed',ambientUpdate:'passed',monoUpdate:'passed',organismUpdate:'passed',organismQuality:'passed',fmUpdate:'passed',sampleFolders:'passed',sampleEditAudio:'passed',uiPort:'passed',levels:'passed',previews:7,synthPreviews:6,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(build,'moss'))).digest('hex'),device:'pending'},null,2));
 console.log('Built ARM, Windows, tests and seven previews');

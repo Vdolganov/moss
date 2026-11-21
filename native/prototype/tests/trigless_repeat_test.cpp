@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 using namespace moss;
@@ -98,15 +99,15 @@ int main() {
   app.edit(3,-1,1);assert(app.project.tracks[0].steps[8].on==NoteEvent);
   app.action(lab::A);assert(app.project.tracks[0].steps[8].on==EmptyEvent);
   assert(app.project.tracks[0].steps[8].repeat==8); // Off never silently activates hidden locks.
-  assert(app.editLock(20,50,20,100,-1,1)==ResetLock);
-  assert(app.editLock(ResetLock,50,20,100,-1,1)==Inherit);
+  assert(app.editLock(20,50,20,100,-1,1)==20);
+  assert(app.editLock(ResetLock,50,20,100,-1,1)==49);
   app.change({Op::GranularLock,0,8,10,ResetLock});assert(app.project.tracks[0].steps[8].on==LockEvent);
-  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS15",4));assert(codec.decode(restored,codec.cursor));
+  assert(codec.encode(app.project) && !memcmp(codec.bytes,"MS18",4));assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[8].grainLocks[10]==ResetLock && restored.tracks[0].steps[8].repeat==8);
   setup(GranularInstrument);project.tracks[0].steps[28].on=EmptyEvent;
   // Old off steps with locks must stay off, and repeat must default to --.
   for(auto &s:project.tracks[0].steps) { s.on=s.on==LockEvent?EmptyEvent:s.on; for(auto &v:s.grainLocks)if(v==ResetLock)v=Inherit;for(auto &v:s.fxLocks.data)if(v==ResetLock)v=Inherit; }
-  codec.cursor=16;codec.ok=true;codec.fields(project,true,10);memcpy(codec.bytes,"MS10",4);codec.word(4,10);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
+  codec.cursor=16;codec.ok=true;legacyFields(codec,project,10);memcpy(codec.bytes,"MS10",4);codec.word(4,10);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));assert(restored.tracks[0].steps[28].on==EmptyEvent && restored.tracks[0].steps[32].repeat==Inherit);
   puts("PASS UI/model/MS12: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration");
   setup(GranularInstrument);project.trackCount=2;project.tracks[1]=project.tracks[0];
@@ -153,8 +154,8 @@ int main() {
   gesture(lab::X,lab::Left,3000000);assert(app.project.tracks[0].steps[8].on==NoteEvent);
   gesture(lab::X,lab::Right,4000000);assert(app.project.tracks[0].steps[8].on==LockEvent);
   app.bank=1;app.synthBank=2;app.project.tracks[0].steps[8].grainLocks[10]=20;
-  gesture(lab::A,lab::Left,5000000);assert(app.project.tracks[0].steps[8].grainLocks[10]==ResetLock);
-  gesture(lab::A,lab::Left,6000000);assert(app.project.tracks[0].steps[8].grainLocks[10]==Inherit);
+  gesture(lab::A,lab::Left,5000000);assert(app.project.tracks[0].steps[8].grainLocks[10]==20);app.applyFieldLock(2,2);assert(app.project.tracks[0].steps[8].grainLocks[10]==ResetLock);
+  app.applyFieldLock(2,1);assert(app.project.tracks[0].steps[8].grainLocks[10]==Inherit);
   app.option=app.optionIndex(7);app.chooseOption();assert(app.project.tracks[0].steps[8].on==NoteEvent);
   app.option=app.optionIndex(7);app.chooseOption();assert(app.project.tracks[0].steps[8].on==LockEvent);
   app.option=app.optionIndex(6);app.chooseOption();assert(app.project.tracks[0].steps[8].on==EmptyEvent && app.project.tracks[0].steps[8].repeat==Inherit);

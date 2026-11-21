@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 using namespace moss;
@@ -33,14 +34,14 @@ static void controls() {
   tap(lab::R1);assert(app.mixTab==1&&app.fxDetail&&app.fxBank==1);
   gesture(lab::B,lab::Up);assert(app.project.fx.values[Orbit][5]==10000);
   assert(valid(app.project));
-  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS15",4));
+  assert(codec.encode(app.project)&&!memcmp(codec.bytes,"MS18",4));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[0].fxLocks[Drive][7]==1);
   assert(restored.fx.values[Orbit][5]==10000);
   // A genuine old-shape payload: mix/spread swap, new defaults and empty locks.
   project=Project{};project.tracks[0].fx.values[0][2]=73;project.tracks[0].fx.values[0][3]=22;
   project.tracks[0].steps[0].fxLocks[0][2]=68;
-  codec.cursor=16;codec.ok=true;codec.fields(project,true,8);
+  codec.cursor=16;codec.ok=true;legacyFields(codec,project,8);
   memcpy(codec.bytes,"MOS8",4);codec.word(4,8);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].fx.values[0][3]==73&&restored.tracks[0].fx.values[0][2]==22);

@@ -1,0 +1,5 @@
+File 6000.000 / preview 6000.000 / sampler at 100% 3600.000: -4.43697 dB
+Defaults track=75 master=75 slot=80; new hit velocity 90: 1146.000 RMS / -14.37933 dB
+Granular dense cloud 840.727 / source 1984.072: -7.45805 dB; master 50% ratio 0.49938
+16 simultaneous loud samples remain bounded; RMS 32096.000
+BASELINE ONLY

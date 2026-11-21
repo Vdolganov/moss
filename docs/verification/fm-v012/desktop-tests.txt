@@ -1,0 +1,32 @@
+PASS FM MS18 roundtrip, MS17 migration, twenty locks and held-note continuity
+FM GLASS rms=0.10109 peak=0.58462 stereo=0.00174
+FM BELL rms=0.12039 peak=0.57474 stereo=0.10734
+FM HAZE rms=0.21321 peak=0.70931 stereo=0.62874
+FM METAL rms=0.08253 peak=0.54769 stereo=0.45557
+FM THUMP rms=0.05309 peak=0.57302 stereo=0.00000
+FM SNAP rms=0.02518 peak=0.67044 stereo=0.00846
+FM RUBBER rms=0.06954 peak=0.46054 stereo=0.00230
+FM CLOUD rms=0.27474 peak=0.57560 stereo=1.66579
+PASS sustained stereo, deep 27.5/55/110 Hz fundamentals, DC and sample-rate pitch
+PASS all twenty FM controls alter rendered strike, sustain, stereo, glide or release
+PASS FM telemetry: effective locked ratio and velocity-scaled pitch, no note restart
+PASS synth project: MOS6 722692 bytes, all banks round trip
+PASS synth input: note edits, release order, picker cancel, presets, separate locks and preserved sampler maps
+PASS synth audio: sample-free playback, 16-step gates, latched note locks, audition timeout, instrument switch, probability, block invariance
+PASS synth limits: both modes, parameter extrema at 8/44.1/48/96 kHz, no NaN, bounded output, A4 pitch and DC
+PASS 60-second synth + three FX + master POND + resample: peak 13260; desktop CPU 1.308s (not ARM timing)
+PASS v05 interaction: resolution roundtrip/off-grid preservation, independent drum lanes, nested release orders, synth banks/locks, chain toggles/order/identity locks
+PASS v05 audio: four simultaneous keys, forced one-shots, delay lock tails over rests, 180% monitor gain/soft peak protection, resolution leaves audio duration unchanged
+PASS v05 import: picker entry, cancel at browser/trim/name, named persistence, automatic assignment/return, failed disk save keeps destination/name and retries
+PASS v05 character: each of 24 synth controls measurably changes rendered attack, held tone or release
+PASS v05 10-second stress: 4 synth tracks, transient full-chain load, capture; peak 32288; desktop CPU 0.467s (ARM pending)
+SIZES Project=757580 Engine=35170168 App=1677312 FxState=3681216 Codec=2097160
+PASS held GRANULAR: locks/repeat preserve gate deadline, read head, grain ages and envelope; per-parameter persistence/RESET/probability; block invariant
+PASS MONO/ORGANISM/FM: no note restart or LENGTH extension on locks/repeat
+PASS SAMPLER: selected lane only, phase/age preserved; track repeat; stop clears event state
+PASS REPEAT: exact 1/8..1/64 periods, 30..240 BPM, stereo fragment, bounded storage and return to live sound
+PASS UI/model/MS12: automatic LOCK ONLY, last-lock removal, note-off inert payload, TYPE/REPEAT, distinct RESET/--, MS10 migration
+PASS independent 15/16 cycles and 1/8 vs 1/32 resolution; new NOTE resets previous parameter events
+PASS silent LOCK ONLY does not create voices; START/STOP reset overrides; FX events process an existing tail
+PASS SONG transition/end: repeat and parameter events cannot leak into the next sequence
+PASS physical Y/B/A/X mapping: A+arrows REPEAT/RESET, X+arrows TYPE, no short-action leakage, context conversion/clear

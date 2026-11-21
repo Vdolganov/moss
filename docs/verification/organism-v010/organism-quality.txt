@@ -1,0 +1,1 @@
+PASS ORGANISM bass: A1 0.533 amplitude, dense 0.588, sub A0 0.483; correct pitch, no density collapse, SPREAD=0 mono

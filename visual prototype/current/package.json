@@ -1,0 +1,25 @@
+{
+  "name": "moss-interface-lab",
+  "version": "0.12.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/model.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "test:regression": "node tests/regression.mjs",
+    "test:tabs": "node tests/tab-strips.mjs",
+    "test:nested": "node tests/nested-pages.mjs",
+    "test:tape": "node tests/tape-monochrome.mjs",
+    "test:spacing": "node tests/spacing.mjs",
+    "test:grid": "node tests/grid-cells.mjs",
+    "test:pages": "node tests/grid-pages.mjs",
+    "test:notes": "node --test tests/note-timing.test.mjs",
+    "test:duration": "node tests/note-duration.mjs",
+    "capture": "node tests/capture.mjs",
+    "test:ux": "node tests/ux-reliability.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}

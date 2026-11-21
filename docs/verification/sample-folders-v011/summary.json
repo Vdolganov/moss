@@ -1,0 +1,18 @@
+{
+  "version": "0.11.0",
+  "installed_sha256": "687ff236a7855241fddd7cf363b7b093edbf0e7979375deb4e80a376408a5432",
+  "windows_sha256": "be6971a6b10812c80fb469947fa45d5a706a6479c70512260248bb46d217f9cf",
+  "device_unit_sha256": "59dacf44a79d60567eb4cce17562817e657dba8d8da5a7443672df6246c84132",
+  "device_unit_exit": 0,
+  "load_test_seconds": 60,
+  "load_test_callbacks": 1884,
+  "final_binary_load_test_seconds": 20,
+  "final_binary_max_callback_us": 29748,
+  "over_budget": 0,
+  "late_intervals": 0,
+  "stream_underruns": 0,
+  "preserved_user_files": 71,
+  "post_launch_hashes_match": true,
+  "garlic_menu_restored": true,
+  "governor": "interactive"
+}

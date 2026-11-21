@@ -1,8 +1,7 @@
 #pragma once
 namespace moss {
-inline constexpr char Version[] = "0.9.0";
-// +33% monitor gain over the previous 135%; retained soft peak protection.
-constexpr int MonitorGainPercent = 180;
+inline constexpr char Version[] = "0.13.1";
+constexpr int DefaultLevelPercent = 100;
 constexpr unsigned AudioRate = 32000, AudioBlockFrames = 1024;
 constexpr int Tracks = 4, Keys = 4, Projects = 32, Steps = 512;
 constexpr int EffectTypes = 5, EffectParameters = 16, ActiveEffects = 2,

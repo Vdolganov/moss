@@ -13,23 +13,18 @@ inline const char *midiNote(int n) {
   snprintf(out, 8, "%s%d", pitch[n % 12], n / 12 - 1);
   return out;
 }
-inline void drawSampleSlots(lab::Canvas &c, const App &a, int y) {
-  using namespace lab;
-  const auto &tr = a.project.tracks[a.track];
-  for (int i = 0; i < Keys; ++i) {
-    int x = 18 + i * 153;
-    bool selected = i == a.key;
-    c.box(x, y, 145, 42, selected ? TEXT : LINE);
-    if (selected)
-      c.rect(x, y + 40, 145, 2, TEXT);
-    char label[24];
-    snprintf(label, sizeof(label), "%d / %s", i + 1, note(i));
-    text(c, x + 8, y + 6, label, selected ? TEXT : DIM);
-    text(c, x + 8, y + 24,
-         tr.keys[i].asset < 0 ? "EMPTY" : a.assetName(tr.keys[i].asset),
-         tr.keys[i].asset < 0 ? DIM : TEXT, 2, 10);
+inline void drawSampleSlots(lab::Canvas &c,const App &a,int y){
+  const auto &t=a.project.tracks[a.track];char label[32];
+  unsigned live=__atomic_load_n(&a.engine->shownSampleKeys[a.track],__ATOMIC_ACQUIRE);
+  for(int i=0;i<Keys;++i){int x=16+i*154;bool selected=i==a.key;
+    ui::round(c,x,y,146,48,12,selected?lab::TEXT:lab::BG);
+    uint32_t ink=selected?lab::BG:lab::DIM;
+    snprintf(label,sizeof(label),"%d / %s",i+1,note(i));ui::text(c,x+12,y+8,label,ink,ui::Small);
+    ui::text(c,x+12,y+28,t.keys[i].asset<0?"EMPTY":a.assetName(t.keys[i].asset),ink,ui::Small,12);
+    if(live&(1u<<i)){ui::round(c,x+108,y+6,26,16,8,selected?lab::BG:lab::TEXT);ui::text(c,x+113,y+8,note(i),selected?lab::TEXT:lab::BG,ui::Small);}
   }
 }
+#include "app_pattern_ui.h"
 #include "app_song_ui.h"
 #include "app_synth_ui.h"
 #include "app_granular_ui.h"
@@ -72,16 +67,8 @@ inline void draw(lab::Canvas &c, const App &a) {
       tabs[2] = "TAPE";
       active = a.page - Grid;
     }
-    if (!a.assignMode && !a.importAssign) {
-      text(c, 18, 65, "[", DIM);
-      text(c, 610, 65, "]", DIM);
-    }
-    for (int i = 0; i < 3; i++) {
-      text(c, 60 + i * 180, 65, tabs[i], i == active ? TEXT : DIM);
-      if (i == active)
-        c.rect(56 + i * 180, 88, 140, 2, TEXT);
-    }
-    c.rect(0, 91, 640, 1, LINE);
+    ui::tabs(c,56,tabs,3,active,true,!a.assignMode&&!a.importAssign);
+    c.rect(0,88,640,1,LINE);
     if (a.page == Mix) {
       const char *tabs[] = {"LEVELS", "MASTER FX"};
       bankTabs(c, tabs, 2, a.mixTab);
@@ -92,7 +79,7 @@ inline void draw(lab::Canvas &c, const App &a) {
       text(c, 482, 111, "SPACE", DIM);
       int first = a.track / 5 * 5;
       for (int t = first; t <= a.project.trackCount && t < first + 5; t++) {
-        int y = 141 + (t - first) * 53;
+        int y = 144 + (t - first) * 56;
         if (t == a.track)
           c.rect(18, y - 10, 604, 49, PANEL);
         if (t == a.project.trackCount) {
@@ -105,7 +92,7 @@ inline void draw(lab::Canvas &c, const App &a) {
         text(c, 278, y + 5, instrumentName(a.project.tracks[t].instrument),
              DIM);
         int effects = 0;
-        for (int id = 0; id < 4; id++)
+        for (int id = 0; id < EffectTypes; id++)
           effects += a.project.tracks[t].fx.active(id);
         snprintf(b, sizeof(b), "%d / %d FX", effects, ActiveEffects);
         text(c, 482, y + 5, b, DIM);
@@ -116,148 +103,27 @@ inline void draw(lab::Canvas &c, const App &a) {
       text(c, 18, 417, b, DIM);
     }
     if (a.page == Mix && a.mixTab == 0) {
-      for (int t = a.track / 3 * 3;
-           t < a.project.trackCount && t < (a.track / 3 + 1) * 3; t++) {
+      for (int t = 0; t < a.project.trackCount; t++) {
         const auto &tr = a.project.tracks[t];
-        int y = 154 + t % 3 * 64;
+        int y = 152 + t * 56;
         if (t == a.track)
-          c.box(18, y - 10, 604, 61, TEXT);
+          c.box(18, y - 10, 604, 44, TEXT);
         snprintf(b, sizeof(b), "%02d  %.18s", t + 1, tr.name);
         text(c, 30, y, b, TEXT, 2, 23);
         snprintf(b, sizeof(b), "%03d STEPS / %s", tr.cells(),
                  tr.mute ? "MUTED" : instrumentName(tr.instrument));
-        text(c, 30, y + 26, b, DIM);
+        ui::text(c, 30, y + 22, b, DIM,ui::Small);
         unsigned peak =
             __atomic_load_n(&a.engine->shownPeak[t], __ATOMIC_ACQUIRE);
         c.rect(360, y + 10, 240, 4, LINE);
         c.rect(360, y + 10, clamp(int(peak) * 240 / 16384, 0, 240), 4, TEXT);
         snprintf(b, sizeof(b), "LEVEL %d / PAN %+d", tr.level, tr.pan);
-        text(c, 360, y + 26, b, DIM, 2, 20);
+        ui::text(c, 360, y + 22, b, DIM,ui::Small,24);
       }
       if (!a.project.trackCount)
         text(c, 18, 190, "NO TRACKS / B GRID / A ADD TRACK", DIM);
     }
-    if (a.page == Pattern) {
-      const auto &tr = a.project.tracks[a.track];
-      const auto &selected = tr.steps[a.step];
-      int stride = tr.stride(), selectedCell = a.step / stride;
-      int first = selectedCell / 16 * 16;
-      if (tr.instrument)
-        snprintf(b, sizeof(b), "%02d %.18s / 1:%d", a.track + 1, tr.name,
-                 tr.division);
-      else
-        snprintf(b, sizeof(b), "%s / %.20s / 1:%d", note(a.key),
-                 a.assetName(tr.keys[a.key].asset), tr.division);
-      if (tr.instrument)
-        text(c, 18, 108, b, DIM);
-      else
-        drawSampleSlots(c, a, 108);
-      snprintf(b, sizeof(b), "%02d-%02d", first + 1,
-               clamp(first + 16, 0, tr.cells()));
-      if (tr.instrument)
-        text(c, 524, 108, b, DIM);
-      for (int i = 0; i < 16; i++) {
-        int cell = first + i, s = cell * stride, x = 18 + i % 8 * 76,
-            y = (tr.instrument ? 132 : 164) + i / 8 * (tr.instrument ? 65 : 50);
-        int cellHeight = tr.instrument ? 53 : 43;
-        bool enabled = s < tr.cycle;
-        const auto &st = tr.steps[s < Steps ? s : 0];
-        const auto &hit = tr.hits[a.key][s < Steps ? s : 0];
-        bool on = enabled && (tr.instrument ? st.on : hit.on)==NoteEvent;
-        bool only=enabled && !on && (tr.instrument?st.on==LockEvent:hit.on==LockEvent || st.on==LockEvent);
-        bool between = false;
-        for (int off = 1; off < stride && s + off < tr.cycle; off++)
-          between |= tr.instrument ? tr.steps[s + off].on != 0
-                                   : tr.hits[a.key][s + off].on != 0 || tr.steps[s+off].on==LockEvent;
-        uint32_t ink = on ? BG : DIM;
-        c.rect(x, y, 69, cellHeight, on ? 0xd5d6d3 : BG);
-        c.box(x, y, 69, cellHeight,
-              enabled ? (on ? 0xd5d6d3 : 0x56585e) : LINE);
-        snprintf(b, sizeof(b), "%02d", cell + 1);
-        text(c, x + 7, y + 7, b, enabled ? ink : LINE);
-        if (enabled) {
-          text(c, x + 7, y + (tr.instrument ? 29 : 23),
-               on ? (tr.instrument ? midiNote(st.note) : note(a.key)) : only?"LOCK":"--",
-               ink);
-          if(only) {
-            const int cx=x+58,cy=y+10;
-            for(int dy=-4;dy<=4;++dy) { int dx=4-(dy<0?-dy:dy); c.rect(cx-dx,cy+dy,1,1,TEXT); c.rect(cx+dx,cy+dy,1,1,TEXT); }
-          }
-          bool locked = st.repeat!=Inherit || st.shift!=Inherit;
-          if (tr.instrument == GranularInstrument) {
-            for (int n : st.grainLocks) locked |= n != Inherit;
-          } else if (tr.instrument) {
-            for (int n : st.synthLocks[tr.instrument - 1])
-              locked |= n != Inherit;
-          } else {
-            for (int n : hit.locks)
-              locked |= n != Inherit;
-          }
-          for (int n : st.fxLocks.data) locked |= n != Inherit;
-          if (between)
-            c.rect(x + 7, y + cellHeight - 2, 52, 1, ink);
-          if (locked)
-            c.rect(x + 59, y + 31, 4, 4, ink);
-          const auto &selectedHit = tr.hits[a.key][a.step];
-          int length = tr.instrument ? selected.length : selectedHit.length;
-          bool sustained = (tr.instrument ? selected.on : selectedHit.on)==NoteEvent &&
-                           length &&
-                           ((s - a.step + tr.cycle) % tr.cycle) < length;
-          if (sustained)
-            c.rect(x + 4, y + cellHeight - 5, 61, 2, on ? BG : DIM);
-          if (playing &&
-              unsigned(cell) == __atomic_load_n(&a.engine->shownStep[a.track],
-                                                __ATOMIC_ACQUIRE) /
-                                    unsigned(stride))
-            c.rect(x, y - 6, 69, 2, TEXT);
-        }
-        if (s == a.step) {
-          c.box(x - 3, y - 3, 75, cellHeight + 6, TEXT);
-          c.box(x - 2, y - 2, 73, cellHeight + 4, TEXT);
-        }
-      }
-      snprintf(b, sizeof(b), "PAGE %d/%d", selectedCell / 16 + 1,
-               (tr.cells() + 15) / 16);
-      text(c, 18, 269, b, DIM);
-      snprintf(
-          b, sizeof(b), "PLAY %02u/%02d",
-          __atomic_load_n(&a.engine->shownStep[a.track], __ATOMIC_ACQUIRE) /
-                  unsigned(stride) +
-              1,
-          tr.cells());
-      text(c, 186, 269, b, DIM);
-      text(c, 454, 269, "R1+L/R PAGE", DIM);
-      c.rect(18, 293, 604, 1, LINE);
-      snprintf(b, sizeof(b), "STEP %03d / %s", selectedCell + 1,
-               eventName(selectedEvent(tr,a.step,a.key)));
-      text(c, 18, 305, b, TEXT);
-      int asset = tr.keys[a.key].asset;
-      snprintf(b, sizeof(b), "%s / %s",
-               tr.instrument ? midiNote(selected.note) : note(a.key),
-               tr.instrument ? instrumentName(tr.instrument)
-                             : a.assetName(asset));
-      if(a.bank==2)snprintf(b,sizeof(b),"%s / %s",fxName(tr.fx.type),fxBankName(clamp(a.fxBank,0,fxBanks(tr.fx.type)-1),tr.fx.type));
-      text(c, 350, 305, b, DIM, 2, 22);
-      const char *banks[] = {"STEP", "VOICE LOCKS", "FX LOCKS", "TIMING"};
-      const int x[] = {18, 100, 280, 430}, width[] = {56, 140, 100, 80};
-      for (int i = 0; i < 4; i++) {
-        text(c, x[i], 326, banks[i], a.bank == i ? TEXT : DIM);
-        if (a.bank == i)
-          c.rect(x[i], 343, width[i], 1, TEXT);
-      }
-      if(a.bank==3) {
-        snprintf(b,sizeof(b),"%d/2",a.timingBank+1);
-        text(c,550,326,b,DIM);
-      } else if(a.bank==2) {
-        snprintf(b,sizeof(b),"%d/%d",clamp(a.fxBank,0,fxBanks(tr.fx.type)-1)+1,fxBanks(tr.fx.type));
-        text(c,550,326,b,DIM);
-      } else text(c, 520, 326,
-           a.bank == 2                    ? fxName(tr.fx.type)
-           : a.bank == 1 && a.granularTrack() ? GranularBanks[a.synthBank]
-           : a.bank == 1 && tr.instrument ? synthBankName(tr.instrument,a.synthBank)
-                                          : "L1/R1",
-           DIM, 2, 8);
-    }
+    if(a.page==Pattern)drawPattern(c,a);
     if (a.page == Sampler && !a.project.tracks[a.track].instrument) {
       auto &tr = a.project.tracks[a.track];
       auto &k = tr.keys[a.key];
@@ -283,6 +149,10 @@ inline void draw(lab::Canvas &c, const App &a) {
     drawTools(c, a);
     drawSynth(c, a);
     drawGranular(c, a);
+    if(a.page==Pattern||a.page==Sampler||(a.fxPage()&&a.fxDetail)){
+      c.rect(0,326,640,44,BG);
+      drawParameterTabs(c,a);
+    }
     if (a.page == Pattern || a.page == Sampler ||
         (a.page == Mix && (a.project.trackCount || a.mixTab == 1)) ||
         a.page == Space || (a.page == Tape && a.tapeTab < 2)) {
@@ -300,7 +170,7 @@ inline void draw(lab::Canvas &c, const App &a) {
         bool disabled = false;
         if (a.page == Pattern && a.bank == 0 && !t.instrument) {
           const auto &h = t.hits[a.key][a.step];
-          const char *l[] = {"VELOCITY", "FADE IN", "LENGTH", "PROB"};
+          const char *l[] = {"VELOCITY", "FADE IN", "NOTE LEN", "PROB"};
           int vals[] = {h.velocity, h.fadeIn,
                         (h.length + t.stride() - 1) / t.stride(),
                         h.on==EmptyEvent && s.on==LockEvent?s.probability:h.probability};
@@ -313,7 +183,7 @@ inline void draw(lab::Canvas &c, const App &a) {
                  : i == 3 ? "PERCENT"
                           : "";
         } else if (a.page == Pattern && a.bank == 0) {
-          const char *l[] = {"KEY", "VEL", "LENGTH", "PROB"};
+          const char *l[] = {"KEY", "VEL", "NOTE LEN", "PROB"};
           label = l[i];
           if (i == 0 && t.instrument)
             label = "NOTE";
@@ -330,7 +200,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             unit = "ONE SHOT";
           }
         } else if (a.page == Pattern && a.bank == 3) {
-          const char *labels[]={"CYCLE","STEP","REPEAT","TYPE"}; label=labels[i];
+          const char *labels[]={"CYCLE","DIV","REPEAT","TYPE"}; label=labels[i];
           if(a.timingBank && i==0) { label="SWING"; snprintf(b,sizeof(b),"%d%%",t.swing); }
           else if(a.timingBank && i==1) {
             label="SHIFT";
@@ -344,14 +214,14 @@ inline void draw(lab::Canvas &c, const App &a) {
           unit=i==0?"TRACK CELLS":i==1?"RESOLUTION":i==2?"TRACK AUDIO":"STEP EVENT";
           if(a.timingBank && i<2) unit=i==0?"WHOLE TRACK":"STEP LOCK";
         } else if (a.fxPage() || (a.page == Pattern && a.bank == 2)) {
-          const auto &f = a.page == Mix ? a.project.fx : t.fx;
+          const auto f = a.effectView();
           int parameter=i+clamp(a.fxBank,0,fxBanks(f.type)-1)*4;
           label = fxLabel(f.type, parameter);
           unit = FxSpecs[f.type][parameter].unit;
           int value = f.values[f.type][parameter];
           if (a.page == Pattern) {
             value = s.fxLocks[f.type][parameter];
-            unit = (f.type==Reel || f.type==Pond) && lockValue(value)?FxSpecs[f.type][parameter].unit:"STEP LOCK";
+            unit = FxSpecs[f.type][parameter].unit;
           }
           if (value == Inherit)
             strcpy(b, "--");
@@ -390,6 +260,15 @@ inline void draw(lab::Canvas &c, const App &a) {
             else
               strcpy(b, "--");
             unit = i == 1 ? "BARS" : "";
+          } else if(a.fourSlices && a.sliceBank==0) {
+            const char *l[]={"PART 1","PART 2","PART 3","PART 4"};label=l[i];
+            snprintf(b,sizeof(b),"%d",a.slices[i].start);
+            unit="MS";
+          } else if(a.fourSlices && a.sliceBank==2) {
+            const char *labels[]={"START","END","ZOOM","VIEW"};label=labels[i];
+            if(i<2){snprintf(b,sizeof(b),"%u",i?a.sliceEnd(a.slices[a.sliceIndex]):a.sliceStart(a.slices[a.sliceIndex]));unit="FRAMES";}
+            else if(i==2){snprintf(b,sizeof(b),"%d",1<<a.fineZoom);unit="X";}
+            else {unsigned first,last;a.fineWindow(first,last);snprintf(b,sizeof(b),"%u",unsigned(uint64_t(first)*1000/a.source.rate));unit="MS";}
           } else {
             const char *l[] = {"START", "END", "FADE IN", "FADE OUT"};
             label = l[i];
@@ -406,7 +285,8 @@ inline void draw(lab::Canvas &c, const App &a) {
           label = l[i];
           int vals[] = {t.level, t.pan, a.project.master, t.mute};
           snprintf(b, sizeof(b), "%d", vals[i]);
-          unit = i == 3 ? "0 OFF 1 ON" : "";
+          if(i==3)strcpy(b,t.mute?"ON":"OFF");
+          unit=i==0||i==2?"%":i==1?"L/R":"";
         } else if (a.granularTrack() &&
                    (a.page == Sampler || (a.page == Pattern && a.bank == 1))) {
           int parameter=i+a.synthBank*4;
@@ -416,8 +296,7 @@ inline void draw(lab::Canvas &c, const App &a) {
             auto view=a.engine->grainView[a.track].read();
             if(view.running) value=int((view.head*1000u+32768u)/65536u);
           }
-          unit=a.page==Pattern?"STEP LOCK":spec.unit;
-          if(a.page==Sampler && (parameter==0 || parameter==4) && t.granular.values[7]==100) unit="SCAN ANCHOR";
+          unit=spec.unit;
           if(value==Inherit) strcpy(b,"--");
           else if(value==ResetLock) strcpy(b,"RESET");
           else if(parameter==0) snprintf(b,sizeof(b),"%.2f",value*.01);
@@ -429,14 +308,13 @@ inline void draw(lab::Canvas &c, const App &a) {
           label = synthLabel(t.instrument, parameter);
           int value = a.page == Sampler ? t.synthParams[type][parameter]
                                         : s.synthLocks[type][parameter];
-          unit = a.page == Pattern ? "STEP LOCK"
-                                   : synthUnit(t.instrument, parameter);
+          unit = synthUnit(t.instrument, parameter);
           if (value == Inherit)
             strcpy(b, "--");
           else if(value==ResetLock) strcpy(b,"RESET");
           else if (t.instrument == FmInstrument && parameter == 1)
             snprintf(b, sizeof(b), "%s", ratioName(value));
-          else if(t.instrument==MonoInstrument&&parameter==16){snprintf(b,sizeof(b),"%.2f",value*.01);unit="HZ";}
+          else if((t.instrument==MonoInstrument&&parameter==16)||(t.instrument==OrganismInstrument&&parameter==OrgRate)||(t.instrument==FmInstrument&&parameter==FmRate)){snprintf(b,sizeof(b),"%.2f",value*.01);unit="HZ";}
           else
             snprintf(b, sizeof(b), "%d", value);
         } else {
@@ -450,7 +328,7 @@ inline void draw(lab::Canvas &c, const App &a) {
               disabled = true;
             } else
               val[i] = hit.locks[i];
-            unit = "STEP LOCK";
+            unit = i == 0 ? "ST" : "%";
           } else
             unit = i == 0 ? "SEMITONES" : "PERCENT";
           if (!disabled)
@@ -463,24 +341,28 @@ inline void draw(lab::Canvas &c, const App &a) {
       }
     }
   }
-  c.rect(0, 445, 640, 1, LINE);
+  c.rect(0, ui::Footer, 640, 36, BG);
+  c.rect(0, ui::Footer, 640, 1, LINE);
   const char *hint =
       a.naming                   ? "A TYPE / X DELETE / START SAVE / B CANCEL"
+      : a.filePicker ? "A OPEN / X PLAY / B UP / R1+L-R PAGE"
+      : a.page==Tape && a.tapeTab==1 && a.fourSlices ? "TAP Y B A X PLAY / L1+R1 OPTIONS / SEL BACK"
+      : a.page==Tape && a.tapeTab==2 ? "A OPEN / X PLAY / B BACK / R1+L-R PAGE"
       : a.importAssign           ? "A NAME + ASSIGN / X PLAY / B VOICE"
       : a.assignMode             ? "A SELECT / X AUDITION / B VOICE"
-      : a.fxPage() && a.fxDetail ? "L1/R1 BANK / L1+L-R FX / B CHAIN"
+      : a.fxPage() && a.fxDetail ? "L1/R1 PAGE / B CHAIN"
       : a.page == SongPage       ? "Y+UP-DOWN MOVE / R1+L-R PAGE / L1+R1 MENU"
-      : a.page == Atlas          ? "A OPEN / L1-R1 TAB / L1+R1 OPTIONS"
-      : a.page == Grid           ? "A OPEN / L1 R1 TRACK / L1+R1 OPTIONS"
+      : a.page == Atlas          ? "A OPEN / L2-R2 TAB / L1+R1 OPTIONS"
+      : a.page == Grid           ? "A OPEN / D-PAD TRACK / L1+R1 OPTIONS"
       : a.fxPage()               ? "A EDIT / X BYPASS / Y+ARROWS ORDER"
       : a.page == Mix            ? "L1/R1 BANK / A MUTE / L1+R1 OPTIONS"
       : a.page == Pattern && a.bank == 2
-          ? "L1+L-R FX / L1+U-D FX PAGE / L1-R1 BANK"
-      : a.page == Pattern && a.bank == 3 ? "L1+ARROWS TIME PAGE / L1-R1 BANK"
+          ? "L1+U-D PAGE / L1-R1 TAB / R1+L-R GRID PAGE"
+      : a.page == Pattern && a.bank == 3 ? "L1+U-D PAGE / L1-R1 TAB / R1+L-R GRID PAGE"
       : a.page == Pattern && !a.project.tracks[a.track].instrument
-          ? "L1+ARROWS SLOT / L1/R1 BANK / L1+R1 OPTIONS"
-      : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"
-      : a.page == Pattern && a.bank == 1 ? "L1+ARROWS VOICE PAGE / L1/R1 BANK"
+          ? "L1+L-R SLOT / L1-R1 TAB / R1+L-R GRID PAGE"
+      : a.page == Pattern && a.bank == 1 && a.granularTrack() ? "L1+U-D PAGE / L1-R1 TAB / R1+L-R GRID PAGE"
+      : a.page == Pattern && a.bank == 1 ? "L1+U-D PAGE / L1-R1 TAB / R1+L-R GRID PAGE"
       : a.page == Pattern ? "ARROWS STEP / L1/R1 BANK / L1+R1 OPTIONS"
       : a.page == Sampler && a.granularTrack()
           ? (a.available(a.project.tracks[a.track].granular.asset) ? "A AUDITION / X FREEZE / L1/R1 BANK" : "A ASSIGN / L1/R1 BANK / L1+R1 OPTIONS")
@@ -497,56 +379,41 @@ inline void draw(lab::Canvas &c, const App &a) {
                        : "A EDIT / X BYPASS / Y+ARROWS ORDER";
   bool tempoFocus = a.page != Atlas && !a.options && !a.naming &&
                     (a.buttons.held & bit(Select));
-  text(c, 18, 457,
+  ui::text(c, 16, 456,
        tempoFocus ? "TEMPO / L-R 1 BPM / U-D 10 BPM"
+       : (a.buttons.held & bit(L1)) && !a.options ? "L-R SLOT / U-D PAGE / R1 OPTIONS"
        : (a.buttons.held & 0xf0) && !a.naming && !a.options &&
                !a.sequencePicker && !a.confirmDelete
            ? "L-R FINE / U-D COARSE / HOLD TO REPEAT"
        : a.status[0] && a.nowUs < a.statusUntil ? a.status
                                                 : hint,
-       DIM, 2, 50);
-  if (a.options) {
-    c.rect(54, 104, 532, 320, PANEL);
-    c.box(54, 104, 532, 320, LINE);
-    text(c, 72, 120,
-         a.manageMenu == 1   ? "SEQUENCE / B CLOSE"
-         : a.manageMenu == 2 ? "TRACK / B CLOSE"
-                             : "OPTIONS / B CLOSE",
-         DIM);
-    if (a.optionCount() > 8) {
-      snprintf(b, sizeof(b), "%d/%d", a.option / 8 + 1,
-               (a.optionCount() + 7) / 8);
-      text(c, 510, 120, b, DIM);
-    }
-    int first = a.option / 8 * 8;
-    for (int i = first; i < a.optionCount() && i < first + 8; i++) {
-      int y = 155 + (i - first) * 31;
-      if (i == a.option)
-        c.box(68, y - 6, 504, 27, TEXT);
-      text(c, 80, y, a.optionName(i), i == a.option ? TEXT : DIM);
-    }
+       DIM, ui::Small, 59);
+  if(a.options||a.sequencePicker||a.filePicker||a.naming||a.confirmDelete||a.voicePicker||a.lockMenu>=0)
+    c.rect(0,0,640,480,BG);
+  if(a.options){
+    ui::box(c,16,16,608,448,0,LINE,BG);
+    const char *title=a.manageMenu==1?"SEQUENCE":a.manageMenu==2?"TRACK":a.page==Pattern?"STEP OPTIONS":a.page==Tape?"TAPE OPTIONS":a.page==Sampler?"VOICE OPTIONS":a.page==SongPage?"SONG OPTIONS":"OPTIONS";
+    ui::text(c,32,32,title,TEXT,ui::Heading);
+    snprintf(b,sizeof(b),"%d / %d",a.option+1,a.optionCount());ui::text(c,608-ui::textWidth(b,ui::Small),38,b,DIM,ui::Small);
+    int first=a.option/7*7;
+    for(int i=first;i<a.optionCount()&&i<first+7;++i){int y=80+(i-first)*44;ui::row(c,y,i==a.option,40);ui::text(c,32,y+13,a.optionName(i),i==a.option?TEXT:DIM,ui::Body,47);}
+    ui::text(c,32,428,"A SELECT / B CLOSE / R1+L-R PAGE",DIM,ui::Small);
   }
   drawSequencePicker(c, a);
   drawOverlay(c, a);
-  if (a.voicePicker) {
-    c.rect(54, 104, 532, 320, PANEL);
-    c.box(54, 104, 532, 320, LINE);
-    text(c, 72, 120,
-         a.voicePicker == 3   ? "ADD TRACK / B CANCEL"
-         : a.voicePicker == 1 ? "INSTRUMENT / B CANCEL"
-                              : "PRESET / B CANCEL",
-         DIM);
-    for (int i = 0; i < (a.voicePicker==4?ReelPresetCount:a.voicePicker == 2 ? 4 : InstrumentCount); i++) {
-      int y = 162 + i * 40;
-      if (i == a.voiceChoice)
-        c.box(68, y - 8, 504, 33, TEXT);
-      text(c, 80, y,
-           a.voicePicker==4?ReelPresetNames[i]:a.voicePicker == 1 || a.voicePicker == 3
-               ? instrumentName(i)
-               : presetName(a.project.tracks[a.track].instrument, i),
-           i == a.voiceChoice ? TEXT : DIM);
-    }
-    text(c, 72, 380, "D-PAD SELECT / A APPLY", DIM);
+  if(a.voicePicker){
+    ui::box(c,16,16,608,448,0,LINE,BG);ui::text(c,32,32,a.voicePicker==3?"ADD TRACK":a.voicePicker==1?"INSTRUMENT":"PRESET",TEXT,ui::Heading);
+    int count=a.voicePicker==4?ReelPresetCount:a.voicePicker==2?synthPresetCount(a.project.tracks[a.track].instrument):InstrumentCount;
+    int first=a.voiceChoice/5*5;
+    for(int i=first;i<count&&i<first+5;++i){int y=104+(i-first)*56;ui::row(c,y,i==a.voiceChoice);ui::text(c,32,y+17,a.voicePicker==4?ReelPresetNames[i]:a.voicePicker==1||a.voicePicker==3?instrumentName(i):presetName(a.project.tracks[a.track].instrument,i),i==a.voiceChoice?TEXT:DIM,ui::Body,47);}
+    ui::text(c,32,428,"D-PAD SELECT / A APPLY / B CANCEL",DIM,ui::Small);snprintf(b,sizeof(b),"%d / %d",a.voiceChoice+1,count);ui::text(c,608-ui::textWidth(b,ui::Small),38,b,DIM,ui::Small);
+  }
+  if(a.lockMenu>=0){
+    ui::box(c,16,16,608,448,0,LINE,BG);ui::text(c,32,32,a.lockMenu==4?"PARAMETER":"STEP LOCK",TEXT,ui::Heading);
+    const char *actions[]={"SET / CURRENT BASE VALUE","CLEAR / INHERIT","RESET / BASE AT THIS STEP"};
+    const char *fields[]={"Y / FIRST PARAMETER","B / SECOND PARAMETER","A / THIRD PARAMETER","X / FOURTH PARAMETER"};
+    for(int i=0;i<(a.lockMenu==4?4:3);++i){int y=112+i*56;ui::row(c,y,i==a.lockAction);ui::text(c,32,y+16,a.lockMenu==4?fields[i]:actions[i],TEXT);}
+    ui::text(c,32,428,"A APPLY / B CLOSE / ONLY THIS PARAMETER",DIM,ui::Small);
   }
   c.box(0, 0, 640, 480, LINE);
 }

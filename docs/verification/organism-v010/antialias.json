@@ -1,0 +1,6 @@
+{
+  "test": "3101 Hz, amplitude 3.5, tanh, 32 kHz / 1 second; power outside allowed odd harmonics",
+  "naive_alias_db": -27.286332845083393,
+  "adaa_alias_db": -37.00941412307894,
+  "improvement_db": 9.723081277995547
+}

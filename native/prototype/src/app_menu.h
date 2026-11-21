@@ -3,7 +3,9 @@ int rawOptionCount() const {
   if (page == SongPage)
     return 6;
   if (page == Atlas && atlasTab)
-    return 2;
+    return 4;
+  if(page==Tape && tapeTab==1 && sliceCount)return 14;
+  if(page==Tape&&tapeTab==2)return 9;
   if (importAssign)
     return 3;
   if (assignMode)
@@ -17,8 +19,8 @@ int rawOptionCount() const {
   if (fxPage())
     return 4;
   if (page == Tape)
-    return tapeTab == 0 ? 6 : tapeTab == 1 ? 8 : 6;
-  return page == Sampler ? 7 : page == Pattern ? 9 : 5;
+    return tapeTab == 0 ? 6 : tapeTab == 1 ? 8 : 9;
+  return page == Sampler ? 7 : page == Pattern ? 14 : 5;
 }
 bool projectUses(const Project &p, int id) const {
   for (int t = 0; t < p.trackCount; ++t) {
@@ -30,26 +32,15 @@ bool projectUses(const Project &p, int id) const {
   return false;
 }
 bool assetProtected(int id) const {
-  if (id < 0 || id >= Assets || projectUses(project, id) ||
+  if (id < 0 || id >= CatalogAssets || projectUses(project, id) ||
       (haveUndo && projectUses(undoProject, id)))
     return true;
-  for (uint32_t mask : savedAssetMasks)
-    if (mask & (uint32_t(1) << id))
+  for (const auto &mask : savedAssetMasks)
+    if (mask.has(id))
       return true;
   return false;
 }
-uint32_t assetMask(const Project &p) const {
-  static_assert(Assets == 32, "Saved sample references use one 32-bit mask");
-  uint32_t mask = 0;
-  for (int t = 0; t < p.trackCount; ++t) {
-    int grain = p.tracks[t].granular.asset;
-    if (grain >= 0 && grain < Assets) mask |= uint32_t(1) << grain;
-    for (const auto &k : p.tracks[t].keys)
-      if (k.asset >= 0 && k.asset < Assets)
-        mask |= uint32_t(1) << k.asset;
-  }
-  return mask;
-}
+AssetMask assetMask(const Project &p) const { return projectAssets(p); }
 bool currentLocksPresent() const {
   if(page==Pattern && bank==3 && timingBank) return project.tracks[track].steps[step].shift!=Inherit;
   if (bank != 1 && bank != 2)
@@ -57,7 +48,7 @@ bool currentLocksPresent() const {
   const auto &t = project.tracks[track];
   for (int i = 0; i < 4; ++i) {
     int value =
-        bank == 2 ? t.steps[step].fxLocks[t.fx.type][clamp(fxBank,0,fxBanks(t.fx.type)-1)*4+i]
+        bank == 2 ? t.steps[step].fxLocks[effectType()][clamp(fxBank,0,fxBanks(effectType())-1)*4+i]
         : granularTrack() ? t.steps[step].grainLocks[synthBank * 4 + i]
         : t.instrument
             ? t.steps[step].synthLocks[t.instrument - 1][synthBank * 4 + i]
@@ -70,6 +61,20 @@ bool currentLocksPresent() const {
 bool optionVisible(int id) const {
   if (page == SongPage || (page == Atlas && atlasTab))
     return songOptionVisible(id);
+  if(page==Tape && tapeTab==1 && sliceCount) {
+    if(id==12)return fourSlices && track<project.trackCount && !project.tracks[track].instrument;
+    if(id==13)return fourSlices;
+    if(id==8)return !fourSlices;
+    if(id==9 || id==10 || id==11)return fourSlices;
+    if(fourSlices)return id==4;
+    if(importAssign)return id==2;
+  }
+  if(page==Tape&&tapeTab==2){
+    if(id==6)return haveUndo&&!captureBusy();
+    if(id==7)return selectedKit()>=0;
+    if(id==8)return selectedKit()>=0&&!selectedKitProtected();
+    return asset>=0&&library->kitFor(asset)<0&&(id==4||(id==5&&!assetProtected(asset)));
+  }
   if (importAssign)
     return id == 0;
   if (assignMode)
@@ -89,6 +94,11 @@ bool optionVisible(int id) const {
       return deletedProjectAvailable && projectCount < Projects;
     return true;
   }
+  if(page==Pattern&&id>=9){
+    if(id==9||id==13)return true;
+    if(id==10)return bank==1||bank==2||bank==3;
+    return !project.tracks[track].instrument;
+  }
   if (id == 0)
     return page != Tape;
   if (id == 1)
@@ -98,7 +108,7 @@ bool optionVisible(int id) const {
   if (page == Grid)
     return (id == 4 && track < project.trackCount) || id == 5;
   if (fxPage())
-    return id==3 && (page==Mix?project.fx:project.tracks[track].fx).type==Reel;
+    return id==3 && effectType()==Reel;
   if (page == Tape) {
     if (tapeTab == 0)
       return id == 5 && captureState() == 2 && !captureWritePending;
@@ -106,7 +116,8 @@ bool optionVisible(int id) const {
       return sliceCount && ((id == 6 && sliceCount < 16 &&
                              slices[sliceIndex].end < durationMs()) ||
                             ((id == 4 || id == 7) && sliceCount > 1));
-    return asset >= 0 && (id == 4 || (id == 5 && !assetProtected(asset)));
+    if(id>=6)return id==6 || (selectedKit()>=0 && (id==7 || !selectedKitProtected()));
+    return asset >= 0 && library->kitFor(asset)<0 && (id == 4 || (id == 5 && !assetProtected(asset)));
   }
   if (page == Sampler)
     return id == 3 || id == 4 ||
@@ -144,8 +155,27 @@ const char *optionName(int i) const {
   i = optionId(i);
   if (i < 0)
     return "";
+  if(page==Pattern&&i>=9){
+    if(i==9)return gridPageSize==64?"GRID VIEW / 64 > 16":"GRID VIEW / 16 > 64";
+    if(i==10)return "PARAMETER";
+    if(i==11)return "CLEAR TRACK LOCKS AT STEP";
+    if(i==12)return "CLEAR ALL AT STEP";
+    return "CLEAR PATTERN";
+  }
+  if(page==Pattern&&i==6)return project.tracks[track].instrument?"CLEAR STEP":"CLEAR SELECTED HIT";
+  if(page==Tape && tapeTab==1) {
+    if(i==12)return "SAVE KIT + ASSIGN FOUR SLOTS";
+    if(i==13)return importAssign?"SAVE SELECTED + ASSIGN SLOT":"SAVE SELECTED SAMPLE";
+    if(i==8)return "SPLIT INTO FOUR PARTS";
+    if(i==9)return "MANUAL EDIT SELECTED PART";
+    if(i==10)return "OPEN SAVED LIBRARY";
+    if(i==11)return "ARRANGE PARTS IN ORDER";
+    if(i==4 && fourSlices)return "SAVE KIT TO LIBRARY ONLY";
+    if(importAssign && i==2)return "AUDITION FULL SOURCE";
+  }
   if (page == SongPage || (page == Atlas && atlasTab))
     return songOptionName(i);
+  if(page==Tape&&tapeTab==2&&i>=6)return i==6?"UNDO LAST EDIT":i==7?"RENAME KIT FOLDER":"DELETE UNUSED KIT";
   if (importAssign) {
     const char *n[] = {"AUDITION FULL SOURCE", "NAME + ASSIGN SLICE",
                        "CANCEL IMPORT"};
@@ -178,6 +208,7 @@ const char *optionName(int i) const {
                                         : "RESTART TRANSPORT";
   if (fxPage())
     return "REEL PRESET";
+  if(page==Tape&&tapeTab==2&&i>=6)return i==6?"UNDO LAST EDIT":i==7?"RENAME KIT FOLDER":"DELETE UNUSED KIT";
   if (page == Tape) {
     const char *n[3][6] = {
         {"IMPORT WAV", "FROM LIBRARY", "DISCARD CAPTURE"},
@@ -212,11 +243,35 @@ void chooseOption() {
   options = false;
   if (i < 0)
     return;
+  if(page==Pattern&&i>=9){
+    if(i==9)gridPageSize=gridPageSize==64?16:64;
+    if(i==10){lockMenu=4;lockAction=0;}
+    if(i==11){editing=false;change({Op::ClearTrackLocks,track,step,0,0});editing=false;}
+    if(i==12||i==13){confirmDelete=true;confirmTarget=i==12?7:8;}
+    return;
+  }
+  if(page==Tape && tapeTab==1) {
+    if(i==12){saveKitAssign=true;saveFour();return;}
+    if(i==13){saveKitAssign=false;nameSlice();return;}
+    if(i==8){splitFour();return;}
+    if(i==9){fourSlices=false;sliceBank=0;return;}
+    if(i==10){tapeTab=2;asset=-1;libraryFolder=-1;return;}
+    if(i==11){arrangeSlices();return;}
+    if(i==4 && fourSlices){saveKitAssign=false;saveFour();return;}
+    if(importAssign && i==2){previewToggle(PreviewSource);return;}
+  }
+  if(page==Tape&&tapeTab==2&&i>=6){
+    if(i==6&&haveUndo){Project p=project;project=undoProject;undoProject=p;dirty=true;reload=true;say("EDIT UNDONE");}
+    if(i==7&&selectedKit()>=0)beginName(8,library->kits[selectedKit()].name);
+    if(i==8&&!selectedKitProtected()){confirmDelete=true;confirmTarget=10;}return;
+  }
   if (page == SongPage || (page == Atlas && atlasTab)) {
     editing = false;
     chooseSongOption(i);
     return;
   }
+  if(page==Tape&&tapeTab==2&&i==4){beginName(0,library->names[asset]);return;}
+  if(page==Tape&&tapeTab==2&&i==5){confirmDelete=true;confirmTarget=0;return;}
   if (importAssign) {
     if (i == 0 && sliceCount)
       previewToggle(PreviewSource);
@@ -398,7 +453,7 @@ void chooseOption() {
         sliceIndex = clamp(sliceIndex, 0, sliceCount - 1);
       }
     } else if (tapeTab == 2 && library && asset >= 0 &&
-               library->pcm[asset].frames) {
+               library->has(asset)) {
       if (i == 3) {
         char p[128];
         library->assetPath(p, sizeof(p), asset);
@@ -462,7 +517,7 @@ void chooseOption() {
       for (int j = 0; j < 4; j++)
         change(
             bank == 2
-                ? Command{Op::FxLock, track, step, t.fx.type * EffectParameters + clamp(fxBank,0,fxBanks(t.fx.type)-1)*4 + j, i==8?ResetLock:Inherit}
+                ? Command{Op::FxLock, track, step, effectType() * EffectParameters + clamp(fxBank,0,fxBanks(effectType())-1)*4 + j, i==8?ResetLock:Inherit}
             : granularTrack()
                 ? Command{Op::GranularLock, track, step, synthBank * 4 + j, i==8?ResetLock:Inherit}
             : t.instrument

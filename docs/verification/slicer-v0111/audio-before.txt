@@ -1,0 +1,3 @@
+Source preview RMS 8100.000; prepared preview RMS 6377.000; difference -2.0774 dB
+Master capture vs heard: -5.1055 dB; maximum error 2400 PCM units
+BASELINE measured

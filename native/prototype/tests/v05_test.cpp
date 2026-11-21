@@ -67,7 +67,7 @@ static void timelineAndGestures() {
          t.hits[0][8].locks[0] == Inherit);
   t.instrument = MonoInstrument;
   app.synthBank = 0;
-  gesture(lab::L1, lab::Right, 4000000);
+  gesture(lab::L1, lab::Down, 4000000);
   assert(app.synthBank == 1 && app.track == 0);
   app.edit(2, 1, 12);
   assert(t.steps[8].synthLocks[0][6] == t.synthParams[0][6] + 12);
@@ -97,8 +97,8 @@ static void timelineAndGestures() {
   assert(!app.fxDetail && app.page == Space);
   app.page = Pattern;
   app.bank = 2;
-  app.nested(-1);
-  assert(t.fx.type == 1);
+  app.choosePatternTab(3); // Second enabled effect has its own visible LOCKS tab.
+  assert(app.effectType() == 1 && t.fx.type == 0);
   app.edit(1, 1, 2);
   assert(t.steps[8].fxLocks[1][1] != Inherit && t.steps[8].fxLocks[Reel][ReelLoss] == 67);
   t.division = 8;
@@ -150,7 +150,7 @@ static void sound() {
   }
   assert(tailEnergy > 10000 && engine.activeFxStep[0] == 0 &&
          !engine.voices[0].active);
-  assert(Engine::monitor(10000) == 18000 && Engine::monitor(-10000) == -18000);
+  assert(Engine::monitor(10000) == 10000 && Engine::monitor(-10000) == -10000);
   assert(Engine::monitor(50000) < 32767 && Engine::monitor(-50000) > -32767);
   t.division = 8;
   engine.init(p, library.pcm, 8000, Assets);

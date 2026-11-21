@@ -88,7 +88,7 @@ struct GranularVoice {
   static constexpr unsigned MaxGrains = 32;
   // Nominal RMS for decorrelated grains relative to their source. Prepared
   // once on edits, never an input-dependent compressor or per-sample sqrt.
-  static constexpr float NominalGain = .75f;
+  static constexpr float NominalGain = 1.f;
   struct Grain {
     unsigned index = 0, stepWhole = 0, age = 0, length = 0;
     unsigned first = 0, last = 1, zone = 0, lane = 0;
@@ -102,7 +102,7 @@ struct GranularVoice {
     uint64_t attempts = 0, spawned = 0, skipped = 0;
     unsigned peak = 0;
   } stats;
-  const SampleBuffer *sample = nullptr;
+  const SampleView *sample = nullptr;
   const GranularTables *tables = nullptr;
   GranularParameters parameters;
   GranularFilter filter;
@@ -140,7 +140,7 @@ struct GranularVoice {
     else if (head >= scanLast) head -= span;
     resetJumpClock();
   }
-  bool init(const SampleBuffer &source, const GranularTables &lookup, unsigned outputRate,
+  bool init(const SampleView &source, const GranularTables &lookup, unsigned outputRate,
             unsigned limit = NativeGrains, uint32_t seed = 357) {
     *this = GranularVoice{};
     if (outputRate < 8000 || outputRate > 96000 || !limit || limit > MaxGrains ||

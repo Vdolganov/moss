@@ -1,0 +1,191 @@
+{
+  "before_open": {
+    "build": "MOSS 0.10.0",
+    "completed": false,
+    "rate": 32000,
+    "buffer": 1024,
+    "callbacks": 156,
+    "callback_max_us": 3485,
+    "over_budget": 0,
+    "late_intervals": 0,
+    "frames": 159744,
+    "triggers": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "grain_peaks": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "lock_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "repeat_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "track_count": 3,
+    "stream_underruns": 0,
+    "project_saved": true,
+    "pcm_bytes": 19615300,
+    "assets": 31,
+    "fx_seen_mask": 0,
+    "capture_started": 0,
+    "capture_finished": 0,
+    "instruments_seen_mask": 0,
+    "callback_mean_us": 2552,
+    "reserved_objects_bytes": 73407240,
+    "callback_p99_upper_us": 3500,
+    "ui_frame_max_us": 5960,
+    "ui_slow_frames": 0,
+    "profile_kind": -2,
+    "profile_effect_mask": 0,
+    "profile_target_seconds": 0,
+    "elapsed_seconds": 5,
+    "audio_realtime_error": 0,
+    "audio_priority": 10,
+    "timing_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "schedule_overflows": 0,
+    "profile_passed": false
+  },
+  "after_open_transport_stopped": {
+    "build": "MOSS 0.10.0",
+    "completed": false,
+    "rate": 32000,
+    "buffer": 1024,
+    "callbacks": 156,
+    "callback_max_us": 3485,
+    "over_budget": 0,
+    "late_intervals": 0,
+    "frames": 159744,
+    "triggers": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "grain_peaks": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "lock_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "repeat_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "track_count": 3,
+    "stream_underruns": 0,
+    "project_saved": true,
+    "pcm_bytes": 19615300,
+    "assets": 31,
+    "fx_seen_mask": 0,
+    "capture_started": 0,
+    "capture_finished": 0,
+    "instruments_seen_mask": 0,
+    "callback_mean_us": 2552,
+    "reserved_objects_bytes": 73407240,
+    "callback_p99_upper_us": 3500,
+    "ui_frame_max_us": 5960,
+    "ui_slow_frames": 0,
+    "profile_kind": -2,
+    "profile_effect_mask": 0,
+    "profile_target_seconds": 0,
+    "elapsed_seconds": 5,
+    "audio_realtime_error": 0,
+    "audio_priority": 10,
+    "timing_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "schedule_overflows": 0,
+    "profile_passed": false
+  },
+  "after_exit": {
+    "build": "MOSS 0.10.0",
+    "completed": true,
+    "rate": 32000,
+    "buffer": 1024,
+    "callbacks": 432,
+    "callback_max_us": 8941,
+    "over_budget": 0,
+    "late_intervals": 1,
+    "frames": 261120,
+    "triggers": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "grain_peaks": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "lock_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "repeat_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "track_count": 3,
+    "stream_underruns": 0,
+    "project_saved": true,
+    "pcm_bytes": 19615300,
+    "assets": 31,
+    "fx_seen_mask": 10,
+    "capture_started": 0,
+    "capture_finished": 0,
+    "instruments_seen_mask": 0,
+    "callback_mean_us": 5247,
+    "reserved_objects_bytes": 73407240,
+    "callback_p99_upper_us": 8500,
+    "ui_frame_max_us": 65300,
+    "ui_slow_frames": 1,
+    "profile_kind": -2,
+    "profile_effect_mask": 0,
+    "profile_target_seconds": 0,
+    "elapsed_seconds": 13,
+    "audio_realtime_error": 0,
+    "audio_priority": 10,
+    "timing_events": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "schedule_overflows": 0,
+    "profile_passed": false
+  }
+}

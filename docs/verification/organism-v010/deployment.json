@@ -1,0 +1,12 @@
+{
+  "installed": true,
+  "sha256": "1758e8993b075d42125a588dd3943a5968613e7c10602093b6af755a2adde38c",
+  "canonical_path": "/mnt/mmc/Roms/APPS/MOSS",
+  "rollback": "/mnt/mmc/MOSS-Backups/20261118-organism",
+  "demo_slot": 6,
+  "legacy_data_archived": true,
+  "returned_to_garlic": true,
+  "final_sync_completed": true,
+  "cpu_governor_after_exit": "interactive",
+  "user_files_verified_after_install_before_launch": 70
+}

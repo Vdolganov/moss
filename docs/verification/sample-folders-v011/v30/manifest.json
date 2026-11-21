@@ -1,0 +1,23 @@
+{
+  "remote": "/mnt/mmc/MOSS-Reel-Release-v30",
+  "sha256": "687ff236a7855241fddd7cf363b7b093edbf0e7979375deb4e80a376408a5432",
+  "profiles": [
+    [
+      "granular",
+      "21",
+      "10",
+      "10"
+    ],
+    [
+      "sampler",
+      "0",
+      "9",
+      "10"
+    ]
+  ],
+  "checks": false,
+  "qualified": true,
+  "callbacks": 629,
+  "max_us": 29748,
+  "seconds": 20
+}

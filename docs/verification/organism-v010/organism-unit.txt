@@ -1,0 +1,4 @@
+PASS ORGANISM: two topologies / all-control extrema / 8,32,44.1,96 kHz / finite bounded stereo
+PASS ORGANISM: legato and lock edits preserve phase/envelope; glide, live texture and release
+PASS ORGANISM: all 20 controls/locks MS16 roundtrip; authentic MS15 field mapping, lock-only and RESET preserved
+PASS ORGANISM: five voice/lock banks, live portrait and STOP, sequencer lock changes held note without retrigger

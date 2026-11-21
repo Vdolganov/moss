@@ -212,21 +212,16 @@ void prepareSong() {
       say("SEQUENCE MISSING OR DAMAGED / X REPLACE");
       return;
     }
-    for (int t = 0; t < p.trackCount; ++t) {
-      if (p.tracks[t].instrument == GranularInstrument &&
-          p.tracks[t].granular.asset >= 0 &&
-          !available(p.tracks[t].granular.asset)) {
-        say("MISSING GRANULAR SAMPLE / OPEN SEQUENCE");
-        return;
-      }
-      if (!p.tracks[t].instrument)
-        for (const auto &k : p.tracks[t].keys)
-          if (k.asset >= 0 && !available(k.asset)) {
-            say("MISSING SAMPLE / OPEN SEQUENCE TO FIX");
-            return;
-          }
-    }
     b.map[id] = b.count++;
+  }
+  if(library) {
+    AssetMask needed;
+    for(int i=0;i<b.count;++i) {
+      AssetMask set=projectAssets(b.sequences[i]);
+      for(int id=0;id<CatalogAssets;++id)if(set.has(id))needed.add(id);
+    }
+    if(!library->prepare(needed)){say(library->error);return;}
+    engine->init(project,library->views,engine->rate,CatalogAssets);
   }
   engine->startSong(b, clamp(songRow, 0, song.count - 1));
   say("SONG PLAYING / START STOP");
@@ -236,6 +231,11 @@ void editSong(int i, int d, int amount) {
     return;
   if (i != 3 && songRow >= song.count)
     return;
+  int delta=parameterDelta(amount);
+  if((i==0&&clamp(songRow+((buttons.held&(lab::bit(lab::Up)|lab::bit(lab::Down)))?-d:d),0,song.count-1)==songRow)||
+     (i==1&&clamp(song.slots[songRow].repeats+d*delta,1,64)==song.slots[songRow].repeats)||
+     (i==2&&clamp(song.slots[songRow].bars+d*parameterDelta(amount,4),1,64)==song.slots[songRow].bars)||
+     (i==3&&song.loop==(d>0)))return;
   songCheckpoint();
   if (i == 0) {
     int direction =
@@ -287,8 +287,10 @@ void songAction(int b) {
   }
 }
 bool songOptionVisible(int id) const {
-  if (page == Atlas)
-    return songCursor < songCount && !songBroken[songRows[songCursor]];
+  if (page == Atlas){
+    if(id==3)return exists("projects/deleted-song.moss")&&songCount<Songs;
+    return songCursor<songCount&&!songBroken[songRows[songCursor]]&&(id!=2||songCount<Songs);
+  }
   if (songPlaying())
     return id == 0;
   if (id == 1)
@@ -299,7 +301,7 @@ bool songOptionVisible(int id) const {
 }
 const char *songOptionName(int id) const {
   if (page == Atlas) {
-    const char *labels[] = {"RENAME SONG", "DELETE SONG"};
+    const char *labels[] = {"RENAME SONG", "DELETE SONG", "DUPLICATE SONG", "RESTORE DELETED SONG"};
     return labels[id];
   }
   const char *labels[] = {"SAVE SONG",   "UNDO SONG EDIT",
@@ -308,6 +310,14 @@ const char *songOptionName(int id) const {
   return labels[id];
 }
 void chooseSongOption(int id) {
+  if(page==Atlas&&(id==2||id==3)){
+    Song next;char path[128];if(id==2)songPath(path,sizeof(path),songRows[songCursor]);else strcpy(path,"projects/deleted-song.moss");
+    if(!loadSong(path,next)){say("SONG UNAVAILABLE / FILE KEPT");return;}
+    if(id==2){char name[25];snprintf(name,25,"%.19s COPY",next.name);strcpy(next.name,name);}
+    int free=-1;for(int i=0;i<Songs;++i)if(!songSaved[i]){free=i;break;}if(free<0)return;songPath(path,sizeof(path),free);
+    if(!saveSong(path,next)){say("SONG NOT SAVED / CHECK CARD");return;}
+    scanSongs();for(int i=0;i<songCount;++i)if(songRows[i]==free)songCursor=i;say(id==2?"SONG DUPLICATED":"SONG RESTORED");return;
+  }
   if (page == Atlas) {
     openArrangement(songRows[songCursor]);
     if (page != SongPage)
@@ -364,7 +374,7 @@ void chooseSongOption(int id) {
 void removeArrangement() {
   char file[128];
   songPath(file, sizeof(file), songId);
-  if (remove(file)) {
+  if (!saveSong("projects/deleted-song.moss",song) || remove(file)) {
     say("DELETE FAILED / FILE KEPT");
     return;
   }

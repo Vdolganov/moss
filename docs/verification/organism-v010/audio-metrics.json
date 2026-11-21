@@ -1,0 +1,51 @@
+{
+  "rate": 32000,
+  "note": "A1 / 55 Hz",
+  "window_seconds": [
+    4,
+    8
+  ],
+  "comparison": "Original and new named presets; settings differ, not an isolated filter A/B or loudness-normalized audition.",
+  "rows": [
+    {
+      "preset": "01-root",
+      "dry_peak_dbfs": -2.452598394586658,
+      "sustain_rms_dbfs": -8.844063803414889,
+      "mean_dc": -2.860987186431885e-05,
+      "stereo_difference_rms": 0.11296267126327764,
+      "low_band_20_100_fraction": 0.9723572100684116,
+      "hard_clipped_samples": 0,
+      "low_band_db_vs_old_preset": 6.109001432649942
+    },
+    {
+      "preset": "02-breath",
+      "dry_peak_dbfs": -3.107359597074941,
+      "sustain_rms_dbfs": -10.006610933844362,
+      "mean_dc": -0.0002911202907562256,
+      "stereo_difference_rms": 0.17076217830002538,
+      "low_band_20_100_fraction": 0.8019514407091943,
+      "hard_clipped_samples": 0,
+      "low_band_db_vs_old_preset": 3.154749192481601
+    },
+    {
+      "preset": "03-tangle",
+      "dry_peak_dbfs": -1.277875037665798,
+      "sustain_rms_dbfs": -7.646924809908915,
+      "mean_dc": -0.00018796777725219727,
+      "stereo_difference_rms": 0.16222149097106175,
+      "low_band_20_100_fraction": 0.8197568854337033,
+      "hard_clipped_samples": 0,
+      "low_band_db_vs_old_preset": 3.535329527459152
+    },
+    {
+      "preset": "04-bare",
+      "dry_peak_dbfs": -3.0922095655219173,
+      "sustain_rms_dbfs": -7.705525698922246,
+      "mean_dc": 0.00016108036041259766,
+      "stereo_difference_rms": 0.0,
+      "low_band_20_100_fraction": 0.994697083641974,
+      "hard_clipped_samples": 0,
+      "low_band_db_vs_old_preset": 10.72232143470744
+    }
+  ]
+}

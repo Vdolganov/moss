@@ -1,0 +1,1 @@
+PASS folders, paging, four auditions, fine/coarse gestures, atomic kit save/load, catalog >32, persistence and 32 MiB cache bound

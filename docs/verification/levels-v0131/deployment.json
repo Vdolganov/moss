@@ -1,0 +1,12 @@
+{
+  "sha256": "ed79426fa32678caf317dd75bf04f8f0d8961d30f48dcd8296f009f6e59d60c1",
+  "version": "0.13.1",
+  "data_unchanged": true,
+  "normal_launch": "passed / Exit: 0",
+  "data_files_unchanged": {
+    "projects": 8,
+    "library": 80,
+    "captures": 5
+  },
+  "device_left": "Garlic menu, sync completed"
+}

@@ -113,6 +113,7 @@ static void gestures() {
   assert(app.assignMode && app.page == Tape);
   app.asset = 0;
   app.action(lab::A);
+  app.service();
   assert(app.page == Sampler && app.project.tracks[0].keys[1].asset == 0);
   app.project.tracks[0].keys[2].asset = 31;
   assert(!app.available(31));
@@ -217,7 +218,7 @@ static void captureTests() {
       n = 1024;
     engine.render(out, n);
     for (unsigned i = 0; i < n * 2; i++)if(offset*2+i>=captureDelay*2)
-      assert(out[i] == Engine::monitor(engine.capture.pcm[offset*2+i-captureDelay*2]));
+      assert(out[i] == engine.capture.pcm[offset*2+i-captureDelay*2]);
     offset += n;
   }
   assert(engine.capture.state == 2 && engine.capture.frames == 16000 &&

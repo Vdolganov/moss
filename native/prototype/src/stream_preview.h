@@ -49,7 +49,7 @@ struct StreamPreview {
     for (int ch = 0; ch < 2; ch++) {
       int a = pcm[r % Capacity][ch], b = pcm[next % Capacity][ch];
       int value = a + int((int64_t(b - a) * int64_t(uint32_t(fraction))) >> 32);
-      *output[ch] += value * 3 / 4;
+      *output[ch] += value;
     }
     fraction += increment;
     consume = unsigned(fraction >> 32);

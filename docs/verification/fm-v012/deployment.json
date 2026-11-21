@@ -1,0 +1,13 @@
+{
+  "version": "0.12.0",
+  "sha256": "972725d80590ef20c64e3975261afa36c5e11721804c03ce408add87741e9b9d",
+  "backup": "/mnt/mmc/MOSS-Backups/20261119-fm-v012",
+  "demo_slot": 7,
+  "demo": "ELASTIC MATTER",
+  "preserved_user_files": 82,
+  "state": "verified normal launch, demo playback, normal exit, sync; Garlic menu and interactive governor",
+  "unchanged_user_files": 82,
+  "added_files": [
+    "projects/project-7.moss"
+  ]
+}

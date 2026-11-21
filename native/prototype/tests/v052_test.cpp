@@ -28,6 +28,7 @@ static void controls() {
   app.engine = &engine;
   app.library = &library;
   app.project = makeSynthDemo();
+  app.gridPageSize = 16;
   engine.init(app.project, library.pcm, 8000, Assets);
   app.track = 1;
   app.page = Sampler;

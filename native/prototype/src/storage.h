@@ -44,7 +44,10 @@ struct Codec {
   }
   uint32_t word(unsigned at) const { return lab::little32(bytes + at); }
   bool upgradedReel=false;
-  void fields(Project &p, bool writing, int version = 15) {
+  static int storedSynthCount(int version,int type) {
+    return version>=18?20:version>=16?(type<2?20:8):version>=15&&type==0?20:8;
+  }
+  void fields(Project &p, bool writing, int version = 18) {
     constexpr int LegacyTracks = 8, LegacyKeys = 12;
     const bool legacy = version == 5;
     auto value = [&](auto &n) {
@@ -109,7 +112,7 @@ struct Codec {
         for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(t.granular.values[i]);
       }
       for(int type=0;type<3;++type)
-        for(int i=0;i<(version>=15?synthCount(type+1):8);++i)value(t.synthParams[type][i]);
+        for(int i=0;i<storedSynthCount(version,type);++i)value(t.synthParams[type][i]);
       for (auto &n : t.synthMode)
         value(n);
       for (auto &n : t.synthPreset)
@@ -169,7 +172,7 @@ struct Codec {
         if (version >= 7)
           for (int i=0;i<(version>=14?GranularParameterCount:version>=8?16:12);++i) value(s.grainLocks[i]);
         for(int type=0;type<3;++type)
-          for(int i=0;i<(version>=15?synthCount(type+1):8);++i)value(s.synthLocks[type][i]);
+          for(int i=0;i<storedSynthCount(version,type);++i)value(s.synthLocks[type][i]);
         for(int type=0;type<(version>=9?EffectTypes:4);++type) {
           int old[16];for(auto &v:old)v=Inherit;
           for(int i=0;i<(version>=14?fxParameters(type):version==13?(type==Pond?4:fxParameters(type)):version>=9?8:4);++i) {
@@ -209,8 +212,8 @@ struct Codec {
     cursor = 16;
     ok = true;
     fields(const_cast<Project &>(p), true);
-    memcpy(bytes, "MS15", 4);
-    word(4, 15);
+    memcpy(bytes, "MS18", 4);
+    word(4, 18);
     word(8, cursor);
     word(12, hash(cursor));
     return ok && valid(p);
@@ -226,15 +229,41 @@ struct Codec {
     bool v12 = !memcmp(bytes, "MS12", 4) && word(4) == 12;
     bool v13 = !memcmp(bytes, "MS13", 4) && word(4) == 13;
     bool v14 = !memcmp(bytes, "MS14", 4) && word(4) == 14;
+    bool v17 = !memcmp(bytes, "MS17", 4) && word(4) == 17;
+    bool v16 = !memcmp(bytes, "MS16", 4) && word(4) == 16;
+    bool v15 = !memcmp(bytes, "MS15", 4) && word(4) == 15;
     if (size < 16 || size > sizeof(bytes) ||
-        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && !v13 && !v14 && (memcmp(bytes, "MS15", 4) || word(4) != 15)) ||
+        (!legacy && !v6 && !v7 && !v8 && !v9 && !v10 && !v11 && !v12 && !v13 && !v14 && !v15 && !v16 && !v17 && (memcmp(bytes, "MS18", 4) || word(4) != 18)) ||
         word(8) != size || word(12) != hash(size))
       return false;
     Project temp;
     cursor = 16;
     ok = true;
-    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:v13?13:v14?14:15;
+    int version=legacy?5:v6?6:v7?7:v8?8:v9?9:v10?10:v11?11:v12?12:v13?13:v14?14:v15?15:v16?16:v17?17:18;
     fields(temp,false,version);
+    if(version<18)for(auto &t:temp.tracks){
+      for(int i=8;i<FmParameters;++i)t.synthParams[2][i]=FmPresets[0][i];
+      t.synthParams[2][FmModDecay]=t.synthParams[2][FmDecay];
+      t.synthParams[2][FmModHold]=t.synthParams[2][FmBody];
+      t.synthParams[2][FmRelease]=t.synthParams[2][FmDecay]/2;
+      t.synthParams[2][FmDynamics]=0;t.synthParams[2][FmClick]=0;
+      t.synthParams[2][FmSpread]=0;t.synthParams[2][FmMotion]=0;
+      t.synthPreset[2]=-1; // same controls retained; revised DSP is not bit-identical.
+    }
+    if(version<16)for(auto &t:temp.tracks){
+      const int map[]={OrgShape,OrgDrift,OrgCouple,OrgDensity,OrgCutoff,OrgNoise,OrgAttack,OrgRelease};
+      auto convert=[](int index,int value){return index==1?value*30/100:index==4?100+value*value*12/10:value;};
+      int old[8];memcpy(old,t.synthParams[1],sizeof(old));
+      memcpy(t.synthParams[1],OrganismPresets[0],sizeof(t.synthParams[1]));
+      for(int i=0;i<8;++i){if(old[i]<0||old[i]>(i==6?5000:i==7?10000:100))ok=false;else t.synthParams[1][map[i]]=convert(i,old[i]);}
+      t.synthPreset[1]=-1;
+      for(auto &s:t.steps){
+        int16_t oldLocks[8];memcpy(oldLocks,s.synthLocks[1],sizeof(oldLocks));
+        for(auto &v:s.synthLocks[1])v=Inherit;
+        for(int i=0;i<8;++i){int v=oldLocks[i];if(v==Inherit||v==ResetLock)s.synthLocks[1][map[i]]=int16_t(v);
+          else if(v<0||v>(i==6?5000:i==7?10000:100))ok=false;else s.synthLocks[1][map[i]]=int16_t(convert(i,v));}
+      }
+    }
     if(version<15)for(auto &t:temp.tracks){
       const int extra[]={50,0,0,0,500,100,80+t.synthParams[0][3]*2/5,0,30,0,0,0};
       for(int i=8;i<SynthParameterCount;++i)t.synthParams[0][i]=extra[i-8];

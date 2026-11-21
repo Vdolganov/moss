@@ -1,0 +1,5 @@
+File 6000.000 / preview 6000.000 / sampler at 100% 6000.000: 0.00000 dB
+Defaults track=100 master=100 slot=100; new hit velocity 90: 4251.000 RMS / -2.99320 dB
+Granular dense cloud 1870.179 / source 1984.072: -0.51348 dB; master 50% ratio 0.49989
+16 simultaneous loud samples remain bounded; RMS 32666.000
+PASS unity sample path, granular level, default mix, gain controls, persistence and overload bounds

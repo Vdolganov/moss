@@ -1,0 +1,36 @@
+{
+  "remote": "/mnt/mmc/MOSS-UI-v013",
+  "sha256": "498e12da9ea5448bdb7c0a3ab672f94747f47b65f238a87773d0207940d4d9a6",
+  "profiles": [
+    [
+      "samples-16voices",
+      0,
+      10,
+      20
+    ],
+    [
+      "fm-four",
+      28,
+      10,
+      20
+    ],
+    [
+      "granular-four",
+      5,
+      10,
+      20
+    ],
+    [
+      "ui-mixed-drive-orbit",
+      32,
+      17,
+      20
+    ],
+    [
+      "ui-mixed-reel-pond",
+      33,
+      10,
+      20
+    ]
+  ]
+}

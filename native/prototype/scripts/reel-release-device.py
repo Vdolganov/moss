@@ -6,8 +6,10 @@ adb=str(root/'native/tooling/platform-tools/adb.exe')
 work=root/'work/reel-release';work.mkdir(exist_ok=True,parents=True)
 revision=sys.argv[1];assert re.fullmatch(r'v[0-9]+',revision)
 checks='--checks' in sys.argv[2:]
-profiles=[tuple(row.split(':')) for row in sys.argv[2:] if row!='--checks']
+fm_checks='--fm-check' in sys.argv[2:]
+profiles=[tuple(row.split(':')) for row in sys.argv[2:] if row not in ('--checks','--fm-check')]
 assert profiles and all(len(p)==4 and all(x.isdigit() for x in p[1:]) for p in profiles)
+assert all(0<=int(p[1])<=31 and 0<=int(p[2])<32 and 10<=int(p[3])<=1800 for p in profiles),'Unsupported kind/mask/duration; device profiles require at least 10 seconds'
 remote='/mnt/mmc/MOSS-Reel-Release-'+revision
 def shell(s):return subprocess.check_output([adb,'shell',s],text=True).replace('\r','')
 def push(src,dst):subprocess.run([adb,'push',str(src),dst],capture_output=True,check=True)
@@ -20,6 +22,9 @@ binary=root/'native/prototype/build/reel-release/moss'
 shell('mkdir '+remote);push(binary,remote+'/moss');shell('chmod 755 '+remote+'/moss')
 push(root/'native/prototype/packaging/cpu-performance.sh',remote+'/cpu-performance.sh')
 script='#!/bin/sh\nPATH=/bin:/usr/bin:/sbin:/usr/sbin\nexport PATH SDL_NOMOUSE=1\ncd '+remote+' || exit 2\n. ./cpu-performance.sh || exit 3\n'
+if fm_checks:
+    push(root/'native/prototype/build/fm_update_test-arm',remote+'/fm-test');shell('chmod 755 '+remote+'/fm-test')
+    script+='\n./fm-test > fm-test.log 2>&1\nstatus=$?; echo "$status" > fm-test.exit\n[ "$status" -eq 0 ] || exit "$status"\n'
 if checks:
     for name in ['reel-test','motion-test','color-test','engine-test']:
         push(binary.parent/name,remote+'/'+name);shell('chmod 755 '+remote+'/'+name)

@@ -59,9 +59,9 @@ static void controls() {
   auto &f=app.project.tracks[0].fx;f.select(Reel);f.enable(true);
   for(int page=0;page<4;++page){assert(app.fxBank==page);gesture(lab::Y,lab::Right);assert(f.values[Reel][page*4]==1);tap(lab::R1);}
   assert(app.fxBank==0);gesture(lab::B,lab::Up);assert(f.values[Reel][ReelTone]==10);
-  app.page=Pattern;app.bank=2;gesture(lab::L1,lab::Up);assert(app.fxBank==1);
+  app.page=Pattern;app.bank=2;gesture(lab::L1,lab::Down);assert(app.fxBank==1);
   gesture(lab::Y,lab::Right);assert(app.project.tracks[0].steps[0].fxLocks[Reel][ReelWow]==2);
-  gesture(lab::L1,lab::Up);gesture(lab::L1,lab::Up);assert(app.fxBank==3);
+  gesture(lab::L1,lab::Down);gesture(lab::L1,lab::Down);assert(app.fxBank==3);
   gesture(lab::X,lab::Up);assert(app.project.tracks[0].steps[0].fxLocks[Reel][ReelOutput]==10);
   assert(codec.encode(app.project)&&codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].steps[0].fxLocks[Reel][ReelOutput]==10);
@@ -69,7 +69,7 @@ static void controls() {
   app.page=Mix;app.mixTab=1;app.project.fx.select(Reel);app.voicePicker=4;app.voiceChoice=2;tap(lab::A);
   for(int i=0;i<16;++i)assert(app.project.fx.values[Reel][i]==ReelPresets[2][i]);
   assert(app.project.tracks[0].fx.values[Reel][ReelDrive]==1);
-  puts("PASS REEL: four pages / physical fine-coarse / all lock pages / MS15 roundtrip / atomic master preset");
+  puts("PASS REEL: four pages / physical fine-coarse / all lock pages / MS17 roundtrip / atomic master preset");
 }
 static void captureAlignment() {
   static SampleBuffer sample;static int16_t block[2048];

@@ -8,7 +8,7 @@
 namespace moss {
 using lab::clamp;
 struct Key {
-  int asset = -1, pitch = 0, start = 0, end = 100, level = 80, mode = 0;
+  int asset = -1, pitch = 0, start = 0, end = 100, level = DefaultLevelPercent, mode = 0;
 };
 struct Step {
   int16_t grainLocks[GranularParameterCount] = {Inherit, Inherit, Inherit, Inherit, Inherit, Inherit,
@@ -33,11 +33,12 @@ struct Track {
   char name[25] = "TRACK";
   int instrument = SampleInstrument, audition = 48;
   int synthParams[3][SynthParameterCount] = {{1200,30,8,600,35,25,0,20,50,0,0,12,500,100,300,20,30,0,0,0},
-                           {30, 35, 15, 65, 55, 8, 450, 2500},
+                           {},
                            {45, 4, 12, 2200, 4, 0, 3, 0}};
   int synthMode[3] = {}, synthPreset[3] = {};
+  Track(){memcpy(synthParams[1],OrganismPresets[0],sizeof(synthParams[1]));memcpy(synthParams[2],FmPresets[0],sizeof(synthParams[2]));}
   Effect fx;
-  int cycle = 64, division = 16, level = 75, pan = 0,
+  int cycle = 64, division = 16, level = DefaultLevelPercent, pan = 0,
       mute = 0; // cycle in 1/64 notes
   int swing = SwingStraight; // First half of a two-cell pair, in percent.
   Key keys[Keys];
@@ -79,7 +80,7 @@ struct Project {
   char name[25] = "UNTITLED";
   int trackCount = 3;
   Effect fx;
-  int bpm = 70, master = 75;
+  int bpm = 70, master = DefaultLevelPercent;
   uint32_t seed = 357;
   Track tracks[Tracks];
 };
@@ -186,7 +187,7 @@ inline bool valid(const Project &p) {
     if (t.instrument < 0 || t.instrument >= InstrumentCount || t.audition < 24 ||
         t.audition > 96)
       return false;
-    if (t.granular.asset < -1 || t.granular.asset >= 32 ||
+    if (t.granular.asset < -1 || t.granular.asset >= CatalogAssets ||
         t.granular.freeze < 0 || t.granular.freeze > 1 ||
         t.granular.values[5] >= t.granular.values[6])
       return false;
@@ -196,7 +197,7 @@ inline bool valid(const Project &p) {
         return false;
     for (int type = 0; type < 3; type++) {
       if (t.synthMode[type] < 0 || t.synthMode[type] > 1 ||
-          t.synthPreset[type] < -1 || t.synthPreset[type] > 3)
+          t.synthPreset[type] < -1 || t.synthPreset[type] >= synthPresetCount(type+1))
         return false;
       for (int i = 0; i < synthCount(type+1); i++)
         if (t.synthParams[type][i] < synthMin(type + 1, i) ||
@@ -225,7 +226,7 @@ inline bool valid(const Project &p) {
             return false;
       }
     for (const auto &k : t.keys)
-      if (k.asset < -1 || k.asset > 31 || k.pitch < -24 || k.pitch > 24 ||
+      if (k.asset < -1 || k.asset >= CatalogAssets || k.pitch < -24 || k.pitch > 24 ||
           k.start < 0 || k.start >= k.end || k.end > 100 || k.level < 0 ||
           k.level > 100 || k.mode < 0 || k.mode > 2)
         return false;
@@ -287,7 +288,7 @@ enum class Op {
   GranularSource,
   GranularFreeze,
   SetEventType,
-  ClearEvent,
+  FxEnable, ClearEvent, ClearTrackLocks, ClearAllAtStep, ClearPattern,
   ReelPreset
 };
 struct Command {
@@ -325,6 +326,7 @@ inline void apply(Project &p, const Command &c) {
     for(int i=0;i<16;++i)f.values[Reel][i]=ReelPresets[c.value][i];
     return;
   }
+  if(c.op==Op::FxEnable){Effect &f=c.track==Tracks?p.fx:p.tracks[c.track].fx;int selected=f.type;f.select(c.index);f.enable(c.value!=0);f.select(selected);return;}
   if (c.op == Op::Fx) {
     Effect &f = c.track == Tracks ? p.fx : p.tracks[c.track].fx;
     if (c.field == 0)
@@ -362,9 +364,12 @@ inline void apply(Project &p, const Command &c) {
     }
     return;
   }
+  if(c.op==Op::ClearPattern){for(auto &s:t.steps)s=Step{};for(auto &lane:t.hits)for(auto &h:lane)h=Hit{};return;}
+  if(c.op==Op::ClearTrackLocks){auto &s=t.steps[c.index];s.fxLocks=FxLocks{};s.shift=s.repeat=Inherit;if(s.on==LockEvent)normalizeStepEvent(t,c.index);return;}
+  if(c.op==Op::ClearAllAtStep){t.steps[c.index]=Step{};for(auto &lane:t.hits)lane[c.index]=Hit{};return;}
   if(c.op==Op::ClearEvent) {
-    t.steps[c.index]=Step{};
-    if(!t.instrument) t.hits[c.field][c.index]=Hit{};
+    if(t.instrument)t.steps[c.index]=Step{};
+    else if(c.field>=0&&c.field<Keys)t.hits[c.field][c.index]=Hit{};
     return;
   }
   if (c.op == Op::GranularParam && c.field >= 0 && c.field < GranularParameterCount)
@@ -397,6 +402,7 @@ inline void apply(Project &p, const Command &c) {
     t.synthMode[c.index] = c.value;
   if (c.op == Op::SynthPreset) {
     t.synthPreset[c.index] = c.value;
+    if(c.index+1==FmInstrument)t.synthMode[c.index]=FmPresetModes[c.value];
     for (int i = 0; i < synthCount(c.index+1); i++)
       t.synthParams[c.index][i] = presetValues(c.index + 1, c.value)[i];
   }

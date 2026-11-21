@@ -6,17 +6,14 @@ inline void drawAtlas(lab::Canvas &c, const App &a) {
   text(c, 18, 18, "MOSS / LIBRARY", TEXT);
   text(c, 520, 18, Version, DIM);
   c.rect(0, 48, 640, 1, LINE);
-  text(c, 18, 64, "SEQUENCES", songs ? DIM : TEXT);
-  text(c, 220, 64, "SONGS", songs ? TEXT : DIM);
-  text(c, 478, 64, "L1/R1 TAB", DIM);
-  c.rect(songs ? 220 : 18, 85, songs ? 60 : 108, 2, TEXT);
+  const char *tabs[]={"SEQUENCES","SONGS"};ui::tabs(c,56,tabs,2,a.atlasTab,true);c.rect(0,88,640,1,LINE);
   int cursor = songs ? a.songCursor : a.projectCursor,
       count = songs ? a.songCount : a.projectCount;
   int first = cursor / 5 * 5;
   for (int row = first; row <= count && row < first + 5; ++row) {
-    int y = 108 + (row - first) * 60;
+    int y = 116 + (row - first) * 56;
     if (row == cursor)
-      c.box(18, y - 8, 604, 53, TEXT);
+      c.box(18, y - 8, 604, 48, TEXT);
     if (row == count) {
       text(c, 30, y, songs ? "+ NEW SONG" : "+ NEW SEQUENCE", TEXT);
       text(c, 30, y + 23,

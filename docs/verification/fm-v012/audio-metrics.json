@@ -1,0 +1,87 @@
+{
+  "rate": 32000,
+  "method": "Dry preset renders (five seconds gate, three seconds release) and 36-second four-FM sequencer demo. Digital metrics only, not a perceptual listening verdict.",
+  "rows": [
+    {
+      "name": "BELL",
+      "peak_dbfs": -4.963216910571747,
+      "rms_dbfs": -23.2963258156699,
+      "first_300ms_rms_dbfs": -12.238033796383775,
+      "held_3_4s_rms_dbfs": -39.48729870222189,
+      "dc": -2.2694408893585206e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "CLOUD",
+      "peak_dbfs": -4.389744051313899,
+      "rms_dbfs": -12.518429344403604,
+      "first_300ms_rms_dbfs": -27.029034095260407,
+      "held_3_4s_rms_dbfs": -10.212238131072873,
+      "dc": 1.2573480606079102e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "ELASTIC-MATTER",
+      "peak_dbfs": -3.117221306893683,
+      "rms_dbfs": -16.694530622455577,
+      "first_300ms_rms_dbfs": -17.226779501845005,
+      "held_3_4s_rms_dbfs": -16.341341982315043,
+      "dc": -5.6403848859998916e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "GLASS",
+      "peak_dbfs": -4.892162468530644,
+      "rms_dbfs": -23.186932221596432,
+      "first_300ms_rms_dbfs": -10.616226858512917,
+      "held_3_4s_rms_dbfs": -69.94865829815905,
+      "dc": -3.731882572174072e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "HAZE",
+      "peak_dbfs": -3.220682789565095,
+      "rms_dbfs": -15.578014751335393,
+      "first_300ms_rms_dbfs": -15.488575439523697,
+      "held_3_4s_rms_dbfs": -14.05240000116276,
+      "dc": 0.0003396698236465454,
+      "clipped_samples": 0
+    },
+    {
+      "name": "METAL",
+      "peak_dbfs": -4.5198953857886695,
+      "rms_dbfs": -24.57509763449024,
+      "first_300ms_rms_dbfs": -13.91599524437622,
+      "held_3_4s_rms_dbfs": -26.534038522517275,
+      "dc": -7.510340213775635e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "RUBBER",
+      "peak_dbfs": -6.735213903682562,
+      "rms_dbfs": -25.89343127435857,
+      "first_300ms_rms_dbfs": -14.402713274443279,
+      "held_3_4s_rms_dbfs": -27.99124800218843,
+      "dc": -4.730218648910523e-05,
+      "clipped_samples": 0
+    },
+    {
+      "name": "SNAP",
+      "peak_dbfs": -2.691393429874162,
+      "rms_dbfs": -34.556580010645376,
+      "first_300ms_rms_dbfs": -20.296897246263327,
+      "held_3_4s_rms_dbfs": -240.0,
+      "dc": 6.420135498046875e-06,
+      "clipped_samples": 0
+    },
+    {
+      "name": "THUMP",
+      "peak_dbfs": -4.836937167383636,
+      "rms_dbfs": -28.511191383664002,
+      "first_300ms_rms_dbfs": -14.313728272160859,
+      "held_3_4s_rms_dbfs": -240.0,
+      "dc": 7.380843162536621e-06,
+      "clipped_samples": 0
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "version": "0.13.0",
+  "device": "original RG35XX / GarlicOS 1.4.9",
+  "sha256": "ebc9f726af441080e84077d5dc5f062d291d83c9e4bdf0e32944b2860feeae05",
+  "previous_binary_sha256": "972725d80590ef20c64e3975261afa36c5e11721804c03ce408add87741e9b9d",
+  "backup": "Local work/ui-port-2026-11-20/device-backup",
+  "data_unchanged_before_install": {
+    "projects": 10,
+    "library": 80,
+    "captures": 5
+  },
+  "installed": true,
+  "normal_launcher_check": "passed / final binary / Exit: 0",
+  "data_unchanged_after_check": {
+    "projects": 10,
+    "library": 80,
+    "captures": 5
+  },
+  "device_left": "Garlic menu; sync completed"
+}

@@ -7,11 +7,12 @@ inline const char *leafName(const char *p) {
     s = w;
   return s ? s + 1 : p;
 }
+ #include "app_sample_folders_ui.h"
 inline void drawTools(lab::Canvas &c, const App &a) {
   using namespace lab;
   char b[160];
   if (a.fxPage()) {
-    const auto &f = a.page == Mix ? a.project.fx : a.project.tracks[a.track].fx;
+    const auto f = a.effectView();
     const int *p = f.values[f.type];
     if (!a.fxDetail) {
       if (a.page != Mix)
@@ -43,12 +44,6 @@ inline void drawTools(lab::Canvas &c, const App &a) {
          a.page == Mix ? "ALL TRACKS > MASTER EFFECT > OUTPUT"
                        : "VOICE > TRACK EFFECT > MIX",
          DIM);
-    for(int bank=0;bank<fxBanks(f.type);++bank) {
-      int x=18+bank*155;
-      int y=f.type==Reel?326:198;
-      text(c,x,y,fxBankName(bank,f.type),bank==clamp(a.fxBank,0,fxBanks(f.type)-1)?TEXT:DIM);
-      if(bank==clamp(a.fxBank,0,fxBanks(f.type)-1)) c.rect(x,y+16,130,1,TEXT);
-    }
     if(f.type!=Reel)c.rect(18, 220, 604, 98, PANEL);
     if(f.type!=Reel)c.rect(34, 299, 572, 1, LINE);
     if (f.type == 0) {
@@ -95,20 +90,11 @@ inline void drawTools(lab::Canvas &c, const App &a) {
   }
   if (a.page != Tape)
     return;
-  const char *tabs[] = {"SOURCE", "EDIT", "LIBRARY"};
-  if (a.assignMode || a.importAssign) {
-    snprintf(b, sizeof(b), "VOICE / %s / %s",
-             note(a.importAssign ? a.importKey : a.key),
-             a.tapeTab == 1 ? "PREPARE + ASSIGN" : "CHOOSE SAMPLE");
-    text(c, 18, 108, b, TEXT);
-    c.rect(18, 128, 604, 1, LINE);
-  } else {
-    for (int i = 0; i < 3; i++) {
-      text(c, 58 + i * 178, 108, tabs[i], i == a.tapeTab ? TEXT : DIM);
-      if (i == a.tapeTab)
-        c.rect(56 + i * 178, 128, 130, 1, TEXT);
-    }
-  }
+  if(a.fourSlices&&(!a.assignMode||a.importAssign)){
+    const char *tabs[]={"SOURCE","MOVE","TRIM","FINE","LIBRARY"};
+    int active=a.tapeTab==0?0:a.tapeTab==2?4:1+a.sliceBank;
+    ui::tabs(c,104,tabs,5,active);
+  }else{const char *tabs[]={"SOURCE","EDIT","LIBRARY"};ui::tabs(c,104,tabs,3,a.tapeTab);}
   if (a.tapeTab == 0) {
     text(c, 18, 151, "TAPE / RESAMPLE", TEXT, 3);
     text(c, 18, 196, "TRACK + SPACE OR MASTER + ALL EFFECTS", DIM);
@@ -137,6 +123,7 @@ inline void drawTools(lab::Canvas &c, const App &a) {
              float(Capture::MaxFrames) / a.engine->rate);
     text(c, 18, 299, b, DIM);
   } else if (a.tapeTab == 1) {
+    if(a.fourSlices){drawFourSlices(c,a);return;}
     if (!a.sliceCount) {
       text(c, 18, 184, "NO SOURCE OPEN", TEXT, 3);
       text(c, 18, 236, "L1 SOURCE / X IMPORT OR A CAPTURE", DIM);
@@ -178,128 +165,43 @@ inline void drawTools(lab::Canvas &c, const App &a) {
                         : "A NAME + SAVE / X PLAY-STOP / OPTIONS",
          DIM);
   } else {
-    int count = a.library ? a.library->count() : 0;
-    unsigned bytes = a.library ? a.library->bytes() : 0;
-    snprintf(b, sizeof(b), "%d / 32 ASSETS / %u KIB PCM", count,
-             (bytes + 1023) / 1024);
-    text(c, 18, 149, b, DIM);
-    if (!count && !a.assignMode) {
-      text(c, 18, 217, "EMPTY / IMPORT AND SAVE A SLICE", TEXT);
-      return;
-    }
-    int ids[Assets + 1], rows = 0, selectedRow = 0;
-    ids[rows++] = -1;
-    for (int id = 0; id < Assets; id++)
-      if (a.library->pcm[id].frames)
-        ids[rows++] = id;
-    for (int i = 0; i < rows; i++)
-      if (ids[i] == a.asset)
-        selectedRow = i;
-    int first = selectedRow / 5 * 5;
-    for (int i = first; i < rows && i < first + 5; i++) {
-      int id = ids[i], y = 185 + (i - first) * 41;
-      if (id == a.asset)
-        c.rect(18, y - 8, 604, 37, PANEL);
-      if (id < 0)
-        snprintf(b, sizeof(b), "+ IMPORT FROM DEVICE");
-      else
-        snprintf(b, sizeof(b), "%02d  %s", id, a.library->names[id]);
-      text(c, 28, y, b, TEXT, 2, 39);
-      if (id >= 0) {
-        snprintf(b, sizeof(b), "%u K",
-                 (a.library->pcm[id].bytes + 1023) / 1024);
-        text(c, 524, y, b, DIM);
-      }
-      c.rect(18, y + 28, 604, 1, LINE);
-    }
-    text(c, 18, 412,
-         a.assignMode ? "A ASSIGN TO KEY / X AUDITION / B CANCEL"
-                      : "A EDIT COPY / X AUDITION / OPTIONS MANAGE",
-         DIM, 2, 50);
+    drawSampleLibrary(c,a);
   }
 }
 inline void drawOverlay(lab::Canvas &c, const App &a) {
   using namespace lab;
   char b[160];
-  if (a.filePicker) {
-    c.rect(18, 104, 604, 331, PANEL);
-    c.box(18, 104, 604, 331, LINE);
-    text(c, 32, 122, "IMPORT / A OPEN / X PLAY-STOP / B BACK", TEXT);
-    int count = a.library ? a.library->sourceCount : 0;
-    if (!count && !a.assignMode) {
-      text(c, 32, 192, "NO WAV FOUND", TEXT);
-      text(c, 32, 230, "COPY WAV INTO MOSS/imports", DIM);
+  if (a.filePicker) drawFolderPicker(c,a);
+  if(a.naming){
+    ui::box(c,16,16,608,448,0,LINE,BG);
+    const char *title=a.nameTarget==8||(a.nameTarget==5&&a.fourSlices)?"KIT NAME":a.nameTarget==6?"NEW SONG":a.nameTarget==7?"SONG NAME":a.nameTarget==3?"NEW SEQUENCE":a.nameTarget==1?"SEQUENCE NAME":a.nameTarget==2?"TRACK NAME":"SAMPLE NAME";
+    ui::text(c,32,32,title,TEXT,ui::Heading);
+    snprintf(b,sizeof(b),"%d / %d",int(strlen(a.nameEdit)),NameLimit);ui::text(c,608-ui::textWidth(b,ui::Small),38,b,DIM,ui::Small);
+    c.box(32,80,576,40,LINE);if(a.nameSelected)c.rect(40,88,int(strlen(a.nameEdit))*12,20,TEXT);
+    ui::text(c,40,92,a.nameEdit,a.nameSelected?BG:TEXT);if(!a.nameSelected)c.rect(40+a.nameCursor*12,110,10,2,TEXT);
+    for(int i=0;i<NameKeyCount;++i){int x=32+(i%NameColumns)*58,y=144+(i/NameColumns)*48;
+      ui::box(c,x,y,50,40,0,i==a.nameKey?TEXT:LINE,i==a.nameKey?TEXT:BG);
+      char letter[2]={i<NameDelete?NameCharacters[i]:char(0),0};const char *label=i==NameDelete?"DEL":i==NameSave?"SAVE":letter[0]==' '?"SPC":letter;
+      ui::text(c,x+(50-ui::textWidth(label))/2,y+13,label,i==a.nameKey?BG:TEXT);
     }
-    for (int i = a.fileCursor / SourcePageRows * SourcePageRows;
-         i < count && i < (a.fileCursor / SourcePageRows + 1) * SourcePageRows; i++) {
-      int y = 163 + (i % SourcePageRows) * 35;
-      if (i == a.fileCursor)
-        c.box(28, y - 7, 584, 31, TEXT);
-      text(c, 40, y, leafName(a.library->sourcePaths[i]),
-           i == a.fileCursor ? TEXT : DIM, 2, 46);
-    }
-    snprintf(b, sizeof(b), "%d / %d FILES", count ? a.fileCursor + 1 : 0,
-             count);
-    if (a.previewing()) {
-      unsigned pos =
-          __atomic_load_n(&a.engine->stream.shownFrame, __ATOMIC_ACQUIRE);
-      snprintf(b, sizeof(b), "PLAY %u / %u S / X STOP",
-               pos / a.streamReader.source.rate,
-               a.streamReader.source.frames / a.streamReader.source.rate);
-    }
-    text(c, 32, 413, b, DIM);
-  }
-  if (a.naming) {
-    c.rect(28, 94, 584, 346, PANEL);
-    c.box(28, 94, 584, 346, LINE);
-    const char *title = a.nameTarget == 6   ? "NEW SONG"
-                        : a.nameTarget == 7 ? "SONG NAME"
-                        : a.nameTarget == 3 ? "NEW SEQUENCE"
-                        : a.nameTarget == 1 ? "SEQUENCE NAME"
-                        : a.nameTarget == 2 ? "TRACK NAME"
-                                            : "SAMPLE NAME";
-    text(c, 44, 110, title, TEXT);
-    snprintf(b, sizeof(b), "%d/%d", int(strlen(a.nameEdit)), NameLimit);
-    text(c, 524, 110, b, DIM);
-    c.rect(44, 141, 552, 38, BG);
-    if (a.nameSelected)
-      c.rect(52, 149, int(strlen(a.nameEdit)) * 12, 20, TEXT);
-    text(c, 52, 151, a.nameEdit, a.nameSelected ? BG : TEXT);
-    if (!a.nameSelected)
-      c.rect(52 + a.nameCursor * 12, 171, 10, 2, TEXT);
-    for (int i = 0; i < NameKeyCount; ++i) {
-      int x = 44 + (i % NameColumns) * 56, y = 194 + (i / NameColumns) * 44;
-      if (i == a.nameKey)
-        c.rect(x, y, 48, 34, TEXT);
-      else
-        c.box(x, y, 48, 34, LINE);
-      char letter[2] = {i < NameDelete ? NameCharacters[i] : char(0), 0};
-      const char *label = i == NameDelete    ? "DEL"
-                          : i == NameSave    ? "SAVE"
-                          : letter[0] == ' ' ? "SPC"
-                                             : letter;
-      text(c, x + (48 - int(strlen(label)) * 12) / 2, y + 10, label,
-           i == a.nameKey ? BG : TEXT);
-    }
-    text(c, 44, 386, "ARROWS KEY / A TYPE / X DELETE / START SAVE", DIM);
-    text(c, 44, 412, "L1/R1 CURSOR / B CANCEL", DIM);
+    ui::text(c,32,392,"A TYPE / X DELETE / START SAVE",DIM,ui::Small);ui::text(c,32,428,"L1/R1 CURSOR / B CANCEL",DIM,ui::Small);
   }
 
   if (a.confirmDelete) {
     c.rect(36, 154, 568, 200, PANEL);
     c.box(36, 154, 568, 200, LINE);
-    text(c, 56, 177,
-         a.confirmTarget == 3   ? "DELETE SONG?"
+    ui::text(c, 56, 177,
+         a.confirmTarget==7?"CLEAR ALL AT STEP?":a.confirmTarget==8?"CLEAR PATTERN?":a.confirmTarget==9?"REPLACE FOUR SLOTS?":a.confirmTarget==10?"DELETE KIT FOLDER?":a.confirmTarget == 3   ? "DELETE SONG?"
          : a.confirmTarget == 1 ? "DELETE SEQUENCE?"
          : a.confirmTarget == 2 ? "DELETE TRACK?"
                                 : "DELETE UNUSED SAMPLE?",
-         TEXT);
+         TEXT,ui::Heading);
     text(c, 56, 223,
-         a.confirmTarget == 3   ? a.song.name
+         a.confirmTarget>=7?a.project.tracks[a.track].name:a.confirmTarget == 3   ? a.song.name
          : a.confirmTarget == 1 ? a.project.name
          : a.confirmTarget == 2 ? a.project.tracks[a.track].name
                                 : a.assetName(a.asset),
          TEXT, 2, 38);
-    text(c, 56, 286, "A DELETE / B KEEP", DIM);
+    text(c, 56, 286, "A CONFIRM / B CANCEL", DIM);
   }
 }

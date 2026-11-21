@@ -6,6 +6,7 @@
 #else
 #include <dirent.h>
 #endif
+ #include "sample_catalog.h"
 namespace moss {
 // Paths only: increasing the source catalog does not load more PCM into RAM.
 constexpr int Assets = 32, Sources = 2048, SourcePageRows = 7;
@@ -254,11 +255,52 @@ struct WavSource {
 };
 struct Library {
   moss::SampleBuffer pcm[Assets], scratch;
-  char names[Assets][32] = {}, sourcePaths[Sources][512] = {};
+  char names[CatalogAssets][32] = {}, sourcePaths[Sources][512] = {};
+  char assetFiles[CatalogAssets][512] = {};
+  SampleView views[CatalogAssets];
+  unsigned catalogBytes[CatalogAssets] = {};
+  int resident[Assets];
+  bool catalogReady = false;
+  struct Kit { char name[25] = {}; int ids[4] = {-1,-1,-1,-1}; } kits[CatalogAssets / 4];
+  int kitCount = 0;
+  Library() { for (int &id : resident) id = -1; }
+  bool has(int id) const { return id>=0 && id<CatalogAssets &&
+    (assetFiles[id][0] || (!catalogReady && id<Assets && pcm[id].frames)); }
+  unsigned assetBytes(int id) const { return catalogReady ? catalogBytes[id] : id<Assets ? pcm[id].bytes : 0; }
+  SampleView view(int id) const { return catalogReady ? views[id] : id<Assets ? static_cast<const SampleView &>(pcm[id]) : SampleView{}; }
+  void syncViews() {
+    for (auto &v : views) v = SampleView{};
+    for (int i=0;i<Assets;++i) if (resident[i]>=0) views[resident[i]]=pcm[i];
+  }
+  bool loadOne(int id, const AssetMask &pinned) {
+    if (id<0 || id>=CatalogAssets || !has(id)) { strcpy(error,"SAMPLE FILE MISSING / CHECK LIBRARY"); return false; }
+    for (int i=0;i<Assets;++i) if (resident[i]==id && pcm[i].frames) return true;
+    int slot=-1;
+    for (int i=0;i<Assets;++i) if (resident[i]<0) {slot=i;break;}
+    if(slot<0) for(int i=0;i<Assets;++i) if(!pinned.has(resident[i])) {slot=i;break;}
+    if(slot<0) {strcpy(error,"32 LOADED SAMPLES MAX / REDUCE SONG");return false;}
+    if(!scratch.load(assetFiles[id])) {snprintf(error,sizeof(error),"%s",scratch.error);return false;}
+    pcm[slot]=scratch; resident[slot]=id; syncViews(); return true;
+  }
+  bool prepare(const AssetMask &needed) {
+    if(!catalogReady) {
+      for(int i=0;i<Assets;++i) views[i]=pcm[i];
+      return true; // In-memory test/preview fixtures have no disk catalog.
+    }
+    int count=0;
+    for(int id=0;id<CatalogAssets;++id) if(needed.has(id)) ++count;
+    if(count>Assets) {strcpy(error,"SONG NEEDS MORE THAN 32 SAMPLES");return false;}
+    for(int id=0;id<CatalogAssets;++id) if(needed.has(id) && !loadOne(id,needed)) return false;
+    syncViews();return true;
+  }
+  bool prepare(const Project &p) { return prepare(projectAssets(p)); }
+  int freeId() const {for(int id=0;id<CatalogAssets;++id)if(!has(id))return id;return -1;}
+
   int sourceCount = 0;
   char error[100] = {};
   void assetPath(char *p, int n, int id) {
-    snprintf(p, n, "library/asset-%02d.wav", id);
+    if(id>=0 && id<CatalogAssets && assetFiles[id][0]) snprintf(p,n,"%s",assetFiles[id]);
+    else snprintf(p, n, "library/asset-%02d.wav", id);
   }
   void scanFolder(const char *root, int depth = 0) {
     if (depth > 5 || sourceCount == Sources)
@@ -323,32 +365,33 @@ struct Library {
     snprintf(sourcePaths[0],sizeof(sourcePaths[0]),"%s",path);
   }
   void init() {
+    for(auto &p:assetFiles)p[0]=0;
+    for(auto &v:catalogBytes)v=0;
+    for(auto &v:views)v=SampleView{};
+    for(int &id:resident)id=-1;
+    kitCount=0;
     makeDir("library");
     makeDir("imports");
     makeDir("captures");
     bool bootstrap = !exists("library/initialized"), bootOk = true;
-    for (int i = 0; i < Assets; i++) {
-      char p[128];
-      assetPath(p, sizeof(p), i);
-      if (pcm[i].load(p)) {
-        snprintf(names[i], 32, "ASSET %02d", i);
-        char label[128];
-        snprintf(label, sizeof(label), "library/asset-%02d.name", i);
-        FILE *f = fopen(label, "rb");
-        if (f) {
-          fgets(names[i], 32, f);
-          fclose(f);
-          names[i][strcspn(names[i], "\r\n")] = 0;
-        }
-      } else if (bootstrap && i < 3 && !exists(p) &&
-                 pcm[i].load(lab::sampleFiles[i])) {
-        snprintf(names[i], 32, "%s", lab::sampleNames[i]);
-        bootOk = writeWav(p, pcm[i].pcm, pcm[i].frames, pcm[i].rate,
-                          pcm[i].channels) &&
-                 bootOk;
-        saveName(i);
+    for (int i = 0; i < CatalogAssets; i++) {
+      char p[128]; snprintf(p,sizeof(p),"library/asset-%02d.wav",i);
+      if (exists(p)) {
+        snprintf(assetFiles[i],512,"%s",p);
+        WavSource info;
+        if(info.open(p)) catalogBytes[i]=info.frames*info.channels*2;
+        snprintf(names[i],32,"ASSET %02d",i);
+        char label[128];snprintf(label,sizeof(label),"library/asset-%02d.name",i);
+        FILE *f=fopen(label,"rb");if(f){fgets(names[i],32,f);fclose(f);names[i][strcspn(names[i],"\r\n")]=0;}
+        if(i<Assets && pcm[i].load(p))resident[i]=i;
+      } else if(bootstrap && i<3 && pcm[i].load(lab::sampleFiles[i])) {
+        snprintf(names[i],32,"%s",lab::sampleNames[i]);
+        bool ok=writeWav(p,pcm[i].pcm,pcm[i].frames,pcm[i].rate,pcm[i].channels);
+        bootOk=ok && bootOk;
+        if(ok) {snprintf(assetFiles[i],512,"%s",p);catalogBytes[i]=pcm[i].bytes;resident[i]=i;saveName(i);}
       }
     }
+    catalogReady=true; scanKits(); syncViews();
     if (bootstrap && bootOk) {
       FILE *f = fopen("library/initialized", "wb");
       if (f) {
@@ -366,16 +409,8 @@ struct Library {
   }
   int saveSlice(WavSource &source, unsigned first, unsigned last, int fadeIn,
                 int fadeOut, const char *label = nullptr, int suffix = 0) {
-    int slot = -1;
-    for (int i = 0; i < Assets; i++)
-      if (!pcm[i].frames) {
-        slot = i;
-        break;
-      }
-    if (slot < 0) {
-      strcpy(error, "LIBRARY FULL / 32 ASSETS");
-      return -1;
-    }
+    int slot=freeId();
+    if(slot<0) {strcpy(error,"LIBRARY FULL / 256 SAMPLES");return -1;}
     if (!source.extract(scratch, first, last, fadeIn, fadeOut)) {
       snprintf(error, sizeof(error), "%s", source.error);
       return -1;
@@ -400,7 +435,11 @@ struct Library {
       strcpy(error, "NAME WRITE FAILED / RETRY SAVE");
       return -1;
     }
-    pcm[slot] = scratch;
+    snprintf(assetFiles[slot],512,"%s",p);
+    catalogBytes[slot]=scratch.bytes;
+    if(!catalogReady && slot<Assets) pcm[slot]=scratch;
+    if(catalogReady) {AssetMask empty;loadOne(slot,empty);}
+
     return slot;
   }
 
@@ -425,30 +464,32 @@ struct Library {
     return ok;
   }
   bool removeAsset(int id) {
-    if (id < 0 || id >= Assets)
+    if (id < 0 || id >= CatalogAssets)
       return false;
     char p[128];
     assetPath(p, sizeof(p), id);
+    if (kitFor(id)>=0) {strcpy(error,"KIT MEMBER / KEEP THE COMPLETE SET");return false;}
     if (remove(p)) {
       strcpy(error, "DELETE FAILED / FILE KEPT");
       return false;
     }
-    pcm[id].frames = pcm[id].bytes = 0;
+    if(!catalogReady && id<Assets) pcm[id].frames=pcm[id].bytes=0;
+    for(int i=0;i<Assets;++i)if(resident[i]==id){resident[i]=-1;pcm[i].frames=0;}
+    assetFiles[id][0]=0;catalogBytes[id]=0;syncViews();
     names[id][0] = 0;
     snprintf(p, sizeof(p), "library/asset-%02d.name", id);
     remove(p);
     return true;
   }
+  #include "library_kits.h"
   int count() const {
     int n = 0;
-    for (const auto &s : pcm)
-      if (s.frames)
-        n++;
+    for (int i=0;i<CatalogAssets;++i) if(has(i)) ++n;
     return n;
   }
   int next(int id, int direction) const {
-    for (int i = id + direction; i >= 0 && i < Assets; i += direction)
-      if (pcm[i].frames)
+    for (int i = id + direction; i >= 0 && i < CatalogAssets; i += direction)
+      if (has(i))
         return i;
     return id;
   }

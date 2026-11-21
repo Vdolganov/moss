@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 using namespace moss;
@@ -31,7 +32,7 @@ static void setup() {
 static void codecAndProtection() {
   setup(); project.tracks[0].granular.freeze=1;
   for(int i=0;i<GranularParameterCount;++i) project.tracks[0].steps[31].grainLocks[i]=GranularSpecs[i].high;
-  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MS15",4));
+  assert(codec.encode(project)); assert(!memcmp(codec.bytes,"MS18",4));
   assert(codec.decode(restored,codec.cursor));
   unsigned storedSize=codec.cursor; uint32_t storedHash=codec.hash(storedSize);
   assert(codec.encode(restored)); assert(codec.cursor==storedSize && codec.hash(codec.cursor)==storedHash);
@@ -39,7 +40,7 @@ static void codecAndProtection() {
   // changes only the replaced control; other locks, sources and notes survive.
   project.tracks[0].granular.values[7]=180;
   project.tracks[0].steps[31].grainLocks[7]=500;
-  codec.cursor=16; codec.ok=true; codec.fields(project,true,7);
+  codec.cursor=16; codec.ok=true; legacyFields(codec,project,7);
   memcpy(codec.bytes,"MOS7",4); codec.word(4,7); codec.word(8,codec.cursor); codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].granular.values[7]==100);
@@ -49,7 +50,7 @@ static void codecAndProtection() {
   project=restored;
   // Real MOS6 payload, not a tag-only fake: defaults must fill the new fields.
   project.tracks[0].instrument=MonoInstrument;
-  codec.cursor=16; codec.ok=true; codec.fields(project,true,6);
+  codec.cursor=16; codec.ok=true; legacyFields(codec,project,6);
   memcpy(codec.bytes,"MOS6",4); codec.word(4,6); codec.word(8,codec.cursor); codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));
   assert(restored.tracks[0].granular.asset==-1);
@@ -118,7 +119,7 @@ static void controls() {
   gesture(lab::A,lab::Down); assert(app.project.tracks[0].steps[0].grainLocks[10]==7600);
   assert(app.currentLocksPresent()); app.option=app.optionIndex(4); app.chooseOption();
   assert(!app.currentLocksPresent());
-  app.nested(-1); assert(app.synthBank==1); app.nested(-1); assert(app.synthBank==0);
+  app.buttons.held=lab::bit(lab::Up);app.nested(-1); assert(app.synthBank==1); app.nested(-1); assert(app.synthBank==0);app.buttons.held=0;
   app.page=Sampler; app.synthBank=2;
   app.voicePicker=1; app.voiceChoice=MonoInstrument; tap(lab::A);
   assert(app.synthBank==0 && app.project.tracks[0].instrument==MonoInstrument);
@@ -136,7 +137,7 @@ static void arrangement() {
   songs.sequences[0]=project;songs.sequences[1]=project;songs.sequences[1].tracks[0].granular.asset=1;
   engine.init(project,samples,32000);engine.startSong(songs,0);
   render(engine,64001); assert(engine.songSlot==1 && engine.grainAsset[0]==1);
-  assert(engine.granular[0].sample==&samples[1]);
+  assert(engine.granular[0].sample==&engine.samples[1] && engine.granular[0].sample->pcm==samples[1].pcm);
   engine.handle({Op::CaptureStart,0,0,0,1});render(engine,64000);
   assert(engine.capture.frames>0);
 }

@@ -1,4 +1,5 @@
 #include "../src/app.h"
+#include "legacy_fixture.h"
 #undef NDEBUG
 #include <assert.h>
 using namespace moss;
@@ -38,11 +39,11 @@ static void storage(){
   assert(codec.encode(project)&&codec.decode(restored,codec.cursor));
   for(int i=16;i<20;++i)assert(restored.tracks[0].steps[3].grainLocks[i]==GranularSpecs[i].high);
   for(int i=0;i<8;++i)assert(restored.tracks[0].steps[3].fxLocks[Pond][i]==fxHigh(Pond,i));
-  codec.cursor=16;codec.ok=true;codec.fields(project,true,13);memcpy(codec.bytes,"MS13",4);codec.word(4,13);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
+  codec.cursor=16;codec.ok=true;legacyFields(codec,project,13);memcpy(codec.bytes,"MS13",4);codec.word(4,13);codec.word(8,codec.cursor);codec.word(12,codec.hash(codec.cursor));
   assert(codec.decode(restored,codec.cursor));
   for(int i=16;i<20;++i)assert(restored.tracks[0].granular.values[i]==0 && restored.tracks[0].steps[3].grainLocks[i]==Inherit);
   for(int i=4;i<8;++i)assert(restored.tracks[0].steps[3].fxLocks[Pond][i]==Inherit);
-  puts("PASS MS15 round trip and real MS13 field layout; no invented cloud or POND locks");
+  puts("PASS MS17 round trip and real MS13 field layout; no invented cloud or POND locks");
 }
 static void reverb(){
   const unsigned rates[]={8000u,32000u,44100u,96000u};

@@ -1,268 +1,78 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-15",
-  "title": "MOSS · браузер v0.6 / native 0.5.2 / SWING + SHIFT 0.6.6",
+  "generatedAt": "2026-11-20",
+  "title": "MOSS · approved monochrome UI / native 0.13",
   "extensions": {
     "colorMeta": {
       "paper": {
-        "displayName": "Внешний фон",
+        "displayName": "paper",
         "canonical": "#EDEDEB",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00067 106.45)",
-          "oklch(26% 0.00133 106.45)",
-          "oklch(38% 0.00200 106.45)",
-          "oklch(49% 0.00266 106.45)",
-          "oklch(61% 0.00266 106.45)",
-          "oklch(72% 0.00226 106.45)",
-          "oklch(84% 0.00147 106.45)",
-          "oklch(95% 0.00048 106.45)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "ink": {
-        "displayName": "Внешний текст",
-        "canonical": "#242527",
+        "displayName": "ink",
+        "canonical": "#28292C",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00100 264.50)",
-          "oklch(26% 0.00199 264.50)",
-          "oklch(38% 0.00299 264.50)",
-          "oklch(49% 0.00399 264.50)",
-          "oklch(61% 0.00399 264.50)",
-          "oklch(72% 0.00339 264.50)",
-          "oklch(84% 0.00219 264.50)",
-          "oklch(95% 0.00072 264.50)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "muted": {
-        "displayName": "Внешний вторичный текст",
-        "canonical": "#5C5E63",
+        "displayName": "muted",
+        "canonical": "#606165",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00209 268.47)",
-          "oklch(26% 0.00418 268.47)",
-          "oklch(38% 0.00627 268.47)",
-          "oklch(49% 0.00836 268.47)",
-          "oklch(61% 0.00836 268.47)",
-          "oklch(72% 0.00711 268.47)",
-          "oklch(84% 0.00460 268.47)",
-          "oklch(95% 0.00151 268.47)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "bg": {
-        "displayName": "Графитовый фон",
+        "displayName": "bg",
         "canonical": "#191A1C",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00105 264.48)",
-          "oklch(26% 0.00210 264.48)",
-          "oklch(38% 0.00314 264.48)",
-          "oklch(49% 0.00419 264.48)",
-          "oklch(61% 0.00419 264.48)",
-          "oklch(72% 0.00356 264.48)",
-          "oklch(84% 0.00230 264.48)",
-          "oklch(95% 0.00075 264.48)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "panel": {
-        "displayName": "Панель",
+        "displayName": "panel",
         "canonical": "#222326",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00145 271.19)",
-          "oklch(26% 0.00290 271.19)",
-          "oklch(38% 0.00435 271.19)",
-          "oklch(49% 0.00580 271.19)",
-          "oklch(61% 0.00580 271.19)",
-          "oklch(72% 0.00493 271.19)",
-          "oklch(84% 0.00319 271.19)",
-          "oklch(95% 0.00104 271.19)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "line": {
-        "displayName": "Разделитель",
+        "displayName": "line",
         "canonical": "#414348",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00222 268.43)",
-          "oklch(26% 0.00444 268.43)",
-          "oklch(38% 0.00665 268.43)",
-          "oklch(49% 0.00887 268.43)",
-          "oklch(61% 0.00887 268.43)",
-          "oklch(72% 0.00754 268.43)",
-          "oklch(84% 0.00488 268.43)",
-          "oklch(95% 0.00160 268.43)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "text": {
-        "displayName": "Текст и навигация",
+        "displayName": "text",
         "canonical": "#E8E8E6",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00067 106.45)",
-          "oklch(26% 0.00134 106.45)",
-          "oklch(38% 0.00201 106.45)",
-          "oklch(49% 0.00267 106.45)",
-          "oklch(61% 0.00267 106.45)",
-          "oklch(72% 0.00227 106.45)",
-          "oklch(84% 0.00147 106.45)",
-          "oklch(95% 0.00048 106.45)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       },
       "dim": {
-        "displayName": "Вторичный текст",
+        "displayName": "dim",
         "canonical": "#A9ABB0",
         "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00187 268.53)",
-          "oklch(26% 0.00375 268.53)",
-          "oklch(38% 0.00562 268.53)",
-          "oklch(49% 0.00749 268.53)",
-          "oklch(61% 0.00749 268.53)",
-          "oklch(72% 0.00637 268.53)",
-          "oklch(84% 0.00412 268.53)",
-          "oklch(95% 0.00135 268.53)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "hover": {
-        "displayName": "Наведение",
-        "canonical": "#292B2E",
-        "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00154 258.36)",
-          "oklch(26% 0.00308 258.36)",
-          "oklch(38% 0.00463 258.36)",
-          "oklch(49% 0.00617 258.36)",
-          "oklch(61% 0.00617 258.36)",
-          "oklch(72% 0.00524 258.36)",
-          "oklch(84% 0.00339 258.36)",
-          "oklch(95% 0.00111 258.36)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "selection": {
-        "displayName": "Фокус",
-        "canonical": "#303236",
-        "role": "neutral",
-        "purpose": "Нейтральная поверхность или состояние из текущего CSS.",
-        "tonalRamp": [
-          "oklch(15% 0.00191 264.46)",
-          "oklch(26% 0.00382 264.46)",
-          "oklch(38% 0.00573 264.46)",
-          "oklch(49% 0.00764 264.46)",
-          "oklch(61% 0.00764 264.46)",
-          "oklch(72% 0.00649 264.46)",
-          "oklch(84% 0.00420 264.46)",
-          "oklch(95% 0.00137 264.46)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "slot-1": {
-        "displayName": "Z / A · параметр 1",
-        "canonical": "#A7BA91",
-        "role": "secondary",
-        "purpose": "Только соответствующий слот параметра, его активное значение и связанная графика. Не цвет мира или навигации.",
-        "tonalRamp": [
-          "oklch(15% 0.01511 128.00)",
-          "oklch(26% 0.03021 128.00)",
-          "oklch(38% 0.04532 128.00)",
-          "oklch(49% 0.06042 128.00)",
-          "oklch(61% 0.06042 128.00)",
-          "oklch(72% 0.05136 128.00)",
-          "oklch(84% 0.03323 128.00)",
-          "oklch(95% 0.01088 128.00)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "slot-2": {
-        "displayName": "X / B · параметр 2",
-        "canonical": "#91AEBB",
-        "role": "secondary",
-        "purpose": "Только соответствующий слот параметра, его активное значение и связанная графика. Не цвет мира или навигации.",
-        "tonalRamp": [
-          "oklch(15% 0.00925 226.79)",
-          "oklch(26% 0.01851 226.79)",
-          "oklch(38% 0.02776 226.79)",
-          "oklch(49% 0.03702 226.79)",
-          "oklch(61% 0.03702 226.79)",
-          "oklch(72% 0.03147 226.79)",
-          "oklch(84% 0.02036 226.79)",
-          "oklch(95% 0.00666 226.79)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "slot-3": {
-        "displayName": "C / X · параметр 3",
-        "canonical": "#ACA0BA",
-        "role": "secondary",
-        "purpose": "Только соответствующий слот параметра, его активное значение и связанная графика. Не цвет мира или навигации.",
-        "tonalRamp": [
-          "oklch(15% 0.00985 306.23)",
-          "oklch(26% 0.01970 306.23)",
-          "oklch(38% 0.02954 306.23)",
-          "oklch(49% 0.03939 306.23)",
-          "oklch(61% 0.03939 306.23)",
-          "oklch(72% 0.03348 306.23)",
-          "oklch(84% 0.02167 306.23)",
-          "oklch(95% 0.00709 306.23)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
-      },
-      "slot-4": {
-        "displayName": "V / Y · параметр 4",
-        "canonical": "#C69B83",
-        "role": "secondary",
-        "purpose": "Только соответствующий слот параметра, его активное значение и связанная графика. Не цвет мира или навигации.",
-        "tonalRamp": [
-          "oklch(15% 0.01542 50.56)",
-          "oklch(26% 0.03083 50.56)",
-          "oklch(38% 0.04625 50.56)",
-          "oklch(49% 0.06166 50.56)",
-          "oklch(61% 0.06166 50.56)",
-          "oklch(72% 0.05241 50.56)",
-          "oklch(84% 0.03392 50.56)",
-          "oklch(95% 0.01110 50.56)"
-        ],
-        "rampPurpose": "Только вспомогательная шкала для просмотра; не новые токены интерфейса."
+        "purpose": "Current monochrome contract"
       }
     },
     "typographyMeta": {
+      "heading": {
+        "fontFamily": "MOSS bitmap",
+        "fontSize": "21px",
+        "purpose": "heading"
+      },
       "body": {
-        "displayName": "Текст инструмента",
-        "purpose": "14 px Consolas / Courier New."
+        "fontFamily": "MOSS bitmap",
+        "fontSize": "14px",
+        "purpose": "body"
       },
-      "label": {
-        "displayName": "Подписи",
-        "purpose": "11 логических пикселей."
+      "small": {
+        "fontFamily": "MOSS bitmap",
+        "fontSize": "12px",
+        "purpose": "small"
       },
-      "value": {
-        "displayName": "Значение параметра",
-        "purpose": "23 px; в SAMPLER 21 px."
-      },
-      "native-body": {
-        "displayName": "Native · bitmap 5×7, масштаб 2",
-        "purpose": "Существующий renderer: рисунок 10×14 px, шаг символа 12 px, верхний регистр. Это не CSS-шрифт браузера."
-      },
-      "native-value": {
-        "displayName": "Native · bitmap 5×7, масштаб 3",
-        "purpose": "Числа и крупные названия: рисунок 15×21 px, шаг символа 18 px."
+      "duration": {
+        "fontFamily": "MOSS bitmap",
+        "fontSize": "8px",
+        "purpose": "Duration capsules only"
       }
     },
     "shadows": [],
@@ -271,6 +81,11 @@
         "name": "model-cursor",
         "value": "50ms minimum update interval",
         "purpose": "Браузер v0.6. Визуализации подписаны MODEL. На STOP неподвижны. На RUN один курсор показывает время модели, с обновлением не чаще 20 раз/с; он не изображает реальный аудиосигнал. Скрытая вкладка и prefers-reduced-motion отключают движение, сохраняя числовое и графическое состояние. Изменение параметра обновляет геометрию сразу. Переходы экранов не задерживают ввод."
+      },
+      {
+        "name": "native-organism-voice-portrait",
+        "value": "voice telemetry; no wall-clock animation",
+        "purpose": "Native ORGANISM 0.10 only. Four neutral contours use actual carrier modulation, energy and envelope state. GROW / FADE / REST distinguish gate, sounding release and idle. Ordinary note-off follows RELEASE; transport STOP forces a 128-sample anti-click fade, then stationary REST. This is a state portrait, not a waveform; no new palette or shipping raster. Surface: design/current/native-organism-v010.md."
       }
     ],
     "breakpoints": [
@@ -282,160 +97,72 @@
         "name": "browser-single-column-guide",
         "value": "max-width: 600px"
       }
-    ]
+    ],
+    "currentContract": {
+      "native": "design/current/native-ui-v013.md",
+      "browser": "design/current/interface-lab-v012.md",
+      "workflow": "design/current/ux-fixes-2026-11-20.md",
+      "historical": "design/history/pre-ui-v013/design.json",
+      "spacing": [
+        4,
+        8,
+        12,
+        16,
+        24,
+        32
+      ],
+      "parameterOrder": [
+        "Y",
+        "B",
+        "A",
+        "X"
+      ],
+      "gridViews": [
+        16,
+        64
+      ],
+      "defaultGridView": 64
+    }
   },
   "components": [
     {
-      "name": "Browser · Context Options",
-      "kind": "button",
-      "description": "Браузер v0.6. Опции через Q+E / L1+R1; нейтральный доступ в нижней строке.",
-      "html": "<button class=\"ds-options\">Q+E OPTIONS</button>",
-      "css": ".ds-options{font:14px Consolas,'Courier New',monospace;color:var(--text,#e8e8e6);background:transparent;border:1px solid transparent;padding:7px 9px;min-height:30px;text-align:left;cursor:pointer;font-size:11px;min-height:25px;padding:3px 7px;border-color:var(--line,#414348)}.ds-options:hover{background:var(--hover,#292b2e)}.ds-options:focus-visible{outline:1px solid var(--text,#e8e8e6);outline-offset:-1px;background:var(--selection,#303236)}.ds-options:disabled{opacity:.45;cursor:not-allowed}"
+      "name": "Centered tabs",
+      "description": "White rounded selection, inverted text, fixed shoulders; fade overflow.",
+      "html": "<nav class=\"moss-tabs\"><button>GRID</button><button aria-current=\"page\">MIX</button><button>TAPE</button></nav>",
+      "css": ".moss-tabs{display:flex;justify-content:center;gap:4px;background:#191a1c;padding:8px 16px}.moss-tabs button{font:14px monospace;background:none;color:#a9abb0;border:0;border-radius:12px;padding:4px 12px}.moss-tabs [aria-current=page]{background:#e8e8e6;color:#191a1c}"
     },
     {
-      "name": "Browser · Primary Action",
-      "kind": "button",
-      "description": "Браузер v0.6. Явные SAVE / FINISH без заливки цветом мира.",
-      "html": "<button class=\"ds-save\">SAVE SLICE</button>",
-      "css": ".ds-save{font:14px Consolas,'Courier New',monospace;color:var(--text,#e8e8e6);background:transparent;border:1px solid transparent;padding:7px 9px;min-height:30px;text-align:left;cursor:pointer;border-color:var(--text,#e8e8e6)}.ds-save:hover{background:var(--hover,#292b2e)}.ds-save:focus-visible{outline:1px solid var(--text,#e8e8e6);outline-offset:-1px;background:var(--selection,#303236)}.ds-save:disabled{opacity:.45;cursor:not-allowed}"
-    },
-    {
-      "name": "Browser · Name Field",
-      "kind": "input",
-      "description": "Браузер v0.6. Нейтральное поле имени и каретка.",
-      "html": "<input class=\"ds-name\" aria-label=\"Название\" maxlength=\"24\" value=\"SLOW SIGNAL\">",
-      "css": ".ds-name{font:14px Consolas,'Courier New',monospace;width:100%;padding:10px;background:var(--bg,#191a1c);color:var(--text,#e8e8e6);border:1px solid var(--dim,#a9abb0);caret-color:var(--text,#e8e8e6);margin:12px 0}.ds-name:focus-visible{outline:2px solid currentColor;outline-offset:3px}"
-    },
-    {
-      "name": "Browser · Project Tabs",
-      "kind": "nav",
-      "description": "Браузер v0.6. GRID / MIX / TAPE: L2/R2, физические клавиши [/] (Х/Ъ).",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Разделы проекта\"><span>[</span><button>GRID</button><button aria-current=\"page\">MIX</button><button>TAPE</button><span>]</span></nav>",
-      "css": ".ds-nav{display:flex;align-items:center;gap:4px;height:42px;padding:0 16px;background:var(--bg,#191a1c);color:var(--dim,#a9abb0);border-bottom:1px solid var(--line,#414348);font:12px Consolas,monospace}.ds-nav button{font:14px Consolas,'Courier New',monospace;color:var(--text,#e8e8e6);background:transparent;border:1px solid transparent;padding:7px 9px;min-height:30px;text-align:left;cursor:pointer;height:42px;font-size:12px;padding:7px 18px;color:var(--dim,#a9abb0)}.ds-nav [aria-current=page]{color:var(--text,#e8e8e6);border-bottom:2px solid currentColor}.ds-nav>span:last-child{margin-left:auto}.ds-nav button:hover{background:var(--hover,#292b2e)}.ds-nav button:focus-visible{outline:1px solid var(--text,#e8e8e6);outline-offset:-1px;background:var(--selection,#303236)}.ds-nav button:disabled{opacity:.45;cursor:not-allowed}"
-    },
-    {
-      "name": "Browser · Four Parameter Slots",
-      "kind": "custom",
-      "description": "Браузер v0.6. Z/X/C/V + стрелки. Цвет фиксирован по позиции во всех редакторах.",
-      "html": "<div class=\"ds-bank\"><button class=\"ds-param ds-slot-1\"><span>Z · PITCH</span><b>-12</b></button><button class=\"ds-param ds-slot-2\"><span>X · START</span><b>401</b></button><button class=\"ds-param ds-slot-3\"><span>C · END</span><b>1600</b></button><button class=\"ds-param ds-slot-4\"><span>V · LEVEL</span><b>65</b></button></div>",
-      "css": ".ds-bank{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:var(--bg,#191a1c)}.ds-param{font:14px Consolas,'Courier New',monospace;color:var(--text,#e8e8e6);background:transparent;border:1px solid transparent;padding:7px 9px;min-height:30px;text-align:left;cursor:pointer;border-top:1px solid var(--line,#414348);padding:9px 6px;min-height:66px}.ds-param span{display:block;color:var(--slot);font-size:11px;margin-bottom:8px}.ds-param b{font-size:23px;line-height:1.2;font-weight:normal}.ds-param:focus-visible{outline:1px solid var(--slot);outline-offset:-1px;background:var(--panel,#222326)}.ds-param:hover{background:var(--hover,#292b2e)}.ds-slot-1{--slot:var(--slot-1,#a7ba91)}.ds-slot-2{--slot:var(--slot-2,#91aebb)}.ds-slot-3{--slot:var(--slot-3,#aca0ba)}.ds-slot-4{--slot:var(--slot-4,#c69b83)}"
-    },
-    {
-      "name": "Browser · Sequencer Step",
-      "kind": "button",
-      "description": "Браузер v0.6. Нейтральный TRIG ON, отдельная рамка фокуса, маркер lock и верхняя черта playhead. Нижняя линия показывает длительность выбранной ноты; неактивные клетки за границей цикла не получают фокус.",
-      "html": "<button class=\"ds-step\" aria-label=\"Step 1, on\"><span>01</span><b>G2</b><i></i></button>",
-      "css": ".ds-step{font:14px Consolas,'Courier New',monospace;color:var(--text,#e8e8e6);background:transparent;border:1px solid transparent;padding:7px 9px;min-height:30px;text-align:left;cursor:pointer;width:68px;height:53px;min-height:53px;padding:6px 7px;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;border-color:#d5d6d3;background:#d5d6d3;color:var(--bg,#191a1c)}.ds-step span{font-size:11px}.ds-step b{font-size:14px;font-weight:normal}.ds-step i{position:absolute;bottom:6px;right:5px;width:4px;height:4px;background:currentColor}.ds-step:focus-visible{outline:2px solid var(--text,#e8e8e6);outline-offset:2px}.ds-step:before{content:'';position:absolute;left:0;right:0;top:-6px;height:2px;background:var(--text,#e8e8e6)}.ds-step:after{content:\"\";position:absolute;left:4px;right:4px;bottom:4px;height:2px;background:var(--bg,#191a1c)}"
-    },
-    {
-      "name": "Browser · Options Panel",
-      "kind": "card",
-      "description": "Браузер v0.6. Меню выбора и подтверждения. Числа редактируются на основном экране.",
-      "html": "<section class=\"ds-modal\"><h2>OPTIONS / VOICE</h2><p>Q+E / L1+R1 · Z select · X back</p></section>",
-      "css": ".ds-modal{font-family:Consolas,'Courier New',monospace;width:510px;max-height:442px;background:var(--panel,#222326);color:var(--text,#e8e8e6);border:1px solid #696b71;padding:20px;overflow:auto}.ds-modal h2{font-size:18px;font-weight:normal;margin:0 0 10px}.ds-modal p{font-size:11px;line-height:1.6;color:var(--dim,#a9abb0);margin:8px 0 12px}"
-    },
-    {
-      "name": "Native · Parameter Bank",
-      "kind": "custom",
-      "description": "Native 0.5.2. Точные bitmap-глифы и геометрия из parameter_ui.h: Y/B/A/X, значения и постоянные единицы. SVG показывает спокойное состояние; при удержании рамка и верхняя линия получают цвет физической кнопки. Влево/вправо — одна отображаемая единица; вверх/вниз — крупный музыкальный шаг. Локи используют шаг исходного параметра; удержание ускоряет повтор.",
-      "html": "<svg class=\"ds-native\" role=\"img\" aria-label=\"Native parameters: Y velocity, B fade in, A length, X probability\" viewBox=\"0 0 640 108\" width=\"640\" height=\"108\"><rect x=\"0\" y=\"0\" width=\"640\" height=\"108\" fill=\"#191a1c\"/><rect x=\"18\" y=\"0\" width=\"142\" height=\"1\" fill=\"#414348\"/><path fill=\"#c69b83\" d=\"M22 11h2v2h-2zM30 11h2v2h-2zM22 13h2v2h-2zM30 13h2v2h-2zM24 15h2v2h-2zM28 15h2v2h-2zM26 17h2v2h-2zM26 19h2v2h-2zM26 21h2v2h-2zM26 23h2v2h-2z\"/><path fill=\"#c69b83\" d=\"M40 11h2v2h-2zM48 11h2v2h-2zM40 13h2v2h-2zM48 13h2v2h-2zM40 15h2v2h-2zM48 15h2v2h-2zM40 17h2v2h-2zM48 17h2v2h-2zM40 19h2v2h-2zM48 19h2v2h-2zM42 21h2v2h-2zM46 21h2v2h-2zM44 23h2v2h-2zM52 11h2v2h-2zM54 11h2v2h-2zM56 11h2v2h-2zM58 11h2v2h-2zM60 11h2v2h-2zM52 13h2v2h-2zM52 15h2v2h-2zM52 17h2v2h-2zM54 17h2v2h-2zM56 17h2v2h-2zM58 17h2v2h-2zM52 19h2v2h-2zM52 21h2v2h-2zM52 23h2v2h-2zM54 23h2v2h-2zM56 23h2v2h-2zM58 23h2v2h-2zM60 23h2v2h-2zM64 11h2v2h-2zM64 13h2v2h-2zM64 15h2v2h-2zM64 17h2v2h-2zM64 19h2v2h-2zM64 21h2v2h-2zM64 23h2v2h-2zM66 23h2v2h-2zM68 23h2v2h-2zM70 23h2v2h-2zM72 23h2v2h-2zM78 11h2v2h-2zM80 11h2v2h-2zM82 11h2v2h-2zM76 13h2v2h-2zM84 13h2v2h-2zM76 15h2v2h-2zM84 15h2v2h-2zM76 17h2v2h-2zM84 17h2v2h-2zM76 19h2v2h-2zM84 19h2v2h-2zM76 21h2v2h-2zM84 21h2v2h-2zM78 23h2v2h-2zM80 23h2v2h-2zM82 23h2v2h-2zM90 11h2v2h-2zM92 11h2v2h-2zM94 11h2v2h-2zM96 11h2v2h-2zM88 13h2v2h-2zM88 15h2v2h-2zM88 17h2v2h-2zM88 19h2v2h-2zM88 21h2v2h-2zM90 23h2v2h-2zM92 23h2v2h-2zM94 23h2v2h-2zM96 23h2v2h-2zM100 11h2v2h-2zM102 11h2v2h-2zM104 11h2v2h-2zM106 11h2v2h-2zM108 11h2v2h-2zM104 13h2v2h-2zM104 15h2v2h-2zM104 17h2v2h-2zM104 19h2v2h-2zM104 21h2v2h-2zM100 23h2v2h-2zM102 23h2v2h-2zM104 23h2v2h-2zM106 23h2v2h-2zM108 23h2v2h-2zM112 11h2v2h-2zM114 11h2v2h-2zM116 11h2v2h-2zM118 11h2v2h-2zM120 11h2v2h-2zM116 13h2v2h-2zM116 15h2v2h-2zM116 17h2v2h-2zM116 19h2v2h-2zM116 21h2v2h-2zM116 23h2v2h-2zM124 11h2v2h-2zM132 11h2v2h-2zM124 13h2v2h-2zM132 13h2v2h-2zM126 15h2v2h-2zM130 15h2v2h-2zM128 17h2v2h-2zM128 19h2v2h-2zM128 21h2v2h-2zM128 23h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M25 39h3v3h-3zM28 39h3v3h-3zM31 39h3v3h-3zM22 42h3v3h-3zM34 42h3v3h-3zM22 45h3v3h-3zM34 45h3v3h-3zM25 48h3v3h-3zM28 48h3v3h-3zM31 48h3v3h-3zM34 48h3v3h-3zM34 51h3v3h-3zM34 54h3v3h-3zM25 57h3v3h-3zM28 57h3v3h-3zM31 57h3v3h-3zM43 39h3v3h-3zM46 39h3v3h-3zM49 39h3v3h-3zM40 42h3v3h-3zM52 42h3v3h-3zM40 45h3v3h-3zM49 45h3v3h-3zM52 45h3v3h-3zM40 48h3v3h-3zM46 48h3v3h-3zM52 48h3v3h-3zM40 51h3v3h-3zM43 51h3v3h-3zM52 51h3v3h-3zM40 54h3v3h-3zM52 54h3v3h-3zM43 57h3v3h-3zM46 57h3v3h-3zM49 57h3v3h-3z\"/><path fill=\"#a9abb0\" d=\"\"/><rect x=\"171\" y=\"0\" width=\"142\" height=\"1\" fill=\"#414348\"/><path fill=\"#91aebb\" d=\"M175 11h2v2h-2zM177 11h2v2h-2zM179 11h2v2h-2zM181 11h2v2h-2zM175 13h2v2h-2zM183 13h2v2h-2zM175 15h2v2h-2zM183 15h2v2h-2zM175 17h2v2h-2zM177 17h2v2h-2zM179 17h2v2h-2zM181 17h2v2h-2zM175 19h2v2h-2zM183 19h2v2h-2zM175 21h2v2h-2zM183 21h2v2h-2zM175 23h2v2h-2zM177 23h2v2h-2zM179 23h2v2h-2zM181 23h2v2h-2z\"/><path fill=\"#91aebb\" d=\"M193 11h2v2h-2zM195 11h2v2h-2zM197 11h2v2h-2zM199 11h2v2h-2zM201 11h2v2h-2zM193 13h2v2h-2zM193 15h2v2h-2zM193 17h2v2h-2zM195 17h2v2h-2zM197 17h2v2h-2zM199 17h2v2h-2zM193 19h2v2h-2zM193 21h2v2h-2zM193 23h2v2h-2zM207 11h2v2h-2zM209 11h2v2h-2zM211 11h2v2h-2zM205 13h2v2h-2zM213 13h2v2h-2zM205 15h2v2h-2zM213 15h2v2h-2zM205 17h2v2h-2zM207 17h2v2h-2zM209 17h2v2h-2zM211 17h2v2h-2zM213 17h2v2h-2zM205 19h2v2h-2zM213 19h2v2h-2zM205 21h2v2h-2zM213 21h2v2h-2zM205 23h2v2h-2zM213 23h2v2h-2zM217 11h2v2h-2zM219 11h2v2h-2zM221 11h2v2h-2zM223 11h2v2h-2zM217 13h2v2h-2zM225 13h2v2h-2zM217 15h2v2h-2zM225 15h2v2h-2zM217 17h2v2h-2zM225 17h2v2h-2zM217 19h2v2h-2zM225 19h2v2h-2zM217 21h2v2h-2zM225 21h2v2h-2zM217 23h2v2h-2zM219 23h2v2h-2zM221 23h2v2h-2zM223 23h2v2h-2zM229 11h2v2h-2zM231 11h2v2h-2zM233 11h2v2h-2zM235 11h2v2h-2zM237 11h2v2h-2zM229 13h2v2h-2zM229 15h2v2h-2zM229 17h2v2h-2zM231 17h2v2h-2zM233 17h2v2h-2zM235 17h2v2h-2zM229 19h2v2h-2zM229 21h2v2h-2zM229 23h2v2h-2zM231 23h2v2h-2zM233 23h2v2h-2zM235 23h2v2h-2zM237 23h2v2h-2zM253 11h2v2h-2zM255 11h2v2h-2zM257 11h2v2h-2zM259 11h2v2h-2zM261 11h2v2h-2zM257 13h2v2h-2zM257 15h2v2h-2zM257 17h2v2h-2zM257 19h2v2h-2zM257 21h2v2h-2zM253 23h2v2h-2zM255 23h2v2h-2zM257 23h2v2h-2zM259 23h2v2h-2zM261 23h2v2h-2zM265 11h2v2h-2zM273 11h2v2h-2zM265 13h2v2h-2zM267 13h2v2h-2zM273 13h2v2h-2zM265 15h2v2h-2zM269 15h2v2h-2zM273 15h2v2h-2zM265 17h2v2h-2zM271 17h2v2h-2zM273 17h2v2h-2zM265 19h2v2h-2zM273 19h2v2h-2zM265 21h2v2h-2zM273 21h2v2h-2zM265 23h2v2h-2zM273 23h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M175 39h3v3h-3zM178 39h3v3h-3zM181 39h3v3h-3zM184 39h3v3h-3zM187 39h3v3h-3zM175 42h3v3h-3zM175 45h3v3h-3zM175 48h3v3h-3zM178 48h3v3h-3zM181 48h3v3h-3zM184 48h3v3h-3zM187 51h3v3h-3zM187 54h3v3h-3zM175 57h3v3h-3zM178 57h3v3h-3zM181 57h3v3h-3zM184 57h3v3h-3z\"/><path fill=\"#a9abb0\" d=\"M175 70h2v2h-2zM183 70h2v2h-2zM175 72h2v2h-2zM177 72h2v2h-2zM181 72h2v2h-2zM183 72h2v2h-2zM175 74h2v2h-2zM179 74h2v2h-2zM183 74h2v2h-2zM175 76h2v2h-2zM179 76h2v2h-2zM183 76h2v2h-2zM175 78h2v2h-2zM183 78h2v2h-2zM175 80h2v2h-2zM183 80h2v2h-2zM175 82h2v2h-2zM183 82h2v2h-2zM189 70h2v2h-2zM191 70h2v2h-2zM193 70h2v2h-2zM195 70h2v2h-2zM187 72h2v2h-2zM187 74h2v2h-2zM189 76h2v2h-2zM191 76h2v2h-2zM193 76h2v2h-2zM195 78h2v2h-2zM195 80h2v2h-2zM187 82h2v2h-2zM189 82h2v2h-2zM191 82h2v2h-2zM193 82h2v2h-2z\"/><rect x=\"324\" y=\"0\" width=\"142\" height=\"1\" fill=\"#414348\"/><path fill=\"#a7ba91\" d=\"M330 11h2v2h-2zM332 11h2v2h-2zM334 11h2v2h-2zM328 13h2v2h-2zM336 13h2v2h-2zM328 15h2v2h-2zM336 15h2v2h-2zM328 17h2v2h-2zM330 17h2v2h-2zM332 17h2v2h-2zM334 17h2v2h-2zM336 17h2v2h-2zM328 19h2v2h-2zM336 19h2v2h-2zM328 21h2v2h-2zM336 21h2v2h-2zM328 23h2v2h-2zM336 23h2v2h-2z\"/><path fill=\"#a7ba91\" d=\"M346 11h2v2h-2zM346 13h2v2h-2zM346 15h2v2h-2zM346 17h2v2h-2zM346 19h2v2h-2zM346 21h2v2h-2zM346 23h2v2h-2zM348 23h2v2h-2zM350 23h2v2h-2zM352 23h2v2h-2zM354 23h2v2h-2zM358 11h2v2h-2zM360 11h2v2h-2zM362 11h2v2h-2zM364 11h2v2h-2zM366 11h2v2h-2zM358 13h2v2h-2zM358 15h2v2h-2zM358 17h2v2h-2zM360 17h2v2h-2zM362 17h2v2h-2zM364 17h2v2h-2zM358 19h2v2h-2zM358 21h2v2h-2zM358 23h2v2h-2zM360 23h2v2h-2zM362 23h2v2h-2zM364 23h2v2h-2zM366 23h2v2h-2zM370 11h2v2h-2zM378 11h2v2h-2zM370 13h2v2h-2zM372 13h2v2h-2zM378 13h2v2h-2zM370 15h2v2h-2zM374 15h2v2h-2zM378 15h2v2h-2zM370 17h2v2h-2zM376 17h2v2h-2zM378 17h2v2h-2zM370 19h2v2h-2zM378 19h2v2h-2zM370 21h2v2h-2zM378 21h2v2h-2zM370 23h2v2h-2zM378 23h2v2h-2zM384 11h2v2h-2zM386 11h2v2h-2zM388 11h2v2h-2zM390 11h2v2h-2zM382 13h2v2h-2zM382 15h2v2h-2zM382 17h2v2h-2zM386 17h2v2h-2zM388 17h2v2h-2zM390 17h2v2h-2zM382 19h2v2h-2zM390 19h2v2h-2zM382 21h2v2h-2zM390 21h2v2h-2zM384 23h2v2h-2zM386 23h2v2h-2zM388 23h2v2h-2zM390 23h2v2h-2zM394 11h2v2h-2zM396 11h2v2h-2zM398 11h2v2h-2zM400 11h2v2h-2zM402 11h2v2h-2zM398 13h2v2h-2zM398 15h2v2h-2zM398 17h2v2h-2zM398 19h2v2h-2zM398 21h2v2h-2zM398 23h2v2h-2zM406 11h2v2h-2zM414 11h2v2h-2zM406 13h2v2h-2zM414 13h2v2h-2zM406 15h2v2h-2zM414 15h2v2h-2zM406 17h2v2h-2zM408 17h2v2h-2zM410 17h2v2h-2zM412 17h2v2h-2zM414 17h2v2h-2zM406 19h2v2h-2zM414 19h2v2h-2zM406 21h2v2h-2zM414 21h2v2h-2zM406 23h2v2h-2zM414 23h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M337 39h3v3h-3zM334 42h3v3h-3zM337 42h3v3h-3zM331 45h3v3h-3zM337 45h3v3h-3zM328 48h3v3h-3zM337 48h3v3h-3zM328 51h3v3h-3zM331 51h3v3h-3zM334 51h3v3h-3zM337 51h3v3h-3zM340 51h3v3h-3zM337 54h3v3h-3zM337 57h3v3h-3z\"/><path fill=\"#a9abb0\" d=\"M330 70h2v2h-2zM332 70h2v2h-2zM334 70h2v2h-2zM336 70h2v2h-2zM328 72h2v2h-2zM328 74h2v2h-2zM330 76h2v2h-2zM332 76h2v2h-2zM334 76h2v2h-2zM336 78h2v2h-2zM336 80h2v2h-2zM328 82h2v2h-2zM330 82h2v2h-2zM332 82h2v2h-2zM334 82h2v2h-2zM340 70h2v2h-2zM342 70h2v2h-2zM344 70h2v2h-2zM346 70h2v2h-2zM348 70h2v2h-2zM344 72h2v2h-2zM344 74h2v2h-2zM344 76h2v2h-2zM344 78h2v2h-2zM344 80h2v2h-2zM344 82h2v2h-2zM352 70h2v2h-2zM354 70h2v2h-2zM356 70h2v2h-2zM358 70h2v2h-2zM360 70h2v2h-2zM352 72h2v2h-2zM352 74h2v2h-2zM352 76h2v2h-2zM354 76h2v2h-2zM356 76h2v2h-2zM358 76h2v2h-2zM352 78h2v2h-2zM352 80h2v2h-2zM352 82h2v2h-2zM354 82h2v2h-2zM356 82h2v2h-2zM358 82h2v2h-2zM360 82h2v2h-2zM364 70h2v2h-2zM366 70h2v2h-2zM368 70h2v2h-2zM370 70h2v2h-2zM364 72h2v2h-2zM372 72h2v2h-2zM364 74h2v2h-2zM372 74h2v2h-2zM364 76h2v2h-2zM366 76h2v2h-2zM368 76h2v2h-2zM370 76h2v2h-2zM364 78h2v2h-2zM364 80h2v2h-2zM364 82h2v2h-2zM378 70h2v2h-2zM380 70h2v2h-2zM382 70h2v2h-2zM384 70h2v2h-2zM376 72h2v2h-2zM376 74h2v2h-2zM378 76h2v2h-2zM380 76h2v2h-2zM382 76h2v2h-2zM384 78h2v2h-2zM384 80h2v2h-2zM376 82h2v2h-2zM378 82h2v2h-2zM380 82h2v2h-2zM382 82h2v2h-2z\"/><rect x=\"477\" y=\"0\" width=\"142\" height=\"1\" fill=\"#414348\"/><path fill=\"#aca0ba\" d=\"M481 11h2v2h-2zM489 11h2v2h-2zM481 13h2v2h-2zM489 13h2v2h-2zM483 15h2v2h-2zM487 15h2v2h-2zM485 17h2v2h-2zM483 19h2v2h-2zM487 19h2v2h-2zM481 21h2v2h-2zM489 21h2v2h-2zM481 23h2v2h-2zM489 23h2v2h-2z\"/><path fill=\"#aca0ba\" d=\"M499 11h2v2h-2zM501 11h2v2h-2zM503 11h2v2h-2zM505 11h2v2h-2zM499 13h2v2h-2zM507 13h2v2h-2zM499 15h2v2h-2zM507 15h2v2h-2zM499 17h2v2h-2zM501 17h2v2h-2zM503 17h2v2h-2zM505 17h2v2h-2zM499 19h2v2h-2zM499 21h2v2h-2zM499 23h2v2h-2zM511 11h2v2h-2zM513 11h2v2h-2zM515 11h2v2h-2zM517 11h2v2h-2zM511 13h2v2h-2zM519 13h2v2h-2zM511 15h2v2h-2zM519 15h2v2h-2zM511 17h2v2h-2zM513 17h2v2h-2zM515 17h2v2h-2zM517 17h2v2h-2zM511 19h2v2h-2zM515 19h2v2h-2zM511 21h2v2h-2zM517 21h2v2h-2zM511 23h2v2h-2zM519 23h2v2h-2zM525 11h2v2h-2zM527 11h2v2h-2zM529 11h2v2h-2zM523 13h2v2h-2zM531 13h2v2h-2zM523 15h2v2h-2zM531 15h2v2h-2zM523 17h2v2h-2zM531 17h2v2h-2zM523 19h2v2h-2zM531 19h2v2h-2zM523 21h2v2h-2zM531 21h2v2h-2zM525 23h2v2h-2zM527 23h2v2h-2zM529 23h2v2h-2zM535 11h2v2h-2zM537 11h2v2h-2zM539 11h2v2h-2zM541 11h2v2h-2zM535 13h2v2h-2zM543 13h2v2h-2zM535 15h2v2h-2zM543 15h2v2h-2zM535 17h2v2h-2zM537 17h2v2h-2zM539 17h2v2h-2zM541 17h2v2h-2zM535 19h2v2h-2zM543 19h2v2h-2zM535 21h2v2h-2zM543 21h2v2h-2zM535 23h2v2h-2zM537 23h2v2h-2zM539 23h2v2h-2zM541 23h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M487 39h3v3h-3zM484 42h3v3h-3zM487 42h3v3h-3zM487 45h3v3h-3zM487 48h3v3h-3zM487 51h3v3h-3zM487 54h3v3h-3zM484 57h3v3h-3zM487 57h3v3h-3zM490 57h3v3h-3zM502 39h3v3h-3zM505 39h3v3h-3zM508 39h3v3h-3zM499 42h3v3h-3zM511 42h3v3h-3zM499 45h3v3h-3zM508 45h3v3h-3zM511 45h3v3h-3zM499 48h3v3h-3zM505 48h3v3h-3zM511 48h3v3h-3zM499 51h3v3h-3zM502 51h3v3h-3zM511 51h3v3h-3zM499 54h3v3h-3zM511 54h3v3h-3zM502 57h3v3h-3zM505 57h3v3h-3zM508 57h3v3h-3zM520 39h3v3h-3zM523 39h3v3h-3zM526 39h3v3h-3zM517 42h3v3h-3zM529 42h3v3h-3zM517 45h3v3h-3zM526 45h3v3h-3zM529 45h3v3h-3zM517 48h3v3h-3zM523 48h3v3h-3zM529 48h3v3h-3zM517 51h3v3h-3zM520 51h3v3h-3zM529 51h3v3h-3zM517 54h3v3h-3zM529 54h3v3h-3zM520 57h3v3h-3zM523 57h3v3h-3zM526 57h3v3h-3z\"/><path fill=\"#a9abb0\" d=\"M481 70h2v2h-2zM483 70h2v2h-2zM485 70h2v2h-2zM487 70h2v2h-2zM481 72h2v2h-2zM489 72h2v2h-2zM481 74h2v2h-2zM489 74h2v2h-2zM481 76h2v2h-2zM483 76h2v2h-2zM485 76h2v2h-2zM487 76h2v2h-2zM481 78h2v2h-2zM481 80h2v2h-2zM481 82h2v2h-2zM493 70h2v2h-2zM495 70h2v2h-2zM497 70h2v2h-2zM499 70h2v2h-2zM501 70h2v2h-2zM493 72h2v2h-2zM493 74h2v2h-2zM493 76h2v2h-2zM495 76h2v2h-2zM497 76h2v2h-2zM499 76h2v2h-2zM493 78h2v2h-2zM493 80h2v2h-2zM493 82h2v2h-2zM495 82h2v2h-2zM497 82h2v2h-2zM499 82h2v2h-2zM501 82h2v2h-2zM505 70h2v2h-2zM507 70h2v2h-2zM509 70h2v2h-2zM511 70h2v2h-2zM505 72h2v2h-2zM513 72h2v2h-2zM505 74h2v2h-2zM513 74h2v2h-2zM505 76h2v2h-2zM507 76h2v2h-2zM509 76h2v2h-2zM511 76h2v2h-2zM505 78h2v2h-2zM509 78h2v2h-2zM505 80h2v2h-2zM511 80h2v2h-2zM505 82h2v2h-2zM513 82h2v2h-2zM519 70h2v2h-2zM521 70h2v2h-2zM523 70h2v2h-2zM525 70h2v2h-2zM517 72h2v2h-2zM517 74h2v2h-2zM517 76h2v2h-2zM517 78h2v2h-2zM517 80h2v2h-2zM519 82h2v2h-2zM521 82h2v2h-2zM523 82h2v2h-2zM525 82h2v2h-2zM529 70h2v2h-2zM531 70h2v2h-2zM533 70h2v2h-2zM535 70h2v2h-2zM537 70h2v2h-2zM529 72h2v2h-2zM529 74h2v2h-2zM529 76h2v2h-2zM531 76h2v2h-2zM533 76h2v2h-2zM535 76h2v2h-2zM529 78h2v2h-2zM529 80h2v2h-2zM529 82h2v2h-2zM531 82h2v2h-2zM533 82h2v2h-2zM535 82h2v2h-2zM537 82h2v2h-2zM541 70h2v2h-2zM549 70h2v2h-2zM541 72h2v2h-2zM543 72h2v2h-2zM549 72h2v2h-2zM541 74h2v2h-2zM545 74h2v2h-2zM549 74h2v2h-2zM541 76h2v2h-2zM547 76h2v2h-2zM549 76h2v2h-2zM541 78h2v2h-2zM549 78h2v2h-2zM541 80h2v2h-2zM549 80h2v2h-2zM541 82h2v2h-2zM549 82h2v2h-2zM553 70h2v2h-2zM555 70h2v2h-2zM557 70h2v2h-2zM559 70h2v2h-2zM561 70h2v2h-2zM557 72h2v2h-2zM557 74h2v2h-2zM557 76h2v2h-2zM557 78h2v2h-2zM557 80h2v2h-2zM557 82h2v2h-2z\"/></svg>",
-      "css": ".ds-native{display:block;max-width:100%;height:auto;shape-rendering:crispEdges}"
-    },
-    {
-      "name": "Native · Sampler Slots",
-      "kind": "custom",
-      "description": "Native 0.5.2. Четыре собственных слота каждого SAMPLER. Имена и номера постоянны; нейтральная рамка и нижняя черта отмечают выбранный слот, цвет параметров не используется.",
-      "html": "<svg class=\"ds-native\" role=\"img\" aria-label=\"Four sampler slots with slot four selected\" viewBox=\"0 0 640 54\" width=\"640\" height=\"54\"><rect x=\"0\" y=\"0\" width=\"640\" height=\"54\" fill=\"#191a1c\"/><rect x=\"18\" y=\"6\" width=\"145\" height=\"42\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#a9abb0\" d=\"M30 12h2v2h-2zM28 14h2v2h-2zM30 14h2v2h-2zM30 16h2v2h-2zM30 18h2v2h-2zM30 20h2v2h-2zM30 22h2v2h-2zM28 24h2v2h-2zM30 24h2v2h-2zM32 24h2v2h-2zM58 12h2v2h-2zM56 14h2v2h-2zM56 16h2v2h-2zM54 18h2v2h-2zM52 20h2v2h-2zM52 22h2v2h-2zM50 24h2v2h-2zM76 12h2v2h-2zM78 12h2v2h-2zM80 12h2v2h-2zM82 12h2v2h-2zM74 14h2v2h-2zM74 16h2v2h-2zM74 18h2v2h-2zM74 20h2v2h-2zM74 22h2v2h-2zM76 24h2v2h-2zM78 24h2v2h-2zM80 24h2v2h-2zM82 24h2v2h-2zM86 12h2v2h-2zM88 12h2v2h-2zM90 12h2v2h-2zM92 12h2v2h-2zM94 14h2v2h-2zM94 16h2v2h-2zM88 18h2v2h-2zM90 18h2v2h-2zM92 18h2v2h-2zM94 20h2v2h-2zM94 22h2v2h-2zM86 24h2v2h-2zM88 24h2v2h-2zM90 24h2v2h-2zM92 24h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M28 30h2v2h-2zM30 30h2v2h-2zM32 30h2v2h-2zM34 30h2v2h-2zM26 32h2v2h-2zM26 34h2v2h-2zM26 36h2v2h-2zM26 38h2v2h-2zM26 40h2v2h-2zM28 42h2v2h-2zM30 42h2v2h-2zM32 42h2v2h-2zM34 42h2v2h-2zM38 30h2v2h-2zM46 30h2v2h-2zM38 32h2v2h-2zM46 32h2v2h-2zM38 34h2v2h-2zM46 34h2v2h-2zM38 36h2v2h-2zM40 36h2v2h-2zM42 36h2v2h-2zM44 36h2v2h-2zM46 36h2v2h-2zM38 38h2v2h-2zM46 38h2v2h-2zM38 40h2v2h-2zM46 40h2v2h-2zM38 42h2v2h-2zM46 42h2v2h-2zM50 30h2v2h-2zM52 30h2v2h-2zM54 30h2v2h-2zM56 30h2v2h-2zM58 30h2v2h-2zM54 32h2v2h-2zM54 34h2v2h-2zM54 36h2v2h-2zM54 38h2v2h-2zM54 40h2v2h-2zM50 42h2v2h-2zM52 42h2v2h-2zM54 42h2v2h-2zM56 42h2v2h-2zM58 42h2v2h-2zM62 30h2v2h-2zM70 30h2v2h-2zM62 32h2v2h-2zM64 32h2v2h-2zM68 32h2v2h-2zM70 32h2v2h-2zM62 34h2v2h-2zM66 34h2v2h-2zM70 34h2v2h-2zM62 36h2v2h-2zM66 36h2v2h-2zM70 36h2v2h-2zM62 38h2v2h-2zM70 38h2v2h-2zM62 40h2v2h-2zM70 40h2v2h-2zM62 42h2v2h-2zM70 42h2v2h-2zM74 30h2v2h-2zM76 30h2v2h-2zM78 30h2v2h-2zM80 30h2v2h-2zM82 30h2v2h-2zM74 32h2v2h-2zM74 34h2v2h-2zM74 36h2v2h-2zM76 36h2v2h-2zM78 36h2v2h-2zM80 36h2v2h-2zM74 38h2v2h-2zM74 40h2v2h-2zM74 42h2v2h-2zM76 42h2v2h-2zM78 42h2v2h-2zM80 42h2v2h-2zM82 42h2v2h-2z\"/><rect x=\"171\" y=\"6\" width=\"145\" height=\"42\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#a9abb0\" d=\"M181 12h2v2h-2zM183 12h2v2h-2zM185 12h2v2h-2zM179 14h2v2h-2zM187 14h2v2h-2zM187 16h2v2h-2zM185 18h2v2h-2zM183 20h2v2h-2zM181 22h2v2h-2zM179 24h2v2h-2zM181 24h2v2h-2zM183 24h2v2h-2zM185 24h2v2h-2zM187 24h2v2h-2zM211 12h2v2h-2zM209 14h2v2h-2zM209 16h2v2h-2zM207 18h2v2h-2zM205 20h2v2h-2zM205 22h2v2h-2zM203 24h2v2h-2zM229 12h2v2h-2zM231 12h2v2h-2zM233 12h2v2h-2zM235 12h2v2h-2zM227 14h2v2h-2zM227 16h2v2h-2zM227 18h2v2h-2zM227 20h2v2h-2zM227 22h2v2h-2zM229 24h2v2h-2zM231 24h2v2h-2zM233 24h2v2h-2zM235 24h2v2h-2zM241 12h2v2h-2zM245 12h2v2h-2zM241 14h2v2h-2zM245 14h2v2h-2zM239 16h2v2h-2zM241 16h2v2h-2zM243 16h2v2h-2zM245 16h2v2h-2zM247 16h2v2h-2zM241 18h2v2h-2zM245 18h2v2h-2zM239 20h2v2h-2zM241 20h2v2h-2zM243 20h2v2h-2zM245 20h2v2h-2zM247 20h2v2h-2zM241 22h2v2h-2zM245 22h2v2h-2zM241 24h2v2h-2zM245 24h2v2h-2zM251 12h2v2h-2zM253 12h2v2h-2zM255 12h2v2h-2zM257 12h2v2h-2zM259 14h2v2h-2zM259 16h2v2h-2zM253 18h2v2h-2zM255 18h2v2h-2zM257 18h2v2h-2zM259 20h2v2h-2zM259 22h2v2h-2zM251 24h2v2h-2zM253 24h2v2h-2zM255 24h2v2h-2zM257 24h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M181 30h2v2h-2zM183 30h2v2h-2zM185 30h2v2h-2zM179 32h2v2h-2zM187 32h2v2h-2zM179 34h2v2h-2zM187 34h2v2h-2zM179 36h2v2h-2zM181 36h2v2h-2zM183 36h2v2h-2zM185 36h2v2h-2zM187 36h2v2h-2zM179 38h2v2h-2zM187 38h2v2h-2zM179 40h2v2h-2zM187 40h2v2h-2zM179 42h2v2h-2zM187 42h2v2h-2zM191 30h2v2h-2zM193 30h2v2h-2zM195 30h2v2h-2zM197 30h2v2h-2zM199 30h2v2h-2zM195 32h2v2h-2zM195 34h2v2h-2zM195 36h2v2h-2zM195 38h2v2h-2zM195 40h2v2h-2zM191 42h2v2h-2zM193 42h2v2h-2zM195 42h2v2h-2zM197 42h2v2h-2zM199 42h2v2h-2zM203 30h2v2h-2zM205 30h2v2h-2zM207 30h2v2h-2zM209 30h2v2h-2zM203 32h2v2h-2zM211 32h2v2h-2zM203 34h2v2h-2zM211 34h2v2h-2zM203 36h2v2h-2zM205 36h2v2h-2zM207 36h2v2h-2zM209 36h2v2h-2zM203 38h2v2h-2zM207 38h2v2h-2zM203 40h2v2h-2zM209 40h2v2h-2zM203 42h2v2h-2zM211 42h2v2h-2z\"/><rect x=\"324\" y=\"6\" width=\"145\" height=\"42\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#a9abb0\" d=\"M332 12h2v2h-2zM334 12h2v2h-2zM336 12h2v2h-2zM338 12h2v2h-2zM340 14h2v2h-2zM340 16h2v2h-2zM334 18h2v2h-2zM336 18h2v2h-2zM338 18h2v2h-2zM340 20h2v2h-2zM340 22h2v2h-2zM332 24h2v2h-2zM334 24h2v2h-2zM336 24h2v2h-2zM338 24h2v2h-2zM364 12h2v2h-2zM362 14h2v2h-2zM362 16h2v2h-2zM360 18h2v2h-2zM358 20h2v2h-2zM358 22h2v2h-2zM356 24h2v2h-2zM380 12h2v2h-2zM382 12h2v2h-2zM384 12h2v2h-2zM386 12h2v2h-2zM380 14h2v2h-2zM388 14h2v2h-2zM380 16h2v2h-2zM388 16h2v2h-2zM380 18h2v2h-2zM388 18h2v2h-2zM380 20h2v2h-2zM388 20h2v2h-2zM380 22h2v2h-2zM388 22h2v2h-2zM380 24h2v2h-2zM382 24h2v2h-2zM384 24h2v2h-2zM386 24h2v2h-2zM392 12h2v2h-2zM394 12h2v2h-2zM396 12h2v2h-2zM398 12h2v2h-2zM400 14h2v2h-2zM400 16h2v2h-2zM394 18h2v2h-2zM396 18h2v2h-2zM398 18h2v2h-2zM400 20h2v2h-2zM400 22h2v2h-2zM392 24h2v2h-2zM394 24h2v2h-2zM396 24h2v2h-2zM398 24h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M332 30h2v2h-2zM334 30h2v2h-2zM336 30h2v2h-2zM338 30h2v2h-2zM332 32h2v2h-2zM340 32h2v2h-2zM332 34h2v2h-2zM340 34h2v2h-2zM332 36h2v2h-2zM340 36h2v2h-2zM332 38h2v2h-2zM340 38h2v2h-2zM332 40h2v2h-2zM340 40h2v2h-2zM332 42h2v2h-2zM334 42h2v2h-2zM336 42h2v2h-2zM338 42h2v2h-2zM344 30h2v2h-2zM352 30h2v2h-2zM344 32h2v2h-2zM352 32h2v2h-2zM344 34h2v2h-2zM352 34h2v2h-2zM344 36h2v2h-2zM352 36h2v2h-2zM344 38h2v2h-2zM352 38h2v2h-2zM344 40h2v2h-2zM352 40h2v2h-2zM346 42h2v2h-2zM348 42h2v2h-2zM350 42h2v2h-2zM358 30h2v2h-2zM360 30h2v2h-2zM362 30h2v2h-2zM364 30h2v2h-2zM356 32h2v2h-2zM356 34h2v2h-2zM358 36h2v2h-2zM360 36h2v2h-2zM362 36h2v2h-2zM364 38h2v2h-2zM364 40h2v2h-2zM356 42h2v2h-2zM358 42h2v2h-2zM360 42h2v2h-2zM362 42h2v2h-2zM368 30h2v2h-2zM370 30h2v2h-2zM372 30h2v2h-2zM374 30h2v2h-2zM376 30h2v2h-2zM372 32h2v2h-2zM372 34h2v2h-2zM372 36h2v2h-2zM372 38h2v2h-2zM372 40h2v2h-2zM372 42h2v2h-2z\"/><rect x=\"477\" y=\"6\" width=\"145\" height=\"42\" fill=\"none\" stroke=\"#e8e8e6\"/><rect x=\"477\" y=\"46\" width=\"145\" height=\"2\" fill=\"#e8e8e6\"/><path fill=\"#e8e8e6\" d=\"M491 12h2v2h-2zM489 14h2v2h-2zM491 14h2v2h-2zM487 16h2v2h-2zM491 16h2v2h-2zM485 18h2v2h-2zM491 18h2v2h-2zM485 20h2v2h-2zM487 20h2v2h-2zM489 20h2v2h-2zM491 20h2v2h-2zM493 20h2v2h-2zM491 22h2v2h-2zM491 24h2v2h-2zM517 12h2v2h-2zM515 14h2v2h-2zM515 16h2v2h-2zM513 18h2v2h-2zM511 20h2v2h-2zM511 22h2v2h-2zM509 24h2v2h-2zM533 12h2v2h-2zM535 12h2v2h-2zM537 12h2v2h-2zM539 12h2v2h-2zM533 14h2v2h-2zM541 14h2v2h-2zM533 16h2v2h-2zM541 16h2v2h-2zM533 18h2v2h-2zM541 18h2v2h-2zM533 20h2v2h-2zM541 20h2v2h-2zM533 22h2v2h-2zM541 22h2v2h-2zM533 24h2v2h-2zM535 24h2v2h-2zM537 24h2v2h-2zM539 24h2v2h-2zM547 12h2v2h-2zM551 12h2v2h-2zM547 14h2v2h-2zM551 14h2v2h-2zM545 16h2v2h-2zM547 16h2v2h-2zM549 16h2v2h-2zM551 16h2v2h-2zM553 16h2v2h-2zM547 18h2v2h-2zM551 18h2v2h-2zM545 20h2v2h-2zM547 20h2v2h-2zM549 20h2v2h-2zM551 20h2v2h-2zM553 20h2v2h-2zM547 22h2v2h-2zM551 22h2v2h-2zM547 24h2v2h-2zM551 24h2v2h-2zM557 12h2v2h-2zM559 12h2v2h-2zM561 12h2v2h-2zM563 12h2v2h-2zM565 14h2v2h-2zM565 16h2v2h-2zM559 18h2v2h-2zM561 18h2v2h-2zM563 18h2v2h-2zM565 20h2v2h-2zM565 22h2v2h-2zM557 24h2v2h-2zM559 24h2v2h-2zM561 24h2v2h-2zM563 24h2v2h-2z\"/><path fill=\"#e8e8e6\" d=\"M487 30h2v2h-2zM489 30h2v2h-2zM491 30h2v2h-2zM493 30h2v2h-2zM485 32h2v2h-2zM485 34h2v2h-2zM485 36h2v2h-2zM485 38h2v2h-2zM485 40h2v2h-2zM487 42h2v2h-2zM489 42h2v2h-2zM491 42h2v2h-2zM493 42h2v2h-2zM497 30h2v2h-2zM505 30h2v2h-2zM497 32h2v2h-2zM505 32h2v2h-2zM497 34h2v2h-2zM505 34h2v2h-2zM497 36h2v2h-2zM499 36h2v2h-2zM501 36h2v2h-2zM503 36h2v2h-2zM505 36h2v2h-2zM497 38h2v2h-2zM505 38h2v2h-2zM497 40h2v2h-2zM505 40h2v2h-2zM497 42h2v2h-2zM505 42h2v2h-2zM509 30h2v2h-2zM511 30h2v2h-2zM513 30h2v2h-2zM515 30h2v2h-2zM517 30h2v2h-2zM513 32h2v2h-2zM513 34h2v2h-2zM513 36h2v2h-2zM513 38h2v2h-2zM513 40h2v2h-2zM509 42h2v2h-2zM511 42h2v2h-2zM513 42h2v2h-2zM515 42h2v2h-2zM517 42h2v2h-2zM521 30h2v2h-2zM529 30h2v2h-2zM521 32h2v2h-2zM523 32h2v2h-2zM527 32h2v2h-2zM529 32h2v2h-2zM521 34h2v2h-2zM525 34h2v2h-2zM529 34h2v2h-2zM521 36h2v2h-2zM525 36h2v2h-2zM529 36h2v2h-2zM521 38h2v2h-2zM529 38h2v2h-2zM521 40h2v2h-2zM529 40h2v2h-2zM521 42h2v2h-2zM529 42h2v2h-2zM533 30h2v2h-2zM535 30h2v2h-2zM537 30h2v2h-2zM539 30h2v2h-2zM541 30h2v2h-2zM533 32h2v2h-2zM533 34h2v2h-2zM533 36h2v2h-2zM535 36h2v2h-2zM537 36h2v2h-2zM539 36h2v2h-2zM533 38h2v2h-2zM533 40h2v2h-2zM533 42h2v2h-2zM535 42h2v2h-2zM537 42h2v2h-2zM539 42h2v2h-2zM541 42h2v2h-2z\"/></svg>",
-      "css": ".ds-native{display:block;max-width:100%;height:auto;shape-rendering:crispEdges}"
-    },
-    {
-      "name": "Native · Name Keyboard",
-      "kind": "custom",
-      "description": "Native 0.5.2. Общая панель всех имён: 38 символов, DEL/SAVE, 24-символьный предел. Точное текущее состояние с выделенным именем и фокусом A; ввод и каретка описаны в нативном контракте. Используется также для секвенций и SONG; отмена создания не записывает файл.",
-      "html": "<svg class=\"ds-native\" role=\"img\" aria-label=\"Name keyboard: selected NIGHT WINDOW, 12 of 24 characters\" viewBox=\"0 0 584 346\" width=\"584\" height=\"346\"><rect x=\"0\" y=\"0\" width=\"584\" height=\"346\" fill=\"#222326\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M16 16h2v2h-2zM24 16h2v2h-2zM16 18h2v2h-2zM18 18h2v2h-2zM24 18h2v2h-2zM16 20h2v2h-2zM20 20h2v2h-2zM24 20h2v2h-2zM16 22h2v2h-2zM22 22h2v2h-2zM24 22h2v2h-2zM16 24h2v2h-2zM24 24h2v2h-2zM16 26h2v2h-2zM24 26h2v2h-2zM16 28h2v2h-2zM24 28h2v2h-2zM28 16h2v2h-2zM30 16h2v2h-2zM32 16h2v2h-2zM34 16h2v2h-2zM36 16h2v2h-2zM28 18h2v2h-2zM28 20h2v2h-2zM28 22h2v2h-2zM30 22h2v2h-2zM32 22h2v2h-2zM34 22h2v2h-2zM28 24h2v2h-2zM28 26h2v2h-2zM28 28h2v2h-2zM30 28h2v2h-2zM32 28h2v2h-2zM34 28h2v2h-2zM36 28h2v2h-2zM40 16h2v2h-2zM48 16h2v2h-2zM40 18h2v2h-2zM48 18h2v2h-2zM40 20h2v2h-2zM48 20h2v2h-2zM40 22h2v2h-2zM44 22h2v2h-2zM48 22h2v2h-2zM40 24h2v2h-2zM44 24h2v2h-2zM48 24h2v2h-2zM40 26h2v2h-2zM44 26h2v2h-2zM48 26h2v2h-2zM42 28h2v2h-2zM46 28h2v2h-2zM64 16h2v2h-2zM66 16h2v2h-2zM68 16h2v2h-2zM70 16h2v2h-2zM64 18h2v2h-2zM72 18h2v2h-2zM64 20h2v2h-2zM72 20h2v2h-2zM64 22h2v2h-2zM66 22h2v2h-2zM68 22h2v2h-2zM70 22h2v2h-2zM64 24h2v2h-2zM64 26h2v2h-2zM64 28h2v2h-2zM76 16h2v2h-2zM78 16h2v2h-2zM80 16h2v2h-2zM82 16h2v2h-2zM76 18h2v2h-2zM84 18h2v2h-2zM76 20h2v2h-2zM84 20h2v2h-2zM76 22h2v2h-2zM78 22h2v2h-2zM80 22h2v2h-2zM82 22h2v2h-2zM76 24h2v2h-2zM80 24h2v2h-2zM76 26h2v2h-2zM82 26h2v2h-2zM76 28h2v2h-2zM84 28h2v2h-2zM90 16h2v2h-2zM92 16h2v2h-2zM94 16h2v2h-2zM88 18h2v2h-2zM96 18h2v2h-2zM88 20h2v2h-2zM96 20h2v2h-2zM88 22h2v2h-2zM96 22h2v2h-2zM88 24h2v2h-2zM96 24h2v2h-2zM88 26h2v2h-2zM96 26h2v2h-2zM90 28h2v2h-2zM92 28h2v2h-2zM94 28h2v2h-2zM104 16h2v2h-2zM106 16h2v2h-2zM108 16h2v2h-2zM106 18h2v2h-2zM106 20h2v2h-2zM106 22h2v2h-2zM100 24h2v2h-2zM106 24h2v2h-2zM100 26h2v2h-2zM106 26h2v2h-2zM102 28h2v2h-2zM104 28h2v2h-2zM112 16h2v2h-2zM114 16h2v2h-2zM116 16h2v2h-2zM118 16h2v2h-2zM120 16h2v2h-2zM112 18h2v2h-2zM112 20h2v2h-2zM112 22h2v2h-2zM114 22h2v2h-2zM116 22h2v2h-2zM118 22h2v2h-2zM112 24h2v2h-2zM112 26h2v2h-2zM112 28h2v2h-2zM114 28h2v2h-2zM116 28h2v2h-2zM118 28h2v2h-2zM120 28h2v2h-2zM126 16h2v2h-2zM128 16h2v2h-2zM130 16h2v2h-2zM132 16h2v2h-2zM124 18h2v2h-2zM124 20h2v2h-2zM124 22h2v2h-2zM124 24h2v2h-2zM124 26h2v2h-2zM126 28h2v2h-2zM128 28h2v2h-2zM130 28h2v2h-2zM132 28h2v2h-2zM136 16h2v2h-2zM138 16h2v2h-2zM140 16h2v2h-2zM142 16h2v2h-2zM144 16h2v2h-2zM140 18h2v2h-2zM140 20h2v2h-2zM140 22h2v2h-2zM140 24h2v2h-2zM140 26h2v2h-2zM140 28h2v2h-2z\"/><path fill=\"#a9abb0\" d=\"M500 16h2v2h-2zM498 18h2v2h-2zM500 18h2v2h-2zM500 20h2v2h-2zM500 22h2v2h-2zM500 24h2v2h-2zM500 26h2v2h-2zM498 28h2v2h-2zM500 28h2v2h-2zM502 28h2v2h-2zM510 16h2v2h-2zM512 16h2v2h-2zM514 16h2v2h-2zM508 18h2v2h-2zM516 18h2v2h-2zM516 20h2v2h-2zM514 22h2v2h-2zM512 24h2v2h-2zM510 26h2v2h-2zM508 28h2v2h-2zM510 28h2v2h-2zM512 28h2v2h-2zM514 28h2v2h-2zM516 28h2v2h-2zM528 16h2v2h-2zM526 18h2v2h-2zM526 20h2v2h-2zM524 22h2v2h-2zM522 24h2v2h-2zM522 26h2v2h-2zM520 28h2v2h-2zM534 16h2v2h-2zM536 16h2v2h-2zM538 16h2v2h-2zM532 18h2v2h-2zM540 18h2v2h-2zM540 20h2v2h-2zM538 22h2v2h-2zM536 24h2v2h-2zM534 26h2v2h-2zM532 28h2v2h-2zM534 28h2v2h-2zM536 28h2v2h-2zM538 28h2v2h-2zM540 28h2v2h-2zM550 16h2v2h-2zM548 18h2v2h-2zM550 18h2v2h-2zM546 20h2v2h-2zM550 20h2v2h-2zM544 22h2v2h-2zM550 22h2v2h-2zM544 24h2v2h-2zM546 24h2v2h-2zM548 24h2v2h-2zM550 24h2v2h-2zM552 24h2v2h-2zM550 26h2v2h-2zM550 28h2v2h-2z\"/><rect x=\"16\" y=\"47\" width=\"552\" height=\"38\" fill=\"#191a1c\"/><rect x=\"24\" y=\"55\" width=\"144\" height=\"20\" fill=\"#e8e8e6\"/><path fill=\"#191a1c\" d=\"M24 57h2v2h-2zM32 57h2v2h-2zM24 59h2v2h-2zM26 59h2v2h-2zM32 59h2v2h-2zM24 61h2v2h-2zM28 61h2v2h-2zM32 61h2v2h-2zM24 63h2v2h-2zM30 63h2v2h-2zM32 63h2v2h-2zM24 65h2v2h-2zM32 65h2v2h-2zM24 67h2v2h-2zM32 67h2v2h-2zM24 69h2v2h-2zM32 69h2v2h-2zM36 57h2v2h-2zM38 57h2v2h-2zM40 57h2v2h-2zM42 57h2v2h-2zM44 57h2v2h-2zM40 59h2v2h-2zM40 61h2v2h-2zM40 63h2v2h-2zM40 65h2v2h-2zM40 67h2v2h-2zM36 69h2v2h-2zM38 69h2v2h-2zM40 69h2v2h-2zM42 69h2v2h-2zM44 69h2v2h-2zM50 57h2v2h-2zM52 57h2v2h-2zM54 57h2v2h-2zM56 57h2v2h-2zM48 59h2v2h-2zM48 61h2v2h-2zM48 63h2v2h-2zM52 63h2v2h-2zM54 63h2v2h-2zM56 63h2v2h-2zM48 65h2v2h-2zM56 65h2v2h-2zM48 67h2v2h-2zM56 67h2v2h-2zM50 69h2v2h-2zM52 69h2v2h-2zM54 69h2v2h-2zM56 69h2v2h-2zM60 57h2v2h-2zM68 57h2v2h-2zM60 59h2v2h-2zM68 59h2v2h-2zM60 61h2v2h-2zM68 61h2v2h-2zM60 63h2v2h-2zM62 63h2v2h-2zM64 63h2v2h-2zM66 63h2v2h-2zM68 63h2v2h-2zM60 65h2v2h-2zM68 65h2v2h-2zM60 67h2v2h-2zM68 67h2v2h-2zM60 69h2v2h-2zM68 69h2v2h-2zM72 57h2v2h-2zM74 57h2v2h-2zM76 57h2v2h-2zM78 57h2v2h-2zM80 57h2v2h-2zM76 59h2v2h-2zM76 61h2v2h-2zM76 63h2v2h-2zM76 65h2v2h-2zM76 67h2v2h-2zM76 69h2v2h-2zM96 57h2v2h-2zM104 57h2v2h-2zM96 59h2v2h-2zM104 59h2v2h-2zM96 61h2v2h-2zM104 61h2v2h-2zM96 63h2v2h-2zM100 63h2v2h-2zM104 63h2v2h-2zM96 65h2v2h-2zM100 65h2v2h-2zM104 65h2v2h-2zM96 67h2v2h-2zM100 67h2v2h-2zM104 67h2v2h-2zM98 69h2v2h-2zM102 69h2v2h-2zM108 57h2v2h-2zM110 57h2v2h-2zM112 57h2v2h-2zM114 57h2v2h-2zM116 57h2v2h-2zM112 59h2v2h-2zM112 61h2v2h-2zM112 63h2v2h-2zM112 65h2v2h-2zM112 67h2v2h-2zM108 69h2v2h-2zM110 69h2v2h-2zM112 69h2v2h-2zM114 69h2v2h-2zM116 69h2v2h-2zM120 57h2v2h-2zM128 57h2v2h-2zM120 59h2v2h-2zM122 59h2v2h-2zM128 59h2v2h-2zM120 61h2v2h-2zM124 61h2v2h-2zM128 61h2v2h-2zM120 63h2v2h-2zM126 63h2v2h-2zM128 63h2v2h-2zM120 65h2v2h-2zM128 65h2v2h-2zM120 67h2v2h-2zM128 67h2v2h-2zM120 69h2v2h-2zM128 69h2v2h-2zM132 57h2v2h-2zM134 57h2v2h-2zM136 57h2v2h-2zM138 57h2v2h-2zM132 59h2v2h-2zM140 59h2v2h-2zM132 61h2v2h-2zM140 61h2v2h-2zM132 63h2v2h-2zM140 63h2v2h-2zM132 65h2v2h-2zM140 65h2v2h-2zM132 67h2v2h-2zM140 67h2v2h-2zM132 69h2v2h-2zM134 69h2v2h-2zM136 69h2v2h-2zM138 69h2v2h-2zM146 57h2v2h-2zM148 57h2v2h-2zM150 57h2v2h-2zM144 59h2v2h-2zM152 59h2v2h-2zM144 61h2v2h-2zM152 61h2v2h-2zM144 63h2v2h-2zM152 63h2v2h-2zM144 65h2v2h-2zM152 65h2v2h-2zM144 67h2v2h-2zM152 67h2v2h-2zM146 69h2v2h-2zM148 69h2v2h-2zM150 69h2v2h-2zM156 57h2v2h-2zM164 57h2v2h-2zM156 59h2v2h-2zM164 59h2v2h-2zM156 61h2v2h-2zM164 61h2v2h-2zM156 63h2v2h-2zM160 63h2v2h-2zM164 63h2v2h-2zM156 65h2v2h-2zM160 65h2v2h-2zM164 65h2v2h-2zM156 67h2v2h-2zM160 67h2v2h-2zM164 67h2v2h-2zM158 69h2v2h-2zM162 69h2v2h-2z\"/><rect x=\"16\" y=\"100\" width=\"48\" height=\"34\" fill=\"#e8e8e6\"/><path fill=\"#191a1c\" d=\"M36 110h2v2h-2zM38 110h2v2h-2zM40 110h2v2h-2zM34 112h2v2h-2zM42 112h2v2h-2zM34 114h2v2h-2zM42 114h2v2h-2zM34 116h2v2h-2zM36 116h2v2h-2zM38 116h2v2h-2zM40 116h2v2h-2zM42 116h2v2h-2zM34 118h2v2h-2zM42 118h2v2h-2zM34 120h2v2h-2zM42 120h2v2h-2zM34 122h2v2h-2zM42 122h2v2h-2z\"/><rect x=\"72\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M90 110h2v2h-2zM92 110h2v2h-2zM94 110h2v2h-2zM96 110h2v2h-2zM90 112h2v2h-2zM98 112h2v2h-2zM90 114h2v2h-2zM98 114h2v2h-2zM90 116h2v2h-2zM92 116h2v2h-2zM94 116h2v2h-2zM96 116h2v2h-2zM90 118h2v2h-2zM98 118h2v2h-2zM90 120h2v2h-2zM98 120h2v2h-2zM90 122h2v2h-2zM92 122h2v2h-2zM94 122h2v2h-2zM96 122h2v2h-2z\"/><rect x=\"128\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M148 110h2v2h-2zM150 110h2v2h-2zM152 110h2v2h-2zM154 110h2v2h-2zM146 112h2v2h-2zM146 114h2v2h-2zM146 116h2v2h-2zM146 118h2v2h-2zM146 120h2v2h-2zM148 122h2v2h-2zM150 122h2v2h-2zM152 122h2v2h-2zM154 122h2v2h-2z\"/><rect x=\"184\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M202 110h2v2h-2zM204 110h2v2h-2zM206 110h2v2h-2zM208 110h2v2h-2zM202 112h2v2h-2zM210 112h2v2h-2zM202 114h2v2h-2zM210 114h2v2h-2zM202 116h2v2h-2zM210 116h2v2h-2zM202 118h2v2h-2zM210 118h2v2h-2zM202 120h2v2h-2zM210 120h2v2h-2zM202 122h2v2h-2zM204 122h2v2h-2zM206 122h2v2h-2zM208 122h2v2h-2z\"/><rect x=\"240\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M258 110h2v2h-2zM260 110h2v2h-2zM262 110h2v2h-2zM264 110h2v2h-2zM266 110h2v2h-2zM258 112h2v2h-2zM258 114h2v2h-2zM258 116h2v2h-2zM260 116h2v2h-2zM262 116h2v2h-2zM264 116h2v2h-2zM258 118h2v2h-2zM258 120h2v2h-2zM258 122h2v2h-2zM260 122h2v2h-2zM262 122h2v2h-2zM264 122h2v2h-2zM266 122h2v2h-2z\"/><rect x=\"296\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M314 110h2v2h-2zM316 110h2v2h-2zM318 110h2v2h-2zM320 110h2v2h-2zM322 110h2v2h-2zM314 112h2v2h-2zM314 114h2v2h-2zM314 116h2v2h-2zM316 116h2v2h-2zM318 116h2v2h-2zM320 116h2v2h-2zM314 118h2v2h-2zM314 120h2v2h-2zM314 122h2v2h-2z\"/><rect x=\"352\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M372 110h2v2h-2zM374 110h2v2h-2zM376 110h2v2h-2zM378 110h2v2h-2zM370 112h2v2h-2zM370 114h2v2h-2zM370 116h2v2h-2zM374 116h2v2h-2zM376 116h2v2h-2zM378 116h2v2h-2zM370 118h2v2h-2zM378 118h2v2h-2zM370 120h2v2h-2zM378 120h2v2h-2zM372 122h2v2h-2zM374 122h2v2h-2zM376 122h2v2h-2zM378 122h2v2h-2z\"/><rect x=\"408\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M426 110h2v2h-2zM434 110h2v2h-2zM426 112h2v2h-2zM434 112h2v2h-2zM426 114h2v2h-2zM434 114h2v2h-2zM426 116h2v2h-2zM428 116h2v2h-2zM430 116h2v2h-2zM432 116h2v2h-2zM434 116h2v2h-2zM426 118h2v2h-2zM434 118h2v2h-2zM426 120h2v2h-2zM434 120h2v2h-2zM426 122h2v2h-2zM434 122h2v2h-2z\"/><rect x=\"464\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M482 110h2v2h-2zM484 110h2v2h-2zM486 110h2v2h-2zM488 110h2v2h-2zM490 110h2v2h-2zM486 112h2v2h-2zM486 114h2v2h-2zM486 116h2v2h-2zM486 118h2v2h-2zM486 120h2v2h-2zM482 122h2v2h-2zM484 122h2v2h-2zM486 122h2v2h-2zM488 122h2v2h-2zM490 122h2v2h-2z\"/><rect x=\"520\" y=\"100\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M542 110h2v2h-2zM544 110h2v2h-2zM546 110h2v2h-2zM544 112h2v2h-2zM544 114h2v2h-2zM544 116h2v2h-2zM538 118h2v2h-2zM544 118h2v2h-2zM538 120h2v2h-2zM544 120h2v2h-2zM540 122h2v2h-2zM542 122h2v2h-2z\"/><rect x=\"16\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M34 154h2v2h-2zM42 154h2v2h-2zM34 156h2v2h-2zM40 156h2v2h-2zM34 158h2v2h-2zM38 158h2v2h-2zM34 160h2v2h-2zM36 160h2v2h-2zM34 162h2v2h-2zM38 162h2v2h-2zM34 164h2v2h-2zM40 164h2v2h-2zM34 166h2v2h-2zM42 166h2v2h-2z\"/><rect x=\"72\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M90 154h2v2h-2zM90 156h2v2h-2zM90 158h2v2h-2zM90 160h2v2h-2zM90 162h2v2h-2zM90 164h2v2h-2zM90 166h2v2h-2zM92 166h2v2h-2zM94 166h2v2h-2zM96 166h2v2h-2zM98 166h2v2h-2z\"/><rect x=\"128\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M146 154h2v2h-2zM154 154h2v2h-2zM146 156h2v2h-2zM148 156h2v2h-2zM152 156h2v2h-2zM154 156h2v2h-2zM146 158h2v2h-2zM150 158h2v2h-2zM154 158h2v2h-2zM146 160h2v2h-2zM150 160h2v2h-2zM154 160h2v2h-2zM146 162h2v2h-2zM154 162h2v2h-2zM146 164h2v2h-2zM154 164h2v2h-2zM146 166h2v2h-2zM154 166h2v2h-2z\"/><rect x=\"184\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M202 154h2v2h-2zM210 154h2v2h-2zM202 156h2v2h-2zM204 156h2v2h-2zM210 156h2v2h-2zM202 158h2v2h-2zM206 158h2v2h-2zM210 158h2v2h-2zM202 160h2v2h-2zM208 160h2v2h-2zM210 160h2v2h-2zM202 162h2v2h-2zM210 162h2v2h-2zM202 164h2v2h-2zM210 164h2v2h-2zM202 166h2v2h-2zM210 166h2v2h-2z\"/><rect x=\"240\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M260 154h2v2h-2zM262 154h2v2h-2zM264 154h2v2h-2zM258 156h2v2h-2zM266 156h2v2h-2zM258 158h2v2h-2zM266 158h2v2h-2zM258 160h2v2h-2zM266 160h2v2h-2zM258 162h2v2h-2zM266 162h2v2h-2zM258 164h2v2h-2zM266 164h2v2h-2zM260 166h2v2h-2zM262 166h2v2h-2zM264 166h2v2h-2z\"/><rect x=\"296\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M314 154h2v2h-2zM316 154h2v2h-2zM318 154h2v2h-2zM320 154h2v2h-2zM314 156h2v2h-2zM322 156h2v2h-2zM314 158h2v2h-2zM322 158h2v2h-2zM314 160h2v2h-2zM316 160h2v2h-2zM318 160h2v2h-2zM320 160h2v2h-2zM314 162h2v2h-2zM314 164h2v2h-2zM314 166h2v2h-2z\"/><rect x=\"352\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M372 154h2v2h-2zM374 154h2v2h-2zM376 154h2v2h-2zM370 156h2v2h-2zM378 156h2v2h-2zM370 158h2v2h-2zM378 158h2v2h-2zM370 160h2v2h-2zM378 160h2v2h-2zM370 162h2v2h-2zM374 162h2v2h-2zM378 162h2v2h-2zM370 164h2v2h-2zM376 164h2v2h-2zM372 166h2v2h-2zM374 166h2v2h-2zM378 166h2v2h-2z\"/><rect x=\"408\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M426 154h2v2h-2zM428 154h2v2h-2zM430 154h2v2h-2zM432 154h2v2h-2zM426 156h2v2h-2zM434 156h2v2h-2zM426 158h2v2h-2zM434 158h2v2h-2zM426 160h2v2h-2zM428 160h2v2h-2zM430 160h2v2h-2zM432 160h2v2h-2zM426 162h2v2h-2zM430 162h2v2h-2zM426 164h2v2h-2zM432 164h2v2h-2zM426 166h2v2h-2zM434 166h2v2h-2z\"/><rect x=\"464\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M484 154h2v2h-2zM486 154h2v2h-2zM488 154h2v2h-2zM490 154h2v2h-2zM482 156h2v2h-2zM482 158h2v2h-2zM484 160h2v2h-2zM486 160h2v2h-2zM488 160h2v2h-2zM490 162h2v2h-2zM490 164h2v2h-2zM482 166h2v2h-2zM484 166h2v2h-2zM486 166h2v2h-2zM488 166h2v2h-2z\"/><rect x=\"520\" y=\"144\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M538 154h2v2h-2zM540 154h2v2h-2zM542 154h2v2h-2zM544 154h2v2h-2zM546 154h2v2h-2zM542 156h2v2h-2zM542 158h2v2h-2zM542 160h2v2h-2zM542 162h2v2h-2zM542 164h2v2h-2zM542 166h2v2h-2z\"/><rect x=\"16\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M34 198h2v2h-2zM42 198h2v2h-2zM34 200h2v2h-2zM42 200h2v2h-2zM34 202h2v2h-2zM42 202h2v2h-2zM34 204h2v2h-2zM42 204h2v2h-2zM34 206h2v2h-2zM42 206h2v2h-2zM34 208h2v2h-2zM42 208h2v2h-2zM36 210h2v2h-2zM38 210h2v2h-2zM40 210h2v2h-2z\"/><rect x=\"72\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M90 198h2v2h-2zM98 198h2v2h-2zM90 200h2v2h-2zM98 200h2v2h-2zM90 202h2v2h-2zM98 202h2v2h-2zM90 204h2v2h-2zM98 204h2v2h-2zM90 206h2v2h-2zM98 206h2v2h-2zM92 208h2v2h-2zM96 208h2v2h-2zM94 210h2v2h-2z\"/><rect x=\"128\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M146 198h2v2h-2zM154 198h2v2h-2zM146 200h2v2h-2zM154 200h2v2h-2zM146 202h2v2h-2zM154 202h2v2h-2zM146 204h2v2h-2zM150 204h2v2h-2zM154 204h2v2h-2zM146 206h2v2h-2zM150 206h2v2h-2zM154 206h2v2h-2zM146 208h2v2h-2zM150 208h2v2h-2zM154 208h2v2h-2zM148 210h2v2h-2zM152 210h2v2h-2z\"/><rect x=\"184\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M202 198h2v2h-2zM210 198h2v2h-2zM202 200h2v2h-2zM210 200h2v2h-2zM204 202h2v2h-2zM208 202h2v2h-2zM206 204h2v2h-2zM204 206h2v2h-2zM208 206h2v2h-2zM202 208h2v2h-2zM210 208h2v2h-2zM202 210h2v2h-2zM210 210h2v2h-2z\"/><rect x=\"240\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M258 198h2v2h-2zM266 198h2v2h-2zM258 200h2v2h-2zM266 200h2v2h-2zM260 202h2v2h-2zM264 202h2v2h-2zM262 204h2v2h-2zM262 206h2v2h-2zM262 208h2v2h-2zM262 210h2v2h-2z\"/><rect x=\"296\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M314 198h2v2h-2zM316 198h2v2h-2zM318 198h2v2h-2zM320 198h2v2h-2zM322 198h2v2h-2zM322 200h2v2h-2zM320 202h2v2h-2zM318 204h2v2h-2zM316 206h2v2h-2zM314 208h2v2h-2zM314 210h2v2h-2zM316 210h2v2h-2zM318 210h2v2h-2zM320 210h2v2h-2zM322 210h2v2h-2z\"/><rect x=\"352\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M372 198h2v2h-2zM374 198h2v2h-2zM376 198h2v2h-2zM370 200h2v2h-2zM378 200h2v2h-2zM370 202h2v2h-2zM376 202h2v2h-2zM378 202h2v2h-2zM370 204h2v2h-2zM374 204h2v2h-2zM378 204h2v2h-2zM370 206h2v2h-2zM372 206h2v2h-2zM378 206h2v2h-2zM370 208h2v2h-2zM378 208h2v2h-2zM372 210h2v2h-2zM374 210h2v2h-2zM376 210h2v2h-2z\"/><rect x=\"408\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M430 198h2v2h-2zM428 200h2v2h-2zM430 200h2v2h-2zM430 202h2v2h-2zM430 204h2v2h-2zM430 206h2v2h-2zM430 208h2v2h-2zM428 210h2v2h-2zM430 210h2v2h-2zM432 210h2v2h-2z\"/><rect x=\"464\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M484 198h2v2h-2zM486 198h2v2h-2zM488 198h2v2h-2zM482 200h2v2h-2zM490 200h2v2h-2zM490 202h2v2h-2zM488 204h2v2h-2zM486 206h2v2h-2zM484 208h2v2h-2zM482 210h2v2h-2zM484 210h2v2h-2zM486 210h2v2h-2zM488 210h2v2h-2zM490 210h2v2h-2z\"/><rect x=\"520\" y=\"188\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M538 198h2v2h-2zM540 198h2v2h-2zM542 198h2v2h-2zM544 198h2v2h-2zM546 200h2v2h-2zM546 202h2v2h-2zM540 204h2v2h-2zM542 204h2v2h-2zM544 204h2v2h-2zM546 206h2v2h-2zM546 208h2v2h-2zM538 210h2v2h-2zM540 210h2v2h-2zM542 210h2v2h-2zM544 210h2v2h-2z\"/><rect x=\"16\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M40 242h2v2h-2zM38 244h2v2h-2zM40 244h2v2h-2zM36 246h2v2h-2zM40 246h2v2h-2zM34 248h2v2h-2zM40 248h2v2h-2zM34 250h2v2h-2zM36 250h2v2h-2zM38 250h2v2h-2zM40 250h2v2h-2zM42 250h2v2h-2zM40 252h2v2h-2zM40 254h2v2h-2z\"/><rect x=\"72\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M90 242h2v2h-2zM92 242h2v2h-2zM94 242h2v2h-2zM96 242h2v2h-2zM98 242h2v2h-2zM90 244h2v2h-2zM90 246h2v2h-2zM90 248h2v2h-2zM92 248h2v2h-2zM94 248h2v2h-2zM96 248h2v2h-2zM98 250h2v2h-2zM98 252h2v2h-2zM90 254h2v2h-2zM92 254h2v2h-2zM94 254h2v2h-2zM96 254h2v2h-2z\"/><rect x=\"128\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M148 242h2v2h-2zM150 242h2v2h-2zM152 242h2v2h-2zM146 244h2v2h-2zM146 246h2v2h-2zM146 248h2v2h-2zM148 248h2v2h-2zM150 248h2v2h-2zM152 248h2v2h-2zM146 250h2v2h-2zM154 250h2v2h-2zM146 252h2v2h-2zM154 252h2v2h-2zM148 254h2v2h-2zM150 254h2v2h-2zM152 254h2v2h-2z\"/><rect x=\"184\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M202 242h2v2h-2zM204 242h2v2h-2zM206 242h2v2h-2zM208 242h2v2h-2zM210 242h2v2h-2zM210 244h2v2h-2zM208 246h2v2h-2zM206 248h2v2h-2zM204 250h2v2h-2zM204 252h2v2h-2zM204 254h2v2h-2z\"/><rect x=\"240\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M260 242h2v2h-2zM262 242h2v2h-2zM264 242h2v2h-2zM258 244h2v2h-2zM266 244h2v2h-2zM258 246h2v2h-2zM266 246h2v2h-2zM260 248h2v2h-2zM262 248h2v2h-2zM264 248h2v2h-2zM258 250h2v2h-2zM266 250h2v2h-2zM258 252h2v2h-2zM266 252h2v2h-2zM260 254h2v2h-2zM262 254h2v2h-2zM264 254h2v2h-2z\"/><rect x=\"296\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M316 242h2v2h-2zM318 242h2v2h-2zM320 242h2v2h-2zM314 244h2v2h-2zM322 244h2v2h-2zM314 246h2v2h-2zM322 246h2v2h-2zM316 248h2v2h-2zM318 248h2v2h-2zM320 248h2v2h-2zM322 248h2v2h-2zM322 250h2v2h-2zM322 252h2v2h-2zM316 254h2v2h-2zM318 254h2v2h-2zM320 254h2v2h-2z\"/><rect x=\"352\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M360 242h2v2h-2zM362 242h2v2h-2zM364 242h2v2h-2zM366 242h2v2h-2zM358 244h2v2h-2zM358 246h2v2h-2zM360 248h2v2h-2zM362 248h2v2h-2zM364 248h2v2h-2zM366 250h2v2h-2zM366 252h2v2h-2zM358 254h2v2h-2zM360 254h2v2h-2zM362 254h2v2h-2zM364 254h2v2h-2zM370 242h2v2h-2zM372 242h2v2h-2zM374 242h2v2h-2zM376 242h2v2h-2zM370 244h2v2h-2zM378 244h2v2h-2zM370 246h2v2h-2zM378 246h2v2h-2zM370 248h2v2h-2zM372 248h2v2h-2zM374 248h2v2h-2zM376 248h2v2h-2zM370 250h2v2h-2zM370 252h2v2h-2zM370 254h2v2h-2zM384 242h2v2h-2zM386 242h2v2h-2zM388 242h2v2h-2zM390 242h2v2h-2zM382 244h2v2h-2zM382 246h2v2h-2zM382 248h2v2h-2zM382 250h2v2h-2zM382 252h2v2h-2zM384 254h2v2h-2zM386 254h2v2h-2zM388 254h2v2h-2zM390 254h2v2h-2z\"/><rect x=\"408\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M426 248h2v2h-2zM428 248h2v2h-2zM430 248h2v2h-2zM432 248h2v2h-2zM434 248h2v2h-2z\"/><rect x=\"464\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M470 242h2v2h-2zM472 242h2v2h-2zM474 242h2v2h-2zM476 242h2v2h-2zM470 244h2v2h-2zM478 244h2v2h-2zM470 246h2v2h-2zM478 246h2v2h-2zM470 248h2v2h-2zM478 248h2v2h-2zM470 250h2v2h-2zM478 250h2v2h-2zM470 252h2v2h-2zM478 252h2v2h-2zM470 254h2v2h-2zM472 254h2v2h-2zM474 254h2v2h-2zM476 254h2v2h-2zM482 242h2v2h-2zM484 242h2v2h-2zM486 242h2v2h-2zM488 242h2v2h-2zM490 242h2v2h-2zM482 244h2v2h-2zM482 246h2v2h-2zM482 248h2v2h-2zM484 248h2v2h-2zM486 248h2v2h-2zM488 248h2v2h-2zM482 250h2v2h-2zM482 252h2v2h-2zM482 254h2v2h-2zM484 254h2v2h-2zM486 254h2v2h-2zM488 254h2v2h-2zM490 254h2v2h-2zM494 242h2v2h-2zM494 244h2v2h-2zM494 246h2v2h-2zM494 248h2v2h-2zM494 250h2v2h-2zM494 252h2v2h-2zM494 254h2v2h-2zM496 254h2v2h-2zM498 254h2v2h-2zM500 254h2v2h-2zM502 254h2v2h-2z\"/><rect x=\"520\" y=\"232\" width=\"48\" height=\"34\" fill=\"none\" stroke=\"#414348\"/><path fill=\"#e8e8e6\" d=\"M522 242h2v2h-2zM524 242h2v2h-2zM526 242h2v2h-2zM528 242h2v2h-2zM520 244h2v2h-2zM520 246h2v2h-2zM522 248h2v2h-2zM524 248h2v2h-2zM526 248h2v2h-2zM528 250h2v2h-2zM528 252h2v2h-2zM520 254h2v2h-2zM522 254h2v2h-2zM524 254h2v2h-2zM526 254h2v2h-2zM534 242h2v2h-2zM536 242h2v2h-2zM538 242h2v2h-2zM532 244h2v2h-2zM540 244h2v2h-2zM532 246h2v2h-2zM540 246h2v2h-2zM532 248h2v2h-2zM534 248h2v2h-2zM536 248h2v2h-2zM538 248h2v2h-2zM540 248h2v2h-2zM532 250h2v2h-2zM540 250h2v2h-2zM532 252h2v2h-2zM540 252h2v2h-2zM532 254h2v2h-2zM540 254h2v2h-2zM544 242h2v2h-2zM552 242h2v2h-2zM544 244h2v2h-2zM552 244h2v2h-2zM544 246h2v2h-2zM552 246h2v2h-2zM544 248h2v2h-2zM552 248h2v2h-2zM544 250h2v2h-2zM552 250h2v2h-2zM546 252h2v2h-2zM550 252h2v2h-2zM548 254h2v2h-2zM556 242h2v2h-2zM558 242h2v2h-2zM560 242h2v2h-2zM562 242h2v2h-2zM564 242h2v2h-2zM556 244h2v2h-2zM556 246h2v2h-2zM556 248h2v2h-2zM558 248h2v2h-2zM560 248h2v2h-2zM562 248h2v2h-2zM556 250h2v2h-2zM556 252h2v2h-2zM556 254h2v2h-2zM558 254h2v2h-2zM560 254h2v2h-2zM562 254h2v2h-2zM564 254h2v2h-2z\"/><path fill=\"#a9abb0\" d=\"M18 292h2v2h-2zM20 292h2v2h-2zM22 292h2v2h-2zM16 294h2v2h-2zM24 294h2v2h-2zM16 296h2v2h-2zM24 296h2v2h-2zM16 298h2v2h-2zM18 298h2v2h-2zM20 298h2v2h-2zM22 298h2v2h-2zM24 298h2v2h-2zM16 300h2v2h-2zM24 300h2v2h-2zM16 302h2v2h-2zM24 302h2v2h-2zM16 304h2v2h-2zM24 304h2v2h-2zM28 292h2v2h-2zM30 292h2v2h-2zM32 292h2v2h-2zM34 292h2v2h-2zM28 294h2v2h-2zM36 294h2v2h-2zM28 296h2v2h-2zM36 296h2v2h-2zM28 298h2v2h-2zM30 298h2v2h-2zM32 298h2v2h-2zM34 298h2v2h-2zM28 300h2v2h-2zM32 300h2v2h-2zM28 302h2v2h-2zM34 302h2v2h-2zM28 304h2v2h-2zM36 304h2v2h-2zM40 292h2v2h-2zM42 292h2v2h-2zM44 292h2v2h-2zM46 292h2v2h-2zM40 294h2v2h-2zM48 294h2v2h-2zM40 296h2v2h-2zM48 296h2v2h-2zM40 298h2v2h-2zM42 298h2v2h-2zM44 298h2v2h-2zM46 298h2v2h-2zM40 300h2v2h-2zM44 300h2v2h-2zM40 302h2v2h-2zM46 302h2v2h-2zM40 304h2v2h-2zM48 304h2v2h-2zM54 292h2v2h-2zM56 292h2v2h-2zM58 292h2v2h-2zM52 294h2v2h-2zM60 294h2v2h-2zM52 296h2v2h-2zM60 296h2v2h-2zM52 298h2v2h-2zM60 298h2v2h-2zM52 300h2v2h-2zM60 300h2v2h-2zM52 302h2v2h-2zM60 302h2v2h-2zM54 304h2v2h-2zM56 304h2v2h-2zM58 304h2v2h-2zM64 292h2v2h-2zM72 292h2v2h-2zM64 294h2v2h-2zM72 294h2v2h-2zM64 296h2v2h-2zM72 296h2v2h-2zM64 298h2v2h-2zM68 298h2v2h-2zM72 298h2v2h-2zM64 300h2v2h-2zM68 300h2v2h-2zM72 300h2v2h-2zM64 302h2v2h-2zM68 302h2v2h-2zM72 302h2v2h-2zM66 304h2v2h-2zM70 304h2v2h-2zM78 292h2v2h-2zM80 292h2v2h-2zM82 292h2v2h-2zM84 292h2v2h-2zM76 294h2v2h-2zM76 296h2v2h-2zM78 298h2v2h-2zM80 298h2v2h-2zM82 298h2v2h-2zM84 300h2v2h-2zM84 302h2v2h-2zM76 304h2v2h-2zM78 304h2v2h-2zM80 304h2v2h-2zM82 304h2v2h-2zM100 292h2v2h-2zM108 292h2v2h-2zM100 294h2v2h-2zM106 294h2v2h-2zM100 296h2v2h-2zM104 296h2v2h-2zM100 298h2v2h-2zM102 298h2v2h-2zM100 300h2v2h-2zM104 300h2v2h-2zM100 302h2v2h-2zM106 302h2v2h-2zM100 304h2v2h-2zM108 304h2v2h-2zM112 292h2v2h-2zM114 292h2v2h-2zM116 292h2v2h-2zM118 292h2v2h-2zM120 292h2v2h-2zM112 294h2v2h-2zM112 296h2v2h-2zM112 298h2v2h-2zM114 298h2v2h-2zM116 298h2v2h-2zM118 298h2v2h-2zM112 300h2v2h-2zM112 302h2v2h-2zM112 304h2v2h-2zM114 304h2v2h-2zM116 304h2v2h-2zM118 304h2v2h-2zM120 304h2v2h-2zM124 292h2v2h-2zM132 292h2v2h-2zM124 294h2v2h-2zM132 294h2v2h-2zM126 296h2v2h-2zM130 296h2v2h-2zM128 298h2v2h-2zM128 300h2v2h-2zM128 302h2v2h-2zM128 304h2v2h-2zM156 292h2v2h-2zM154 294h2v2h-2zM154 296h2v2h-2zM152 298h2v2h-2zM150 300h2v2h-2zM150 302h2v2h-2zM148 304h2v2h-2zM174 292h2v2h-2zM176 292h2v2h-2zM178 292h2v2h-2zM172 294h2v2h-2zM180 294h2v2h-2zM172 296h2v2h-2zM180 296h2v2h-2zM172 298h2v2h-2zM174 298h2v2h-2zM176 298h2v2h-2zM178 298h2v2h-2zM180 298h2v2h-2zM172 300h2v2h-2zM180 300h2v2h-2zM172 302h2v2h-2zM180 302h2v2h-2zM172 304h2v2h-2zM180 304h2v2h-2zM196 292h2v2h-2zM198 292h2v2h-2zM200 292h2v2h-2zM202 292h2v2h-2zM204 292h2v2h-2zM200 294h2v2h-2zM200 296h2v2h-2zM200 298h2v2h-2zM200 300h2v2h-2zM200 302h2v2h-2zM200 304h2v2h-2zM208 292h2v2h-2zM216 292h2v2h-2zM208 294h2v2h-2zM216 294h2v2h-2zM210 296h2v2h-2zM214 296h2v2h-2zM212 298h2v2h-2zM212 300h2v2h-2zM212 302h2v2h-2zM212 304h2v2h-2zM220 292h2v2h-2zM222 292h2v2h-2zM224 292h2v2h-2zM226 292h2v2h-2zM220 294h2v2h-2zM228 294h2v2h-2zM220 296h2v2h-2zM228 296h2v2h-2zM220 298h2v2h-2zM222 298h2v2h-2zM224 298h2v2h-2zM226 298h2v2h-2zM220 300h2v2h-2zM220 302h2v2h-2zM220 304h2v2h-2zM232 292h2v2h-2zM234 292h2v2h-2zM236 292h2v2h-2zM238 292h2v2h-2zM240 292h2v2h-2zM232 294h2v2h-2zM232 296h2v2h-2zM232 298h2v2h-2zM234 298h2v2h-2zM236 298h2v2h-2zM238 298h2v2h-2zM232 300h2v2h-2zM232 302h2v2h-2zM232 304h2v2h-2zM234 304h2v2h-2zM236 304h2v2h-2zM238 304h2v2h-2zM240 304h2v2h-2zM264 292h2v2h-2zM262 294h2v2h-2zM262 296h2v2h-2zM260 298h2v2h-2zM258 300h2v2h-2zM258 302h2v2h-2zM256 304h2v2h-2zM280 292h2v2h-2zM288 292h2v2h-2zM280 294h2v2h-2zM288 294h2v2h-2zM282 296h2v2h-2zM286 296h2v2h-2zM284 298h2v2h-2zM282 300h2v2h-2zM286 300h2v2h-2zM280 302h2v2h-2zM288 302h2v2h-2zM280 304h2v2h-2zM288 304h2v2h-2zM304 292h2v2h-2zM306 292h2v2h-2zM308 292h2v2h-2zM310 292h2v2h-2zM304 294h2v2h-2zM312 294h2v2h-2zM304 296h2v2h-2zM312 296h2v2h-2zM304 298h2v2h-2zM312 298h2v2h-2zM304 300h2v2h-2zM312 300h2v2h-2zM304 302h2v2h-2zM312 302h2v2h-2zM304 304h2v2h-2zM306 304h2v2h-2zM308 304h2v2h-2zM310 304h2v2h-2zM316 292h2v2h-2zM318 292h2v2h-2zM320 292h2v2h-2zM322 292h2v2h-2zM324 292h2v2h-2zM316 294h2v2h-2zM316 296h2v2h-2zM316 298h2v2h-2zM318 298h2v2h-2zM320 298h2v2h-2zM322 298h2v2h-2zM316 300h2v2h-2zM316 302h2v2h-2zM316 304h2v2h-2zM318 304h2v2h-2zM320 304h2v2h-2zM322 304h2v2h-2zM324 304h2v2h-2zM328 292h2v2h-2zM328 294h2v2h-2zM328 296h2v2h-2zM328 298h2v2h-2zM328 300h2v2h-2zM328 302h2v2h-2zM328 304h2v2h-2zM330 304h2v2h-2zM332 304h2v2h-2zM334 304h2v2h-2zM336 304h2v2h-2zM340 292h2v2h-2zM342 292h2v2h-2zM344 292h2v2h-2zM346 292h2v2h-2zM348 292h2v2h-2zM340 294h2v2h-2zM340 296h2v2h-2zM340 298h2v2h-2zM342 298h2v2h-2zM344 298h2v2h-2zM346 298h2v2h-2zM340 300h2v2h-2zM340 302h2v2h-2zM340 304h2v2h-2zM342 304h2v2h-2zM344 304h2v2h-2zM346 304h2v2h-2zM348 304h2v2h-2zM352 292h2v2h-2zM354 292h2v2h-2zM356 292h2v2h-2zM358 292h2v2h-2zM360 292h2v2h-2zM356 294h2v2h-2zM356 296h2v2h-2zM356 298h2v2h-2zM356 300h2v2h-2zM356 302h2v2h-2zM356 304h2v2h-2zM364 292h2v2h-2zM366 292h2v2h-2zM368 292h2v2h-2zM370 292h2v2h-2zM372 292h2v2h-2zM364 294h2v2h-2zM364 296h2v2h-2zM364 298h2v2h-2zM366 298h2v2h-2zM368 298h2v2h-2zM370 298h2v2h-2zM364 300h2v2h-2zM364 302h2v2h-2zM364 304h2v2h-2zM366 304h2v2h-2zM368 304h2v2h-2zM370 304h2v2h-2zM372 304h2v2h-2zM396 292h2v2h-2zM394 294h2v2h-2zM394 296h2v2h-2zM392 298h2v2h-2zM390 300h2v2h-2zM390 302h2v2h-2zM388 304h2v2h-2zM414 292h2v2h-2zM416 292h2v2h-2zM418 292h2v2h-2zM420 292h2v2h-2zM412 294h2v2h-2zM412 296h2v2h-2zM414 298h2v2h-2zM416 298h2v2h-2zM418 298h2v2h-2zM420 300h2v2h-2zM420 302h2v2h-2zM412 304h2v2h-2zM414 304h2v2h-2zM416 304h2v2h-2zM418 304h2v2h-2zM424 292h2v2h-2zM426 292h2v2h-2zM428 292h2v2h-2zM430 292h2v2h-2zM432 292h2v2h-2zM428 294h2v2h-2zM428 296h2v2h-2zM428 298h2v2h-2zM428 300h2v2h-2zM428 302h2v2h-2zM428 304h2v2h-2zM438 292h2v2h-2zM440 292h2v2h-2zM442 292h2v2h-2zM436 294h2v2h-2zM444 294h2v2h-2zM436 296h2v2h-2zM444 296h2v2h-2zM436 298h2v2h-2zM438 298h2v2h-2zM440 298h2v2h-2zM442 298h2v2h-2zM444 298h2v2h-2zM436 300h2v2h-2zM444 300h2v2h-2zM436 302h2v2h-2zM444 302h2v2h-2zM436 304h2v2h-2zM444 304h2v2h-2zM448 292h2v2h-2zM450 292h2v2h-2zM452 292h2v2h-2zM454 292h2v2h-2zM448 294h2v2h-2zM456 294h2v2h-2zM448 296h2v2h-2zM456 296h2v2h-2zM448 298h2v2h-2zM450 298h2v2h-2zM452 298h2v2h-2zM454 298h2v2h-2zM448 300h2v2h-2zM452 300h2v2h-2zM448 302h2v2h-2zM454 302h2v2h-2zM448 304h2v2h-2zM456 304h2v2h-2zM460 292h2v2h-2zM462 292h2v2h-2zM464 292h2v2h-2zM466 292h2v2h-2zM468 292h2v2h-2zM464 294h2v2h-2zM464 296h2v2h-2zM464 298h2v2h-2zM464 300h2v2h-2zM464 302h2v2h-2zM464 304h2v2h-2zM486 292h2v2h-2zM488 292h2v2h-2zM490 292h2v2h-2zM492 292h2v2h-2zM484 294h2v2h-2zM484 296h2v2h-2zM486 298h2v2h-2zM488 298h2v2h-2zM490 298h2v2h-2zM492 300h2v2h-2zM492 302h2v2h-2zM484 304h2v2h-2zM486 304h2v2h-2zM488 304h2v2h-2zM490 304h2v2h-2zM498 292h2v2h-2zM500 292h2v2h-2zM502 292h2v2h-2zM496 294h2v2h-2zM504 294h2v2h-2zM496 296h2v2h-2zM504 296h2v2h-2zM496 298h2v2h-2zM498 298h2v2h-2zM500 298h2v2h-2zM502 298h2v2h-2zM504 298h2v2h-2zM496 300h2v2h-2zM504 300h2v2h-2zM496 302h2v2h-2zM504 302h2v2h-2zM496 304h2v2h-2zM504 304h2v2h-2zM508 292h2v2h-2zM516 292h2v2h-2zM508 294h2v2h-2zM516 294h2v2h-2zM508 296h2v2h-2zM516 296h2v2h-2zM508 298h2v2h-2zM516 298h2v2h-2zM508 300h2v2h-2zM516 300h2v2h-2zM510 302h2v2h-2zM514 302h2v2h-2zM512 304h2v2h-2zM520 292h2v2h-2zM522 292h2v2h-2zM524 292h2v2h-2zM526 292h2v2h-2zM528 292h2v2h-2zM520 294h2v2h-2zM520 296h2v2h-2zM520 298h2v2h-2zM522 298h2v2h-2zM524 298h2v2h-2zM526 298h2v2h-2zM520 300h2v2h-2zM520 302h2v2h-2zM520 304h2v2h-2zM522 304h2v2h-2zM524 304h2v2h-2zM526 304h2v2h-2zM528 304h2v2h-2z\"/><path fill=\"#a9abb0\" d=\"M16 318h2v2h-2zM16 320h2v2h-2zM16 322h2v2h-2zM16 324h2v2h-2zM16 326h2v2h-2zM16 328h2v2h-2zM16 330h2v2h-2zM18 330h2v2h-2zM20 330h2v2h-2zM22 330h2v2h-2zM24 330h2v2h-2zM32 318h2v2h-2zM30 320h2v2h-2zM32 320h2v2h-2zM32 322h2v2h-2zM32 324h2v2h-2zM32 326h2v2h-2zM32 328h2v2h-2zM30 330h2v2h-2zM32 330h2v2h-2zM34 330h2v2h-2zM48 318h2v2h-2zM46 320h2v2h-2zM46 322h2v2h-2zM44 324h2v2h-2zM42 326h2v2h-2zM42 328h2v2h-2zM40 330h2v2h-2zM52 318h2v2h-2zM54 318h2v2h-2zM56 318h2v2h-2zM58 318h2v2h-2zM52 320h2v2h-2zM60 320h2v2h-2zM52 322h2v2h-2zM60 322h2v2h-2zM52 324h2v2h-2zM54 324h2v2h-2zM56 324h2v2h-2zM58 324h2v2h-2zM52 326h2v2h-2zM56 326h2v2h-2zM52 328h2v2h-2zM58 328h2v2h-2zM52 330h2v2h-2zM60 330h2v2h-2zM68 318h2v2h-2zM66 320h2v2h-2zM68 320h2v2h-2zM68 322h2v2h-2zM68 324h2v2h-2zM68 326h2v2h-2zM68 328h2v2h-2zM66 330h2v2h-2zM68 330h2v2h-2zM70 330h2v2h-2zM90 318h2v2h-2zM92 318h2v2h-2zM94 318h2v2h-2zM96 318h2v2h-2zM88 320h2v2h-2zM88 322h2v2h-2zM88 324h2v2h-2zM88 326h2v2h-2zM88 328h2v2h-2zM90 330h2v2h-2zM92 330h2v2h-2zM94 330h2v2h-2zM96 330h2v2h-2zM100 318h2v2h-2zM108 318h2v2h-2zM100 320h2v2h-2zM108 320h2v2h-2zM100 322h2v2h-2zM108 322h2v2h-2zM100 324h2v2h-2zM108 324h2v2h-2zM100 326h2v2h-2zM108 326h2v2h-2zM100 328h2v2h-2zM108 328h2v2h-2zM102 330h2v2h-2zM104 330h2v2h-2zM106 330h2v2h-2zM112 318h2v2h-2zM114 318h2v2h-2zM116 318h2v2h-2zM118 318h2v2h-2zM112 320h2v2h-2zM120 320h2v2h-2zM112 322h2v2h-2zM120 322h2v2h-2zM112 324h2v2h-2zM114 324h2v2h-2zM116 324h2v2h-2zM118 324h2v2h-2zM112 326h2v2h-2zM116 326h2v2h-2zM112 328h2v2h-2zM118 328h2v2h-2zM112 330h2v2h-2zM120 330h2v2h-2zM126 318h2v2h-2zM128 318h2v2h-2zM130 318h2v2h-2zM132 318h2v2h-2zM124 320h2v2h-2zM124 322h2v2h-2zM126 324h2v2h-2zM128 324h2v2h-2zM130 324h2v2h-2zM132 326h2v2h-2zM132 328h2v2h-2zM124 330h2v2h-2zM126 330h2v2h-2zM128 330h2v2h-2zM130 330h2v2h-2zM138 318h2v2h-2zM140 318h2v2h-2zM142 318h2v2h-2zM136 320h2v2h-2zM144 320h2v2h-2zM136 322h2v2h-2zM144 322h2v2h-2zM136 324h2v2h-2zM144 324h2v2h-2zM136 326h2v2h-2zM144 326h2v2h-2zM136 328h2v2h-2zM144 328h2v2h-2zM138 330h2v2h-2zM140 330h2v2h-2zM142 330h2v2h-2zM148 318h2v2h-2zM150 318h2v2h-2zM152 318h2v2h-2zM154 318h2v2h-2zM148 320h2v2h-2zM156 320h2v2h-2zM148 322h2v2h-2zM156 322h2v2h-2zM148 324h2v2h-2zM150 324h2v2h-2zM152 324h2v2h-2zM154 324h2v2h-2zM148 326h2v2h-2zM152 326h2v2h-2zM148 328h2v2h-2zM154 328h2v2h-2zM148 330h2v2h-2zM156 330h2v2h-2zM180 318h2v2h-2zM178 320h2v2h-2zM178 322h2v2h-2zM176 324h2v2h-2zM174 326h2v2h-2zM174 328h2v2h-2zM172 330h2v2h-2zM196 318h2v2h-2zM198 318h2v2h-2zM200 318h2v2h-2zM202 318h2v2h-2zM196 320h2v2h-2zM204 320h2v2h-2zM196 322h2v2h-2zM204 322h2v2h-2zM196 324h2v2h-2zM198 324h2v2h-2zM200 324h2v2h-2zM202 324h2v2h-2zM196 326h2v2h-2zM204 326h2v2h-2zM196 328h2v2h-2zM204 328h2v2h-2zM196 330h2v2h-2zM198 330h2v2h-2zM200 330h2v2h-2zM202 330h2v2h-2zM222 318h2v2h-2zM224 318h2v2h-2zM226 318h2v2h-2zM228 318h2v2h-2zM220 320h2v2h-2zM220 322h2v2h-2zM220 324h2v2h-2zM220 326h2v2h-2zM220 328h2v2h-2zM222 330h2v2h-2zM224 330h2v2h-2zM226 330h2v2h-2zM228 330h2v2h-2zM234 318h2v2h-2zM236 318h2v2h-2zM238 318h2v2h-2zM232 320h2v2h-2zM240 320h2v2h-2zM232 322h2v2h-2zM240 322h2v2h-2zM232 324h2v2h-2zM234 324h2v2h-2zM236 324h2v2h-2zM238 324h2v2h-2zM240 324h2v2h-2zM232 326h2v2h-2zM240 326h2v2h-2zM232 328h2v2h-2zM240 328h2v2h-2zM232 330h2v2h-2zM240 330h2v2h-2zM244 318h2v2h-2zM252 318h2v2h-2zM244 320h2v2h-2zM246 320h2v2h-2zM252 320h2v2h-2zM244 322h2v2h-2zM248 322h2v2h-2zM252 322h2v2h-2zM244 324h2v2h-2zM250 324h2v2h-2zM252 324h2v2h-2zM244 326h2v2h-2zM252 326h2v2h-2zM244 328h2v2h-2zM252 328h2v2h-2zM244 330h2v2h-2zM252 330h2v2h-2zM258 318h2v2h-2zM260 318h2v2h-2zM262 318h2v2h-2zM264 318h2v2h-2zM256 320h2v2h-2zM256 322h2v2h-2zM256 324h2v2h-2zM256 326h2v2h-2zM256 328h2v2h-2zM258 330h2v2h-2zM260 330h2v2h-2zM262 330h2v2h-2zM264 330h2v2h-2zM268 318h2v2h-2zM270 318h2v2h-2zM272 318h2v2h-2zM274 318h2v2h-2zM276 318h2v2h-2zM268 320h2v2h-2zM268 322h2v2h-2zM268 324h2v2h-2zM270 324h2v2h-2zM272 324h2v2h-2zM274 324h2v2h-2zM268 326h2v2h-2zM268 328h2v2h-2zM268 330h2v2h-2zM270 330h2v2h-2zM272 330h2v2h-2zM274 330h2v2h-2zM276 330h2v2h-2zM280 318h2v2h-2zM280 320h2v2h-2zM280 322h2v2h-2zM280 324h2v2h-2zM280 326h2v2h-2zM280 328h2v2h-2zM280 330h2v2h-2zM282 330h2v2h-2zM284 330h2v2h-2zM286 330h2v2h-2zM288 330h2v2h-2z\"/></svg>",
-      "css": ".ds-native{display:block;max-width:100%;height:auto;shape-rendering:crispEdges}"
+      "name": "Native parameter fields",
+      "description": "Y/B/A/X, 24px monochrome face cluster; 12px labels, 14px values, compact 12px units. Actual code: native/prototype/src/parameter_ui.h. Geometry: y376/400; footer444.",
+      "html": "<div class=\"moss-field\"><small>Y &nbsp; NOTE</small><span>C3</span></div>",
+      "css": ".moss-field{display:grid;gap:8px;background:#191a1c;color:#e8e8e6;font:14px monospace}.moss-field small{font-size:12px}"
     }
   ],
   "narrative": {
-    "northStar": "Нейтральный тёмный графит",
-    "overview": "MOSS — плотный кнопочный музыкальный инструмент на логическом экране 640×480. Плоские поверхности, нейтральный фокус и технические схемы дают главное место состоянию проекта и четырём параметрам. Направление подтверждено пользователем; новая визуальная идентичность не вводится.\n\nБраузерный прототип v0.6 и нативное приложение 0.5.2 используют общую палитру, но имеют отдельные реализацию шрифта, геометрию и управление. Непомеченные токены существующего фронтматтера относятся к браузерному CSS; `native-body` и `native-value` описывают уже используемые bitmap-глифы. Нативный контракт — `design/current/native-v052-interaction.md` (расширяет `native-v051-interaction.md`), браузерный — `docs/INTERACTION-CONTRACT-v06.md`. Исторические записи ниже не заменяют текущие контракты.\n\nЭкспериментальная 0.6.2 расширяет native контракт для DRIVE/ORBIT: design/current/native-fx-character.md. В деталях эффекта L1/R1 выбирают CORE/CHARACTER; в FX LOCKS L1+влево/вправо выбирает эффект, L1+вверх/вниз — банк. Цвета, геометрия и стабильная 0.5.2 сохраняются.",
+    "northStar": "Нейтральный тёмный графит / monochrome",
+    "overview": "Approved 2026-11-20: shared browser/native UI. DESIGN.md and scoped current contracts are authoritative. Historical colored slots and underline navigation are retired.",
     "keyCharacteristics": [
-      "Общий экран 640×480, плоский графит и прямоугольная геометрия.",
-      "Нейтральные выбор, навигация и триггеры; четыре приглушённых цвета параметров.",
-      "Числа, единицы и подписи остаются видны во время изменения.",
-      "Техническая графика объясняет модель; состояние не передаётся одним цветом.",
-      "У нативной версии — банки L1/R1, страницы R1+влево/вправо и единые жесты точного/крупного изменения.",
-      "SONG продолжает нейтральный список и те же четыре поля; клавиатура имён общая."
+      "640×480",
+      "21 / 14 / 12 px; 8 px duration captions",
+      "Y / B / A / X monochrome fields",
+      "Centered rounded tabs and faded overflow",
+      "16 / 64 cells per page",
+      "Explicit lock and save scopes"
     ],
     "rules": [
       {
-        "name": "The Neutral Focus Rule",
-        "body": "Выбор объекта и навигация остаются нейтральными: рамка фокуса, светлая заливка TRIG ON, отдельная верхняя черта playhead и маркер лока. Цвет параметра не становится цветом дорожки, мира или фона.",
-        "section": "colors"
-      },
-      {
-        "name": "The Physical Button Rule",
-        "body": "В native 0.5.2 четыре приглушённых акцента следуют физическим Y / B / A / X, а не новому номеру колонки. Подпись кнопки остаётся видимой.",
-        "section": "colors"
-      },
-      {
-        "name": "The Persistent Unit Rule",
-        "body": "Нативное поле сохраняет число и единицу измерения во время удержания. Цветная рамка и верхняя линия показывают активный жест; диагностический HOLD-таймер не заменяет музыкальное значение.",
-        "section": "typography"
-      },
-      {
-        "name": "The Page Gesture Rule",
-        "body": "В native 0.5.2 короткие L1/R1 меняют банк или вкладку ATLAS, R1+влево/вправо перелистывает PATTERN на 16 клеток и списки на их страницу. PATTERN сохраняет позицию внутри страницы и ограничивает её на последней неполной странице. Открытый список или меню имеет приоритет; отпускание использованного модификатора не меняет банк и не двигает шаг.",
-        "section": "layout"
-      },
-      {
-        "name": "The Flat Surface Rule",
-        "body": "Глубину передают рамка, тон поверхности и порядок слоёв. Объёмные ручки и тени не нужны для объяснения состояния этого интерфейса.",
-        "section": "elevation"
-      },
-      {
-        "name": "The Fine and Coarse Rule",
-        "body": "Нативные числовые поля и локи используют одинаковые оси: влево/вправо — одна отображаемая единица, вверх/вниз — музыкальный крупный шаг. Для процентов, уровней, velocity и BPM это 10; для Hz/ms — 100; высоты — 12; LENGTH и CYCLE — 16 отображаемых клеток. CRUSH BITS/RATE используют 2/4, длина захвата и SONG BARS — 4. Перечисления, ORBIT TIME и FM RATIO переходят на одно допустимое значение. Удержание ускоряет повтор; единица и значение не исчезают. POSITION остаётся перестановкой строки, как позиция эффекта в цепочке.",
-        "section": "components"
-      },
-      {
-        "name": "The Arrangement Selection Rule",
-        "body": "Нейтральная рамка выделяет редактируемую строку SONG, отдельный маркер и строка PLAY показывают воспроизведение. REPEATS, BARS и LOOP подписаны своими единицами; цвет физической кнопки не становится цветом секвенции.",
-        "section": "components"
-      },
-      {
-        "name": "The Nested FX Bank Rule",
-        "body": "В native 0.6.2 DRIVE/ORBIT показывают CORE/CHARACTER и текущий FX. FX LOCKS сохраняет верхние банки L1/R1; вложенные L1+лево/право выбирают FX, L1+верх/низ его банк. CLEAR CURRENT LOCK BANK очищает только четыре видимых поля. HIGH CUT имеет крупный шаг 1000 Hz; LOW CUT — 100 Hz и OFF при нуле.",
-        "section": "components"
-      },
-      {
-        "name": "The Granular Source Position Rule",
-        "body": "В Ambient LENS 0.6.4 круг строится из пиков исходника. Вне START–END волна приглушена. Каждое зерно сохраняет свою полосу и дугу прочитываемого участка; заполненный квадрат показывает реальную позицию, яркость — огибающую. Контурный внешний квадрат показывает головку, в том числе скачки JUMP. Возраст не раздвигает кольца. SIZE до 8 секунд, TEXTURE / B JUMP, четыре прежних банка и Y/B/A/X. Браузерная волна остаётся явно обозначенной симуляцией.",
-        "section": "components"
-      },
-      {
-        "name": "The Note-less Event Rule",
-        "body": "В native 0.6.5 LOCK ONLY — полый ромб и подпись LOCK, поля ноты показывают NO NOTE. TIMING сохраняет четыре поля: Y CYCLE, B STEP, A REPEAT, X TYPE. REPEAT повторяет аудиофрагмент дорожки до FX, не вызывает noteOn; OFF возвращает живой звук. RESET возвращает базу параметра, -- не добавляет события. Цвета и навигация прежние.",
-        "section": "components"
-      },
-      {
-        "name": "The Swing Timing Rule",
-        "body": "В native 0.6.6 TIMING 1/2 сохраняет CYCLE / STEP / REPEAT / TYPE; TIMING 2/2 показывает Y SWING всей дорожки и B SHIFT выбранного шага, REPEAT и TYPE остаются на A/X. L1+стрелки выбирает страницу. Единицы WHOLE TRACK / STEP LOCK и знак процента показывают область и направление. CLEAR STEP SHIFT очищает только лок времени; на пустом шаге SHIFT не создаёт звук.",
+        "name": "Current control map",
+        "body": "L2/R2 main; L1/R1 local; L1+LR slot/region; L1+UD nested page; R1+LR pagination; field+MENU lock action. Modals isolate underlying gestures.",
         "section": "components"
       }
     ],
     "dos": [
-      "**Do** сохранять нейтральную навигацию, подпись кнопки и независимые маркеры фокуса, playhead и лока.",
-      "**Do** использовать браузерные токены без переименования и явно отделять нативные привязки Y/B/A/X.",
-      "**Do** показывать единицы параметров, TRACK / MASTER, ON / BYPASS и назначение имени в соответствующем контексте.",
-      "**Do** проверять нативный интерфейс в 640×480 и аппаратную производительность отдельно.",
-      "**Do** сохранять общие оси точного/крупного изменения, видимые вкладки MIX и независимые состояния выбора и воспроизведения SONG."
+      "Preserve units, navigation memory and data on errors.",
+      "Verify performance on original RG35XX."
     ],
     "donts": [
-      "**Don't** назначать акценты параметров фону, дорожкам или навигации.",
-      "**Don't** выдавать MODEL за измеренный сигнал или визуальный SHIP за результат нагрузочного теста.",
-      "**Don't** переносить исторические браузерные банки A–D, жест V/Y и ограничения в нативный контракт.",
-      "**Don't** возвращать диагностические HOLD-таймеры в музыкальные поля или автоматическую нарезку в SAMPLER."
+      "Do not reintroduce colored button accents or historical FX LOCKS navigation.",
+      "Do not equate visual approval with audio verification."
     ]
   }
 }

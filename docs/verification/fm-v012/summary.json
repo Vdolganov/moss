@@ -1,0 +1,182 @@
+{
+  "final_sha256": "972725d80590ef20c64e3975261afa36c5e11721804c03ce408add87741e9b9d",
+  "final_run": 36,
+  "all_finished_runs": [
+    {
+      "run": 33,
+      "profile": "fm-held",
+      "max_us": 27049,
+      "mean_us": 23179,
+      "callbacks": 315,
+      "mask": 10,
+      "kind": 29
+    },
+    {
+      "run": 33,
+      "profile": "fm-orbit-reel",
+      "max_us": 27037,
+      "mean_us": 23605,
+      "callbacks": 314,
+      "mask": 9,
+      "kind": 28
+    },
+    {
+      "run": 33,
+      "profile": "fm-pond-reel",
+      "max_us": 29408,
+      "mean_us": 24960,
+      "callbacks": 314,
+      "mask": 10,
+      "kind": 28
+    },
+    {
+      "run": 33,
+      "profile": "mixed-granular",
+      "max_us": 30068,
+      "mean_us": 25741,
+      "callbacks": 314,
+      "mask": 10,
+      "kind": 31
+    },
+    {
+      "run": 33,
+      "profile": "mixed",
+      "max_us": 28050,
+      "mean_us": 24188,
+      "callbacks": 314,
+      "mask": 9,
+      "kind": 30
+    },
+    {
+      "run": 35,
+      "profile": "crush-drive",
+      "max_us": 18631,
+      "mean_us": 17312,
+      "callbacks": 314,
+      "mask": 20,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "crush-reel",
+      "max_us": 26919,
+      "mean_us": 22033,
+      "callbacks": 314,
+      "mask": 12,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "final-mixed",
+      "max_us": 28527,
+      "mean_us": 25611,
+      "callbacks": 314,
+      "mask": 10,
+      "kind": 31
+    },
+    {
+      "run": 35,
+      "profile": "final-pond-reel",
+      "max_us": 29070,
+      "mean_us": 25082,
+      "callbacks": 314,
+      "mask": 10,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "orbit-crush",
+      "max_us": 17732,
+      "mean_us": 16536,
+      "callbacks": 314,
+      "mask": 5,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "orbit-drive",
+      "max_us": 19699,
+      "mean_us": 18858,
+      "callbacks": 314,
+      "mask": 17,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "orbit-pond",
+      "max_us": 20596,
+      "mean_us": 19234,
+      "callbacks": 314,
+      "mask": 3,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "pond-crush",
+      "max_us": 19508,
+      "mean_us": 18047,
+      "callbacks": 315,
+      "mask": 6,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "pond-drive",
+      "max_us": 21341,
+      "mean_us": 20091,
+      "callbacks": 314,
+      "mask": 18,
+      "kind": 28
+    },
+    {
+      "run": 35,
+      "profile": "reel-drive",
+      "max_us": 28411,
+      "mean_us": 23922,
+      "callbacks": 314,
+      "mask": 24,
+      "kind": 28
+    },
+    {
+      "run": 36,
+      "profile": "final-held",
+      "max_us": 27039,
+      "mean_us": 23115,
+      "callbacks": 315,
+      "mask": 10,
+      "kind": 29
+    },
+    {
+      "run": 36,
+      "profile": "final-mixed",
+      "max_us": 28577,
+      "mean_us": 25580,
+      "callbacks": 314,
+      "mask": 10,
+      "kind": 31
+    },
+    {
+      "run": 36,
+      "profile": "final-orbit-reel",
+      "max_us": 27381,
+      "mean_us": 23497,
+      "callbacks": 313,
+      "mask": 9,
+      "kind": 28
+    },
+    {
+      "run": 36,
+      "profile": "final-pond-reel",
+      "max_us": 28610,
+      "mean_us": 24845,
+      "callbacks": 313,
+      "mask": 10,
+      "kind": 28
+    }
+  ],
+  "invalid_invocations_excluded": [
+    32,
+    34
+  ],
+  "note": "v32 rejected unsupported CLI kind, v34 rejected duration <10s; neither ran audio. v33 and v35 precede final fresh-note gain fix; v36 is the deployed binary. All 10 FX pairs were exercised in v33+v35; final expensive pairs, held locks and mixed granular repeated in v36."
+}

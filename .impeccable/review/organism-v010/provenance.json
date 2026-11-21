@@ -1,0 +1,27 @@
+{
+  "source": "Native C++ renderer; actual 32 kHz voice state, deterministic test fixtures; no generated raster assets.",
+  "size": [
+    640,
+    480
+  ],
+  "states": [
+    "core",
+    "tone",
+    "motion",
+    "voices",
+    "envelope",
+    "idle",
+    "release",
+    "locks"
+  ],
+  "files": {
+    "core.png": "7e12452c7ec75e442a39b2736211a535d1c692eb04235f0c83e7a40926c72c19",
+    "tone.png": "fe087f286fef97292a052088247787606212f0beb33dda234f8b0f583c8a9747",
+    "motion.png": "201acfbba1db686b30ce87a62d493dee8dd39ecf4838e525ba7fcec259a173f7",
+    "voices.png": "d56cb16e0ce7787dca797833b29622b6367b524496bbaf47038d576e91063f85",
+    "envelope.png": "372769267999d0fe66a34db913e915f2e7c04fa183e7981947d3615d4950a4ad",
+    "idle.png": "eefb1fea8d76ca20297021a3918fa6ad38611da9dbcb8b0df4093f9ec45b048c",
+    "release.png": "8baf8575ab977a15cca26c21e07327ffb34c4b7e23c8b935d0eb18806262f4e8",
+    "locks.png": "918f9ea6e11783dc2b5c36537a68a4ecd49a6614bc546f96f86e3b58f664039e"
+  }
+}

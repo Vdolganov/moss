@@ -1,0 +1,101 @@
+{
+  "remote": "/mnt/mmc/MOSS-Reel-Release-v26",
+  "sha256": "efaf4693f094004f1aa5d8e5065e63ff49d04d2ad1964e376d11daf9dba4904c",
+  "profiles": [
+    [
+      "orbit-pond",
+      "25",
+      "3",
+      "10"
+    ],
+    [
+      "orbit-crush",
+      "25",
+      "5",
+      "10"
+    ],
+    [
+      "orbit-reel",
+      "25",
+      "9",
+      "10"
+    ],
+    [
+      "orbit-drive",
+      "25",
+      "17",
+      "10"
+    ],
+    [
+      "pond-crush",
+      "25",
+      "6",
+      "10"
+    ],
+    [
+      "pond-reel",
+      "25",
+      "10",
+      "15"
+    ],
+    [
+      "pond-drive",
+      "25",
+      "18",
+      "10"
+    ],
+    [
+      "crush-reel",
+      "25",
+      "12",
+      "10"
+    ],
+    [
+      "crush-drive",
+      "25",
+      "20",
+      "10"
+    ],
+    [
+      "reel-drive",
+      "25",
+      "24",
+      "10"
+    ],
+    [
+      "held-note",
+      "27",
+      "10",
+      "15"
+    ],
+    [
+      "mixed",
+      "23",
+      "10",
+      "15"
+    ],
+    [
+      "mono",
+      "24",
+      "10",
+      "10"
+    ],
+    [
+      "granular",
+      "21",
+      "10",
+      "10"
+    ],
+    [
+      "song",
+      "20",
+      "10",
+      "10"
+    ]
+  ],
+  "checks": false,
+  "qualified": true,
+  "callbacks": 5177,
+  "max_us": 29947,
+  "seconds": 165
+}

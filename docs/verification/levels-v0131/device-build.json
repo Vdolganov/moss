@@ -1,0 +1,30 @@
+{
+  "sha256": "ed79426fa32678caf317dd75bf04f8f0d8961d30f48dcd8296f009f6e59d60c1",
+  "profiles": [
+    [
+      "samples-max",
+      0,
+      10,
+      20
+    ],
+    [
+      "granular-max",
+      5,
+      10,
+      20
+    ],
+    [
+      "mixed-reel-pond",
+      33,
+      10,
+      20
+    ],
+    [
+      "mixed-drive-orbit",
+      32,
+      17,
+      20
+    ]
+  ],
+  "levels_test_sha256": "8ba62abf4f82aa274ec525e6da1ce55a8bfb764216cdebc091598159ab3e0757"
+}

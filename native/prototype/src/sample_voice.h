@@ -3,7 +3,7 @@
 #include "sample.h"
 namespace moss {
 struct Voice {
-  const moss::SampleBuffer *sample = nullptr;
+  const moss::SampleView *sample = nullptr;
   uint64_t phase = 0, increment = 0;
   unsigned start = 0, end = 0, age = 0;
   int key = 0, velocity = 0, level = 0, remaining = 0, release = 0, mode = 0;
